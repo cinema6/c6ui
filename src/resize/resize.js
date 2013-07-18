@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    angular.module('c6.ext')
+    angular.module('c6.ui')
     .service('C6ResizeService', ['$window', '$log', function($window, $log) {
         var resizeFunctions = [];
 

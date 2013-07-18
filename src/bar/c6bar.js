@@ -1,11 +1,11 @@
 (function(){
     'use strict';
 
-    angular.module('c6.ext')
+    angular.module('c6.ui')
     .directive('c6Bar', [ function() {
         return {
             restrict: 'E',
-            templateUrl: 'assets/scripts/ext/bar/c6bar.html',
+            templateUrl: 'assets/lib/c6ui/bar/c6bar.html',
             replace: true,
             scope: {}
         };
