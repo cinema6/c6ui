@@ -7,25 +7,25 @@
             var events       = {},
                 maxListeners = 10,
                 emitter      = {};
-            
+
             emitter.on = function(eventName,listener, once){
-                var evtBucket = events[eventName], 
+                var evtBucket = events[eventName],
                     itm = {
                         eventName : eventName,
                         listener  : listener,
                         reuse     : (once === true) ? false : true
                     };
                 if (!evtBucket) {
-                    evtBucket = events[eventName] = []; 
+                    evtBucket = events[eventName] = [];
                 }
 
                 evtBucket.push(itm);
 
                 if ((maxListeners > 0) && (maxListeners < evtBucket.length)) {
-                    $log.error('Event [' + eventName + '] listeners (' + evtBucket.length + 
+                    $log.error('Event [' + eventName + '] listeners (' + evtBucket.length +
                         ') exceeds max(' + maxListeners + ').');
                 }
-                
+
                 return this;
             };
 
@@ -45,7 +45,7 @@
 
                 return this;
             };
-            
+
             emitter.removeAllListeners = function(eventName){
                 if (eventName) {
                     events[eventName] = [];
@@ -59,7 +59,7 @@
             };
 
             emitter.setMaxListenersWarning = function(max){
-                maxListeners = max; 
+                maxListeners = max;
                 return this;
             };
 
@@ -97,7 +97,7 @@
         }());
 
         return function(dst){
-            return angular.extend(dst,eventEmitter);             
+            return angular.extend(dst,eventEmitter);
         };
 
     }]);

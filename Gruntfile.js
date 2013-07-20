@@ -32,7 +32,15 @@ module.exports = function (grunt) {
                 ]
             },
         },
-
+        jshint: {
+            options: {
+                jshintrc: 'jshint.json'
+            },
+            all: [
+                'Gruntfile.js',
+                '<%= settings.src %>/{,*/}*.js'
+            ]
+        },
         karma: {
             unit: {
                 configFile: 'test/karma.conf.js',
@@ -44,20 +52,21 @@ module.exports = function (grunt) {
             }
         }
     });
-   
-    grunt.registerTask('test', function(type){
+
+    grunt.registerTask('test', function(){
+        grunt.task.run('jshint'),
         grunt.task.run('karma:unit');
     });
 
-    grunt.registerTask('debug', function(type){
+    grunt.registerTask('debug', function(){
         grunt.task.run('karma:debug');
     });
 
-    grunt.registerTask('build',function(type){
+    grunt.registerTask('build',function(){
         grunt.task.run('test');
         grunt.task.run('clean');
         grunt.task.run('copy');
     });
-    
+
     grunt.registerTask('default', ['build']);
 };

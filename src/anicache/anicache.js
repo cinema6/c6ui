@@ -6,8 +6,7 @@
         $log.log('Create c6AniCache service');
         var service,
             anis    = [],
-            enabled = false,
-            emit;
+            enabled = false;
 
         service = function(ani){
             if ( !ani ){

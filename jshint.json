@@ -1,0 +1,29 @@
+{
+  "indent" : 4,
+  "browser": true,
+  "es5": true,
+  "esnext": true,
+  "bitwise": true,
+  "camelcase": true,
+  "curly": true,
+  "eqeqeq": true,
+  "immed": true,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "quotmark": "single",
+  "regexp": true,
+  "undef": true,
+  "unused": true,
+  "strict": true,
+  "trailing": true,
+  "smarttabs": true,
+  "globals": {
+    "angular": false,
+    "require" : true,
+    "module" : true,
+    "__dirname" : true,
+    "process" : true,
+    "__C6_APP_BASE_URL__" : true
+  }
+}
