@@ -26,6 +26,9 @@
             },
             "events/emitter" : {
                 "deps" : [ "c6ui" ]
+            },
+            "anicache/anicache" : {
+                "deps" : [ "events/emitter" ]
             }
         },
 

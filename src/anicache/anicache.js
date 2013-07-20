@@ -2,11 +2,12 @@
     'use strict';
 
     angular.module('c6.ui')
-    .factory('c6AniCache',['$log',function($log){
+    .factory('c6AniCache',['$log','c6EventEmitter',function($log,c6EventEmitter){
         $log.log('Create c6AniCache service');
         var service,
             anis    = [],
-            enabled = false;
+            enabled = false,
+            emit;
 
         service = function(ani){
             if ( !ani ){
@@ -25,6 +26,8 @@
                 if (!enabled){
                     return undefined;
                 }
+                service.emit('setup',id);
+
                 return ani.setup(element);
             };
 
@@ -34,12 +37,14 @@
                     done();
                     return;
                 }
+                service.emit('start',id);
                 var c, r;
                 if (ani.cancel){
                     c = service.cache(function(){
                         ani.cancel(element,function(){
                             service.uncache(c);
                             done();
+                            service.emit('cancel',id);
                         },memo);
                     },ani.id);
                 }
@@ -49,11 +54,13 @@
                         service.uncache(c);
                     }
                     done();
+                    service.emit('complete',id);
                 },memo);
                 return r;
             };
 
             $log.info('aniCache returning ' + id);
+            service.emit('create',id);
             return wrapped;
         };
 
@@ -124,7 +131,7 @@
             return this;
         };
 
-        return service;
+        return c6EventEmitter(service);
     }]);
 
 }());
