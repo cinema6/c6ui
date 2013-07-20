@@ -31,10 +31,30 @@ module.exports = function (grunt) {
                     }
                 ]
             },
+        },
+
+        karma: {
+            unit: {
+                configFile: 'test/karma.conf.js',
+                singleRun: true
+            },
+            debug: {
+                configFile: 'test/karma.conf.js',
+                singleRun: false
+            }
         }
     });
-    
+   
+    grunt.registerTask('test', function(type){
+        grunt.task.run('karma:unit');
+    });
+
+    grunt.registerTask('debug', function(type){
+        grunt.task.run('karma:debug');
+    });
+
     grunt.registerTask('build',function(type){
+        grunt.task.run('test');
         grunt.task.run('clean');
         grunt.task.run('copy');
     });
