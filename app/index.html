@@ -1,0 +1,22 @@
+<!doctype html>
+<html ng-app="app" ng-controller="AppController">
+	<head>
+		<title>Cinema6 UI Test App</title>
+		
+		<link rel="stylesheet" href="assets/lib/c6ui/controls/controls.css">
+		<link rel="stylesheet" href="assets/styles/main.css">
+		
+		<script src="assets/lib/angular/angular.js"></script>
+		<script src="assets/lib/c6media/c6lib.video.js"></script>
+		<script src="assets/lib/c6ui/c6ui.js"></script>
+		<script src="assets/lib/c6ui/controls/controls.js"></script>
+		<script src="assets/scripts/app.js"></script>
+		<script src="assets/scripts/controllers.js"></script>
+	</head>
+	<body>
+		<div class="video" ng-controller="VideoPlayerController">
+			<video id="player" c6video c6-src="'http://www.html5rocks.com/en/tutorials/video/basics/Chrome_ImF'"></video>
+			<c6-controls delegate="VideoPlayerCtrl" controller="VideoPlayerCtrl.ControlsController" class="controls"></c6-video-controls>
+		</div>
+	</body>
+</html>
