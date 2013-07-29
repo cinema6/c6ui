@@ -3,18 +3,19 @@
 		<button class="controls__btn{{state.playing ? 'Pause' : 'Play'}}-icon"><span class="ir">{{state.playing ? 'Pause' : 'Play'}}</span></button>
 	</div>
 	<div class="controls__seek" ng-mouseup="handle.stopSeeking()" ng-mouseleave="handle.stopSeeking()">
+		<button class="controls__btnReturn-icon" title="Return"><span class="ir">Return</span></button>
+		<button class="controls__btnFullscreen-icon" title="Return"><span class="ir">Fullscreen</span></button>
 		<div class="controls__slider">
 			<div class="controls__playhead" style="left: {{state.playheadPosition || 0}}%;" ng-mousedown="handle.startSeeking()">&nbsp;</div>
 		</div>
+		
 	</div>
-	<div class="volume__group">
-		<div class="volume__box" style="display: none;" ng-mouseenter="handle.showVolumeSliderBox()" ng-mouseleave="handle.hideVolumeSliderBox()" ng-show="state.showVolumeSliderBox">
+		<div class="volume__btn" title="Volume">
+			<button class="volume__btnHigh-icon" ng-mouseenter="handle.showVolumeSliderBox()" ng-mouseleave="handle.hideVolumeSliderBox()"><span class="ir">Mute/Unmute</span></button>
+			<div class="volume__box" style="display: none;" ng-mouseenter="handle.showVolumeSliderBox()" ng-mouseleave="handle.hideVolumeSliderBox()" ng-show="state.showVolumeSliderBox">
 			<div class="volume__slider">
 				<div class="volume__playhead">&nbsp;</div>
 			</div>
 		</div>
-		<div class="volume__btn" title="Volume" ng-mouseenter="handle.showVolumeSliderBox()" ng-mouseleave="handle.hideVolumeSliderBox()">
-			<button class="volume__btnHigh-icon"><span class="ir">Mute/Unmute</span></button>
 		</div>
-	</div>
 </div>

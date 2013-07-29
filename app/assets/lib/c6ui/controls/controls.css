@@ -1,8 +1,16 @@
-.ir {display: none;}
+body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; color:#545454; line-height: 1.5;
+        background:#efefef; margin:0;} /* from c6-main */
+.ir {
+    background-color: transparent;
+    border: 0; width:0; height:0;
+    overflow: hidden;
+    display: block; float:left;
+} /* from c6-main */
+
 .controls__group {
-		position: absolute;
-		width: 96.56%; height: 40px;
-		bottom: 8px; left: 50%; margin: 0 0 0 -48.28%;
+
+		width: 90%; height: 40px;
+		-moz-transition:height 0.5s; -webkit-transition:height 0.5s; -o-transition:height 0.5s; transition:height 0.5s;
 
 		-webkit-touch-callout: none;
 		-webkit-user-select: none;
@@ -11,87 +19,138 @@
 		-ms-user-select: none;
 		user-select: none;
 	}
+	@media screen and (max-width: 760px) {
+		.controls__group {
+			height: 20px;
+		}
+	}
 		.controls__btnPlayPause {
-			position: absolute; top: 0; left: 0;
-			height: 100%; width: 5%;
+			position: absolute; left: 0; top: 0;
+			height: 100%; width: 5%; min-width: 36px; max-width: 95px;
 			background: #1c1d1f; border-radius: 3px;
-			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
 			-moz-transition:background 1s; -webkit-transition:background 1s; -o-transition:background 1s; transition:background 1s;
 		}
 		.controls__btnPlayPause:hover {background: #313437;}
 
 			.controls__btnPlay-icon {
 				background: url(img/icon_play.png) no-repeat center center; background-size: 34%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; 
+				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.controls__btnPlay-icon:hover { opacity: 1; }
 
 			.controls__btnPause-icon {
 				background: url(img/icon_pause.png) no-repeat center center; background-size: 20%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; 
+				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.controls__btnPause-icon:hover { opacity: 1; }
 
 		.controls__seek {
-			position: absolute; top: 0; left: 50%; margin-left: -44.495%;
-			height: 100%; width: 88.99%;
-			background: #1c1d1f;
-			border: 0; border-radius: 3px;
-			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+			height: 100%; width: 88%; margin: 0 auto;
+			background: #1c1d1f; border: 0; border-radius: 3px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+			-moz-transition:width 0.5s; -webkit-transition:width 0.5s; -o-transition:width 0.5s; transition:width 0.5s;
 		}
+		@media screen and (min-width: 2352px) {
+			.controls__seek {
+				width: 90%;
+			}
+		}
+		@media screen and (max-width: 680px) {
+			.controls__seek {
+				width: 84%;
+			}
+		}
+		@media screen and (max-width: 504px) {
+			.controls__seek {
+				width: 80%;
+			}
+		}
+		@media screen and (max-width: 471px) {
+			.controls__seek {
+				width: 76%;
+			}
+		}
+		@media screen and (max-width: 379px) {
+			.controls__seek {
+				width: 70%;
+			}
+		}
+		
+			.controls__btnReturn-icon {
+				background: url(img/icon_return.png) no-repeat center center; background-size: 34%;
+				display: block; height: 100%; width: 5.18%; opacity: 0.3; border: 0; cursor: pointer; float: left;
+				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
+			}
+				.controls__btnReturn-icon:hover {
+					opacity: 1;
+				}
+
+			.controls__btnFullscreen-icon {
+				background: url(img/icon_fullscreen.png) no-repeat center center; background-size: 30%;
+				display: block; height: 100%; width: 5.18%; opacity: 0.3; border: 0; cursor: pointer; 
+				float: right; 
+				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
+			}
+				.controls__btnFullscreen-icon:hover {
+					opacity: 1;
+				}
+
 			.controls__slider {
-				height: 4px; width: 90%; margin: 17px auto;
+				position: relative; left: 5%; top:40%;
+				height: 4px; width: 90%; 
 				background: #181a1b; box-shadow: 0 1px 0 rgba(38, 40, 42, 1);
 			}
 
 			.controls__playhead {
-				height: 12px; width: 12px; position: absolute; margin-top: -3px;
-				margin-left: 5%;
+				height: 12px; width: 12px; position: absolute; margin-top: -3px; left: 50%;
 				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer;
 			}
+
 		.volume__btn {
-			position: absolute; top: 0; right: 0;
-			height: 100%; width: 5%;
+			position: absolute; right: 0; top: 0;
+			height: 100%; width: 5%; min-width: 36px; max-width: 95px;
 			background: #1c1d1f; border-radius: 3px;
-			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
 			-moz-transition:background 1s; -webkit-transition:background 1s; -o-transition:background 1s; transition:background 1s;
 		}
 			.volume__btn:hover {background: #313437;}
 
 			.volume__btnHigh-icon {
-				background: url(img/volume_high.png) no-repeat center center; background-size: 30%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; 
+				background: url(img/volume_high.png) no-repeat center center; background-size: 36%;
+				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.volume__btnHigh-icon:hover { opacity: 1; }
 
 			.volume__btnMed-icon {
-				background: url(img/volume_med.png) no-repeat center center; background-size: 30%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; 
+				background: url(img/volume_med.png) no-repeat center center; background-size: 36%;
+				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.volume__btnMed-icon:hover { opacity: 1; }
 
 			.volume__btnLow-icon {
-				background: url(img/volume_low.png) no-repeat center center; background-size: 30%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; 
+				background: url(img/volume_low.png) no-repeat center center; background-size: 36%;
+				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.volume__btnLow-icon:hover { opacity: 1; }
 
 			.volume__btnMute-icon {
-				background: url(img/volume_mute.png) no-repeat center center; background-size: 30%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; 
+				background: url(img/volume_mute.png) no-repeat center center; background-size: 6%;
+				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.volume__btnMute-icon:hover { opacity: 1; }
 
 		.volume__box {
-			position: relative; width: 2.87%; height: 94px; margin: -110px 1% 0 0; float: right;
+			position: absolute; right: 20%; bottom: 150%;
+			width: 60%; height: 94px; 
 			background: #1c1d1f; border-radius: 3px;
-			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
 		}
 			.volume__box:after {
 				top: 100%; position: absolute;
@@ -101,10 +160,10 @@
 			}
 
 			.volume__slider {
-				width: 4px; height: 75%; margin: 30% auto;
-				background: #181a1b;box-shadow: 0 1px 0 rgba(38, 40, 42, 1);
+				width: 4px; height: 68%; margin: 30% auto; position: relative;
+				background: #181a1b; box-shadow: 0 1px 0 rgba(38, 40, 42, 1);
 			}
 			.volume__playhead {
-				height: 12px; width: 12px; position: absolute; margin-left: -4px;
+				height: 12px; width: 12px; position: absolute; margin-left: -4px; top: 0;
 				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer;
 			}
