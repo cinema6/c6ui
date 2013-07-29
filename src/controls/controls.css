@@ -95,10 +95,13 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 				height: 4px; width: 90%; 
 				background: #181a1b; box-shadow: 0 1px 0 rgba(38, 40, 42, 1);
 			}
+				.controls__slider-active {
+					position: absolute; height: 4px; width: 50%; background: #1c529c; z-index: 2;
+				}
 
 			.controls__playhead {
-				height: 12px; width: 12px; position: absolute; margin-top: -3px; left: 50%;
-				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer;
+				height: 12px; width: 12px; position: absolute; margin-top: -4px; left: 50%;
+				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer; z-index: 10;
 			}
 
 		.volume__btn {
