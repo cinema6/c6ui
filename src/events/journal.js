@@ -4,21 +4,21 @@
     angular.module('c6.ui')
     .factory('c6Journal',['$timeout','c6EventEmitter',function($timeout,c6EventEmitter){
 
-        function JournalEntry(name,data) {
+        function JournalEntry() {
             if (arguments[0].constructor === JournalEntry){
                 var rhs = arguments[0];
                 this.name    = rhs.name;
                 this.data    = rhs.data;
                 this.created = rhs.created;
                 this.updated = rhs.updated;
-                
+
             } else {
                 this.name    = arguments[0];
                 this.data    = arguments[1];
                 this.created = new Date();
                 this.updated = null;
             }
-        };
+        }
 
         function createJournal(){
             var index   = -1,
@@ -27,9 +27,9 @@
 
             journal.valueOf = function(){
                 return ('Index: ' + index + ', Size: ' + events.length);
-            }
+            };
 
-            journal.toString = function() { return journal.valueOf(); }
+            journal.toString = function() { return journal.valueOf(); };
 
             journal.size = function(){
                 return events.length;
@@ -41,7 +41,8 @@
 
             journal.recordEvent = function(name,data){
                 var self = this,
-                    entry = events[++index];
+                    entry = events[++index],
+                    newEntry,emitIndex;
                 if (data === undefined) {
                     data = null;
                 }
@@ -55,11 +56,11 @@
                 if ((entry.name === name) && (entry.data === data)) {
                     entry.updated = new Date();
                     return self;
-                } 
-            
+                }
+
                 if (entry.name === name){
-                    var newEntry = new JournalEntry(entry),
-                        emitIndex = index;
+                    emitIndex = index;
+                    newEntry = new JournalEntry(entry);
                     newEntry.data = data;
                     newEntry.updated  = new Date();
                     events[index] = newEntry;
@@ -67,15 +68,15 @@
                         self.emit('historyIsRewritten',emitIndex,newEntry,entry);
                     },0);
                     return self;
-                } 
+                }
 
-                var newEntry = new JournalEntry(entry,data),
-                    emitIndex = index;
+                newEntry = new JournalEntry(entry,data);
+                emitIndex = index;
                 events[index] = newEntry;
                 $timeout(function(){
                     self.emit('historyIsRewritten',emitIndex,newEntry,entry);
                 },0);
-            
+
                 return self;
             };
 
@@ -98,7 +99,7 @@
             journal.getHead = function() {
                 if (events.length){
                     return new JournalEntry(events[0]);
-                } 
+                }
                 return undefined;
             };
 
@@ -108,7 +109,7 @@
             };
 
             journal.findFirst = function(name){
-                var result = undefined;
+                var result;
 
                 for (var i = 0, size = this.size(); i < size; i++){
                     if (events[i].name === name) {
@@ -121,7 +122,7 @@
             };
 
             journal.findLast = function(name){
-                var result = undefined;
+                var result;
 
                 for (var i = (this.size() - 1); i >= 0; i--){
                     if (events[i].name === name) {
@@ -132,9 +133,9 @@
 
                 return result;
             };
-            
+
             journal.findAll = function(name){
-                var result = undefined;
+                var result;
 
                 for (var i = 0, size = this.size(); i < size; i++){
                     if (events[i].name === name) {
@@ -187,23 +188,25 @@
             journal.createSubscriber = function(){
                 var self = this,
                     scrip = {};
-                
+
                 angular.forEach(['size','index','getAt','getHead','getTail',
                                  'findFirst','findLast','findAll','on'],function(method){
 
-                    scrip[method] = function() { var copy = [].slice.call(arguments);
-                        return self[method].apply(self,copy); }
-                 });
-                
+                    scrip[method] = function() {
+                        var copy = [].slice.call(arguments);
+                        return self[method].apply(self,copy);
+                    };
+                });
+
                 return scrip;
 
             };
 
 
             journal.clear();
-        
+
             return c6EventEmitter(journal);
-        };
+        }
 
 
         return {
