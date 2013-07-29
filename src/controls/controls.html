@@ -1,0 +1,20 @@
+<div class="controls__group">
+	<div class="controls__btnPlayPause" title="Play/Pause" ng-click="handle.playPause()">
+		<button class="controls__btn{{state.playing ? 'Pause' : 'Play'}}-icon"><span class="ir">{{state.playing ? 'Pause' : 'Play'}}</span></button>
+	</div>
+	<div class="controls__seek">
+		<div class="controls__slider">
+			<div class="controls__playhead" style="left: {{state.playheadPosition || 0}}%;" ng-mousedown="handle.startSeeking($event)">&nbsp;</div>
+		</div>
+	</div>
+	<div class="volume__group">
+		<div class="volume__box">
+			<div class="volume__slider">
+				<div class="volume__playhead">&nbsp;</div>
+			</div>
+		</div>
+		<div class="volume__btn" title="Volume">
+			<button class="volume__btnHigh-icon"><span class="ir">Mute/Unmute</span></button>
+		</div>
+	</div>
+</div>

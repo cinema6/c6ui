@@ -1,0 +1,19 @@
+.video {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+	.video video {
+		width: 100%;
+	}
+	.video .controls {
+		position: absolute;
+		bottom: 0px;
+		width: 100%;
+		z-index: 100
+	}
+
+.c6-video-controls {
+	height: 30px;
+	background-color: black;
+}
