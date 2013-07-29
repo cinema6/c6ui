@@ -121,12 +121,38 @@
                 return result;
             };
 
+            journal.findFirstIndex = function(name){
+                var result = -1;
+
+                for (var i = 0, size = this.size(); i < size; i++){
+                    if (events[i].name === name) {
+                        result = i;
+                        break;
+                    }
+                }
+
+                return result;
+            };
+
             journal.findLast = function(name){
                 var result;
 
                 for (var i = (this.size() - 1); i >= 0; i--){
                     if (events[i].name === name) {
                         result = new JournalEntry(events[i]);
+                        break;
+                    }
+                }
+
+                return result;
+            };
+
+            journal.findLastIndex = function(name){
+                var result = -1;
+
+                for (var i = (this.size() - 1); i >= 0; i--){
+                    if (events[i].name === name) {
+                        result = i;
                         break;
                     }
                 }
