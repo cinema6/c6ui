@@ -15,33 +15,63 @@
 			};
 		}])
 
-		.controller('C6ControlsController', ['$scope', '$attrs', '$rootScope', '$document', function($scope, $attrs, $rootScope, $document) {
-			var delegate = $scope.delegate,
-				noop = angular.noop,
+		.controller('C6ControlsController', ['$scope', '$attrs', '$element', '$timeout', function($scope, $attrs, $element, $timeout) {
+			var noop = angular.noop,
+				delegate = function(method, args) {
+					var actualDelegate = ($scope.delegate || function() { return {}; })();
+
+					(actualDelegate[method] || noop).apply(undefined, args);
+				},
 				state = {
 					playing: false,
-					playheadPosition: 0
+					playheadPosition: 0,
+					showVolumeSliderBox: false,
+					seeking: false
 				},
+				handlePlayheadDrag = function(event) {
+					var seeker = angular.element(event.currentTarget),
+						position = event.pageX - seeker[0].getBoundingClientRect().left,
+						positionPercent = ((position / seeker[0].offsetWidth) * 100),
+						percent = function() {
+							var leftPercent = Math.max(0, positionPercent - 5);
+
+							return Math.min(((leftPercent * 100) / 90), 100);
+						};
+
+					delegate('seek', [percent()]);
+				},
+				slider = angular.element($element[0].querySelector('.controls__seek')),
+				hideVolumeSliderBoxTimeout,
 				handle = {
 					playPause: function() {
-						state.playing = !state.playing;
-
-						if (state.playing) {
-							(delegate().play || noop)();
+						if (!state.playing) {
+							delegate('play');
 						} else {
-							(delegate().pause || noop)();
+							delegate('pause');
 						}
 					},
-					startSeeking: function(event) {
-						var handleMouse = function(event) {
-							console.log(event);
-						},
-							slider = angular.element(event.target).parent();
-
-						slider.bind('mousemove', handleMouse);
+					startSeeking: function() {
+						slider.bind('mousemove', handlePlayheadDrag);
+						state.seeking = true;
 					},
 					stopSeeking: function() {
+						if (state.seeking) {
+							slider.unbind('mousemove', handlePlayheadDrag);
+							state.seeking = false;
+						}
+					},
+					showVolumeSliderBox: function() {
+						if (hideVolumeSliderBoxTimeout) {
+							$timeout.cancel(hideVolumeSliderBoxTimeout);
+							hideVolumeSliderBoxTimeout = null;
+						}
 
+						state.showVolumeSliderBox = true;
+					},
+					hideVolumeSliderBox: function() {
+						hideVolumeSliderBoxTimeout = $timeout(function() {
+							state.showVolumeSliderBox = false;
+						}, 500);
 					}
 				},
 				controller = $scope.controller;

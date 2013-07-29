@@ -13,6 +13,9 @@
 				video = c6video;
 
 				c6video
+					.on('play', function() {
+						self.ControlsController.play();
+					})
 					.on('pause', function() {
 						self.ControlsController.pause();
 					})
@@ -32,6 +35,10 @@
 
 			this.pause = function() {
 				video.player.pause();
+			};
+
+			this.seek = function(percent) {
+				video.player.currentTime = (percent * video.player.duration) / 100;
 			};
 
 			$scope.VideoPlayerCtrl = this;
