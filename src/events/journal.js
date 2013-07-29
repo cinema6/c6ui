@@ -47,6 +47,9 @@
                 }
                 if (!entry) {
                     events.push(new JournalEntry(name,data));
+                    $timeout(function(){
+                        self.emit('eventRecorded',name);
+                    },0);
                     return self;
                 }
                 if ((entry.name === name) && (entry.data === data)) {
@@ -179,6 +182,21 @@
                 index = idx;
 
                 return this;
+            };
+
+            journal.createSubscriber = function(){
+                var self = this,
+                    scrip = {};
+                
+                angular.forEach(['size','index','getAt','getHead','getTail',
+                                 'findFirst','findLast','findAll','on'],function(method){
+
+                    scrip[method] = function() { var copy = [].slice.call(arguments);
+                        return self[method].apply(self,copy); }
+                 });
+                
+                return scrip;
+
             };
 
 

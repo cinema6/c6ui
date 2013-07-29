@@ -306,6 +306,7 @@
                         journal.recordEvent('eventC', data[2]);
                         journal.recordEvent('eventA', data[3]);
                         journal.recordEvent('eventB', data[4]);
+                        expect(function(){ $timeout.flush(); }).not.toThrow();
                     });
 
                     describe('moveTo method', function(){
@@ -415,6 +416,89 @@
                         });
                     });
                 }); // end index manipulation
+                
+                describe('client interface',function(){
+                    beforeEach(function(){
+                        journal.recordEvent('eventB', data[0]);
+                        journal.recordEvent('eventA', data[1]);
+                        journal.recordEvent('eventC', data[2]);
+                        journal.recordEvent('eventA', data[3]);
+                        journal.recordEvent('eventB', data[4]);
+                        expect(function(){ $timeout.flush(); }).not.toThrow();
+                    });
+
+                    describe('createSubscriber', function(){
+                        var subscriber;
+
+                        beforeEach(function(){
+                            subscriber = journal.createSubscriber();
+                        });
+                        
+                        it('returns a subscriber',function(){
+                            expect(subscriber).toBeDefined();
+                        });
+
+                        it('size is the same', function(){
+                            expect(journal.size()).toEqual(5);
+                            expect(subscriber.size()).toEqual(5);
+                        });
+
+                        it('findFirst is the same',function(){
+                            
+                            var itm   = journal.findFirst('eventA'),
+                                itm_s = subscriber.findFirst('eventA');
+
+                            expect(itm.data).toBe(data[1]);
+                            expect(itm.name).toEqual('eventA');
+
+                            expect(itm_s.data).toBe(data[1]);
+                            expect(itm_s.name).toEqual('eventA');
+                        });
+
+                        describe('events',function(){
+                            it('emits historyIsRewritten',function(){
+                                var historyChanged = false, historyChanged_s = false;
+                                journal.on('historyIsRewritten',function(index,newVal,origVal){
+                                    expect(newVal.name).toEqual(origVal.name);
+                                    expect(newVal.data).toBeNull();
+                                    expect(newVal.updated).not.toBeNull();
+                                    historyChanged = true; 
+                                });
+
+                                subscriber.on('historyIsRewritten',function(index,newVal,origVal){
+                                    expect(newVal.name).toEqual(origVal.name);
+                                    expect(newVal.data).toBeNull();
+                                    expect(newVal.updated).not.toBeNull();
+                                    historyChanged_s = true; 
+                                });
+
+                                journal.moveTo(1);
+                                journal.recordEvent('eventC');
+                                expect(function(){ $timeout.flush(); }).not.toThrow();
+
+                                expect(historyChanged).toBeTruthy();
+                                expect(historyChanged_s).toBeTruthy();
+
+                            });
+
+                            it('emits eventRecorded',function(){
+                                var receivedEvent = false;
+                                subscriber.on('eventRecorded',function(eventName){
+                                    expect(eventName).toEqual('eventD');
+                                    receivedEvent = true; 
+                                });
+                                journal.recordEvent('eventD');
+                                expect(function(){ $timeout.flush(); }).not.toThrow();
+                                expect(receivedEvent).toBeTruthy();
+                            });
+
+                        });
+
+
+                    });
+
+
+                }); // end client interface
 
             });
         });
