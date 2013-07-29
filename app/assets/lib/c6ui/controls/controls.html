@@ -6,14 +6,18 @@
 		<button class="controls__btnReturn-icon" title="Return"><span class="ir">Return</span></button>
 		<button class="controls__btnFullscreen-icon" title="Return"><span class="ir">Fullscreen</span></button>
 		<div class="controls__slider">
-			<div class="controls__playhead" style="left: {{state.playheadPosition || 0}}%;" ng-mousedown="handle.startSeeking($event)">&nbsp;</div>
+			<div class="controls__slider-active">&nbsp;</div>
+			<div class="controls__playhead" style="left: {{state.playheadPosition || 50}}%;" ng-mousedown="handle.startSeeking($event)">&nbsp;</div>
+			<div class="controls__slider-buffer">&nbsp;</div>
 		</div>
+
 		
 	</div>
 		<div class="volume__btn" title="Volume">
 			<button class="volume__btnHigh-icon"><span class="ir">Mute/Unmute</span></button>
 			<div class="volume__box">
 			<div class="volume__slider">
+				<div class="volume__slider-active">&nbsp;</div>
 				<div class="volume__playhead">&nbsp;</div>
 			</div>
 		</div>

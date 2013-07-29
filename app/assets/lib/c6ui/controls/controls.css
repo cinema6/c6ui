@@ -26,14 +26,14 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 		.controls__btnPlayPause:hover {background: #313437;}
 
 			.controls__btnPlay-icon {
-				background: url(img/icon_play.png) no-repeat center center; background-size: 34%;
+				background: url(img/icon_play.svg) no-repeat center center; background-size: 18%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.controls__btnPlay-icon:hover { opacity: 1; }
 
 			.controls__btnPause-icon {
-				background: url(img/icon_pause.png) no-repeat center center; background-size: 20%;
+				background: url(img/icon_pause.svg) no-repeat center center; background-size: 20%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
@@ -72,7 +72,7 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 		}
 		
 			.controls__btnReturn-icon {
-				background: url(img/icon_return.png) no-repeat center center; background-size: 34%;
+				background: url(img/icon_return.svg) no-repeat center center; background-size: 34%;
 				display: block; height: 100%; width: 5.18%; opacity: 0.3; border: 0; cursor: pointer; float: left;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
@@ -81,7 +81,7 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 				}
 
 			.controls__btnFullscreen-icon {
-				background: url(img/icon_fullscreen.png) no-repeat center center; background-size: 30%;
+				background: url(img/icon_fullscreen.svg) no-repeat center center; background-size: 28%;
 				display: block; height: 100%; width: 5.18%; opacity: 0.3; border: 0; cursor: pointer; 
 				float: right; 
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
@@ -91,14 +91,19 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 				}
 
 			.controls__slider {
-				position: relative; left: 5%; top:40%;
-				height: 4px; width: 90%; 
+				position: relative; left: 5%; top:44%;
+				height: 4px; width: 90%; cursor: pointer;
 				background: #181a1b; box-shadow: 0 1px 0 rgba(38, 40, 42, 1);
 			}
-
+				.controls__slider-active {
+					position: absolute; height: 4px; width: 50%; background: #1c529c; z-index: 2;
+				}
+				.controls__slider-buffer {
+					position: absolute; height: 4px; width: 10%; left: 50%; background: #2a2d31; z-index: 2;
+				}
 			.controls__playhead {
-				height: 12px; width: 12px; position: absolute; margin-top: -3px; left: 50%;
-				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer;
+				height: 12px; width: 12px; position: absolute; margin: -4px 0 0 -6px; left: 50%;
+				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer; z-index: 10;
 			}
 
 		.volume__btn {
@@ -111,28 +116,28 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 			.volume__btn:hover {background: #313437;}
 
 			.volume__btnHigh-icon {
-				background: url(img/volume_high.png) no-repeat center center; background-size: 36%;
+				background: url(img/volume_high.svg) no-repeat center center; background-size: 36%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.volume__btnHigh-icon:hover { opacity: 1; }
 
 			.volume__btnMed-icon {
-				background: url(img/volume_med.png) no-repeat center center; background-size: 36%;
+				background: url(img/volume_med.svg) no-repeat center center; background-size: 36%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.volume__btnMed-icon:hover { opacity: 1; }
 
 			.volume__btnLow-icon {
-				background: url(img/volume_low.png) no-repeat center center; background-size: 36%;
+				background: url(img/volume_low.svg) no-repeat center center; background-size: 36%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 				.volume__btnLow-icon:hover { opacity: 1; }
 
 			.volume__btnMute-icon {
-				background: url(img/volume_mute.png) no-repeat center center; background-size: 6%;
+				background: url(img/volume_mute.svg) no-repeat center center; background-size: 36%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
@@ -152,10 +157,14 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 			}
 
 			.volume__slider {
-				width: 4px; height: 68%; margin: 30% auto; position: relative;
+				position: relative; top: 10%; left:44%;
+				width: 4px; height: 80%; cursor: pointer;
 				background: #181a1b; box-shadow: 0 1px 0 rgba(38, 40, 42, 1);
 			}
+				.volume__slider-active {
+					position: absolute; width: 4px; height: 50%; bottom: 0; background: #1c529c; z-index: 2;
+				}
 			.volume__playhead {
-				height: 12px; width: 12px; position: absolute; margin-left: -4px; top: 0;
-				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer;
+				height: 12px; width: 12px; position: absolute; margin: 0 0 -6px -4px; bottom: 50%;
+				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer; z-index: 10;
 			}
