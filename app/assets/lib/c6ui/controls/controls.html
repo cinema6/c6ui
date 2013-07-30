@@ -30,7 +30,7 @@
 			<div class="controls__annotation" style="left: 48%;">&nbsp;</div> -->
 
 			<div class="controls__slider-active">&nbsp;</div>
-			<div class="controls__playhead" style="left: {{state.playheadPosition || 0}}%;" ng-mousedown="handle.startSeeking()">&nbsp;</div>
+			<div class="controls__playhead" ng-style="{left: state.playheadPosition + '%'}" ng-mousedown="handle.startSeeking()">&nbsp;</div>
 			<div class="controls__slider-buffer">&nbsp;</div>
 		</div>
 

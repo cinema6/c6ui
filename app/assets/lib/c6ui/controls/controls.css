@@ -90,7 +90,7 @@
 				}
 
 			.controls__playhead {
-				height: 12px; width: 12px; position: absolute; margin: -4px 0 0 -6px; left: 50%;
+				height: 12px; width: 12px; position: absolute; margin: -4px 0 0 -6px; 
 				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer; z-index: 10;
 			}
 
@@ -168,26 +168,26 @@
 		}
 
 		.controls__scene {
-			position: absolute; top: -17px; height: 40px; 
-			margin: 2px 0 0 0; text-align: center; z-index: 9;
+			position: absolute; height: 40px; top: -20px;
+			margin: 2px 0 0 0; /*text-align: center;*/ z-index: 9;
 		}
 
 			.controls__scene-btn {
-				height: 8px; width: 12px; 
-				border: 0; border-radius: 2px; padding: 0;
+				height: 8px; width: 12px; position: inherit; 
+				border: 0; border-radius: 2px; padding: 0; margin: 16px 46%;
 				background: url(img/btn_scene.png) no-repeat center center #a4a4a4;
 			}
 
     		.controls__caption-bottom {
 				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.5em; color: #a4a4a4;
-				text-transform: uppercase; letter-spacing: 0.2em; margin: -1px 0 0 0;	
+				text-transform: uppercase; letter-spacing: 0.1619em; margin: 26px 0 0 0; height: 16px;
 			}
 
 			.controls__caption-top {
 				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.5em; color: #a4a4a4;
-				text-transform: uppercase; letter-spacing: 0.2em; margin: -24px 0 0 0;
+				text-transform: uppercase; letter-spacing: 0.1619em; margin: 2px 0 0 0; height: 16px;
 			}
-			
+
 	/* annotated videos */
 		.controls__annotation {
 			width: 2px; height: 4px;
