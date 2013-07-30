@@ -56,7 +56,7 @@
 			-moz-transition:width 0.5s; -webkit-transition:width 0.5s; -o-transition:width 0.5s; transition:width 0.5s;
 		}
 			.controls__btnReturn-icon {
-				background: url(img/icon_return.svg) no-repeat center center; background-size: 34%;
+				background: url(img/icon_return.svg) no-repeat center center; background-size: 50%;
 				display: block; height: 100%; width: 58px;
 				opacity: 0.3; border: 0; padding: 0; cursor: pointer; 
 				float: left;
@@ -182,15 +182,21 @@
 			}
 
     		.controls__caption-bottom {
-				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.5em; color: #a4a4a4;
+				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.48em; color: #a4a4a4;
 				text-transform: uppercase; letter-spacing: 0.1619em; margin: 26px 0 0 0; height: 16px; cursor: pointer;
+				-moz-transition:opacity 0.2s; -webkit-transition:opacity 0.2s; -o-transition:opacity 0.2s; transition:opacity 0.2s;
 			}
 
 			.controls__caption-top {
-				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.5em; color: #a4a4a4;
+				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.48em; color: #a4a4a4;
 				text-transform: uppercase; letter-spacing: 0.1619em; margin: 2px 0 0 0; height: 16px; cursor: pointer;
+				-moz-transition:opacity 0.2s; -webkit-transition:opacity 0.2s; -o-transition:opacity 0.2s; transition:opacity 0.2s;
 			}
-
+				@media screen and (max-width: 620px) {
+					.controls__caption-top, .controls__caption-bottom {
+						opacity: 0;
+					}
+				}
 	/* annotated videos */
 		.controls__annotation {
 			width: 2px; height: 4px;
