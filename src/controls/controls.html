@@ -5,16 +5,16 @@
 	<div class="controls__seek" ng-mouseup="handle.stopSeeking()" ng-mouseleave="handle.stopSeeking()">
 		<button class="controls__btnReturn-icon" title="Return"><span class="ir">Return</span></button>
 		<button class="controls__btnFullscreen-icon" title="Return"><span class="ir">Fullscreen</span></button>
-		<div class="controls__slider">
+		<div class="controls__slider" ng-click="handle.seekbarClick($event)">
 			<div class="controls__playhead" style="left: {{state.playheadPosition || 0}}%;" ng-mousedown="handle.startSeeking()">&nbsp;</div>
 		</div>
 		
 	</div>
-		<div class="volume__btn" title="Volume" ng-mouseenter="handle.showVolumeSliderBox()" ng-mouseleave="handle.hideVolumeSliderBox()">
+		<div class="volume__btn" title="Volume" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide()">
 			<button class="volume__btnHigh-icon"><span class="ir">Mute/Unmute</span></button>
-			<div class="volume__box" style="display: none;" ng-mouseenter="handle.showVolumeSliderBox()" ng-mouseleave="handle.hideVolumeSliderBox()" ng-show="state.showVolumeSliderBox">
+			<div class="volume__box" style="display: none;" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide()" ng-show="state.volume.show">
 			<div class="volume__slider">
-				<div class="volume__playhead">&nbsp;</div>
+				<div class="volume__playhead" ng-mousedown="handle.volume.startSeeking()">&nbsp;</div>
 			</div>
 		</div>
 		</div>

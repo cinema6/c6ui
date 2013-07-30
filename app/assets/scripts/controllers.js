@@ -23,7 +23,7 @@
 						var currentTime = event.target.currentTime,
 							totalTime = event.target.duration;
 
-						self.ControlsController.progress = (currentTime / totalTime) * 100;
+						self.ControlsController.progress((currentTime / totalTime) * 100);
 					});
 			});
 

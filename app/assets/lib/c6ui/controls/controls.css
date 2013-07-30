@@ -8,7 +8,6 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 } /* from c6-main */
 
 .controls__group {
-
 		width: 90%; height: 40px;
 		-moz-transition:height 0.5s; -webkit-transition:height 0.5s; -o-transition:height 0.5s; transition:height 0.5s;
 

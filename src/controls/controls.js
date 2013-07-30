@@ -25,22 +25,34 @@
 				state = {
 					playing: false,
 					playheadPosition: 0,
-					showVolumeSliderBox: false,
+					volume: {
+						show: false,
+						seeking: false
+					},
 					seeking: false
 				},
-				handlePlayheadDrag = function(event) {
-					var seeker = angular.element(event.currentTarget),
-						position = event.pageX - seeker[0].getBoundingClientRect().left,
+				getMousePositionAsSeekbarPercent = function(seeker) {
+						var position = event.pageX - seeker[0].getBoundingClientRect().left,
 						positionPercent = ((position / seeker[0].offsetWidth) * 100),
-						percent = function() {
-							var leftPercent = Math.max(0, positionPercent - 5);
+						leftPercent = Math.max(0, positionPercent - 5);
 
-							return Math.min(((leftPercent * 100) / 90), 100);
-						};
+						return Math.min(((leftPercent * 100) / 90), 100);
+				},
+				getMousePositionAsVolumeSeekbarPercent = function(seeker) {
+					console.log(seeker);
+				},
+				handlePlayheadDrag = function(event) {
+					var seeker = angular.element(event.currentTarget);
 
-					delegate('seek', [percent()]);
+					delegate('seek', [getMousePositionAsSeekbarPercent(seeker)]);
+				},
+				handleVolumePlayheadDrag = function(event) {
+					var seeker = angular.element(event.currentTarget);
+
+					delegate('volumeSeek', [getMousePositionAsVolumeSeekbarPercent(seeker)]);
 				},
 				slider = angular.element($element[0].querySelector('.controls__seek')),
+				volumeSlider = angular.element($element[0].querySelector('.volume__box')),
 				hideVolumeSliderBoxTimeout,
 				handle = {
 					playPause: function() {
@@ -54,24 +66,41 @@
 						slider.bind('mousemove', handlePlayheadDrag);
 						state.seeking = true;
 					},
+					seekbarClick: function(event) {
+						var seeker = angular.element(event.target).parent();
+
+						delegate('seek', [getMousePositionAsSeekbarPercent(seeker)]);
+					},
 					stopSeeking: function() {
 						if (state.seeking) {
 							slider.unbind('mousemove', handlePlayheadDrag);
 							state.seeking = false;
 						}
 					},
-					showVolumeSliderBox: function() {
-						if (hideVolumeSliderBoxTimeout) {
-							$timeout.cancel(hideVolumeSliderBoxTimeout);
-							hideVolumeSliderBoxTimeout = null;
-						}
+					volume: {
+						startSeeking: function() {
+							volumeSlider.bind('mousemove', handleVolumePlayheadDrag);
+							state.volume.seeking = true;
+						},
+						stopSeeking: function() {
 
-						state.showVolumeSliderBox = true;
-					},
-					hideVolumeSliderBox: function() {
-						hideVolumeSliderBoxTimeout = $timeout(function() {
-							state.showVolumeSliderBox = false;
-						}, 500);
+						},
+						seekbarClick: function() {
+
+						},
+						show: function() {
+							if (hideVolumeSliderBoxTimeout) {
+								$timeout.cancel(hideVolumeSliderBoxTimeout);
+								hideVolumeSliderBoxTimeout = null;
+							}
+
+							state.volume.show = true;
+						},
+						hide: function() {
+							hideVolumeSliderBoxTimeout = $timeout(function() {
+								state.volume.show = false;
+							}, 500);
+						}
 					}
 				},
 				controller = $scope.controller;
@@ -82,11 +111,9 @@
 			controller().pause = function() {
 				state.playing = false;
 			};
-			controller().progress = 0;
-
-			$scope.$watch('controller().progress', function(progress) {
-				state.playheadPosition = ((progress * 90) / 100);
-			});
+			controller().progress = function(percent) {
+				state.playheadPosition = percent;
+			};
 
 			$scope.handle = handle;
 
