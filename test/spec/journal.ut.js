@@ -420,7 +420,7 @@
 
                         it('with same event and differnt data should emit',function(){
                             var historyChanged = false;
-                            journal.on('historyIsRewritten',function(index,newVal,origVal){
+                            journal.on('historyIsUpdated',function(index,newVal,origVal){
                                 expect(newVal.name).toEqual(origVal.name);
                                 expect(newVal.data).toBeNull();
                                 expect(newVal.updated).not.toBeNull();
@@ -448,6 +448,43 @@
                             expect(itmNew.name).toEqual(itmOrig.name);
                             expect(itmNew.data).toBeNull();
                             expect(itmNew.updated).not.toBeNull();
+
+                            expect(function(){ $timeout.flush(); }).not.toThrow();
+
+                            expect(historyChanged).toBeTruthy();
+
+                        });
+
+                        it('with different event and differnt data should emit',function(){
+                            var historyChanged = false;
+                            journal.on('historyIsRewritten',function(index,newVal,origVal){
+                                expect(newVal.name).not.toEqual(origVal.name);
+                                expect(newVal.data).toBeNull();
+                                expect(newVal.updated).toBeNull();
+                                historyChanged = true; 
+                            });
+
+                            // Move to index 1
+                            journal.moveTo(1);
+
+                            // Get what's in the next slot
+                            var itmOrig = journal.getAt(journal.index() + 1);
+                            expect(itmOrig.updated).toBeNull();
+
+                            // Record over it with same event name but no data
+                            journal.recordEvent('aDifferentEventName');
+                            
+                            // The size of the journal should be the same and
+                            // the index should have incremented to the next slot
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(2);
+
+                           
+                            // Get what's there now
+                            var itmNew = journal.getAt();
+                            expect(itmNew.name).toEqual('aDifferentEventName');
+                            expect(itmNew.data).toBeNull();
+                            expect(itmNew.updated).toBeNull();
 
                             expect(function(){ $timeout.flush(); }).not.toThrow();
 
@@ -496,16 +533,16 @@
                         });
 
                         describe('events',function(){
-                            it('emits historyIsRewritten',function(){
+                            it('emits historyIsUpdated',function(){
                                 var historyChanged = false, historyChanged_s = false;
-                                journal.on('historyIsRewritten',function(index,newVal,origVal){
+                                journal.on('historyIsUpdated',function(index,newVal,origVal){
                                     expect(newVal.name).toEqual(origVal.name);
                                     expect(newVal.data).toBeNull();
                                     expect(newVal.updated).not.toBeNull();
                                     historyChanged = true; 
                                 });
 
-                                subscriber.on('historyIsRewritten',function(index,newVal,origVal){
+                                subscriber.on('historyIsUpdated',function(index,newVal,origVal){
                                     expect(newVal.name).toEqual(origVal.name);
                                     expect(newVal.data).toBeNull();
                                     expect(newVal.updated).not.toBeNull();

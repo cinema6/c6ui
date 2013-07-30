@@ -65,12 +65,12 @@
                     newEntry.updated  = new Date();
                     events[index] = newEntry;
                     $timeout(function(){
-                        self.emit('historyIsRewritten',emitIndex,newEntry,entry);
+                        self.emit('historyIsUpdated',emitIndex,newEntry,entry);
                     },0);
                     return self;
                 }
 
-                newEntry = new JournalEntry(entry,data);
+                newEntry = new JournalEntry(name,data);
                 emitIndex = index;
                 events[index] = newEntry;
                 $timeout(function(){
