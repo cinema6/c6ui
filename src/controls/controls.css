@@ -15,6 +15,13 @@
     ========================================================================== */
 	.controls__group {
 		height: 40px;
+
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: moz-none;
+		-ms-user-select: none;
+		user-select: none;
 	}
 
 	/* ---- play/pause styles ---- */
@@ -180,7 +187,7 @@
 				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.5em; color: #a4a4a4;
 				text-transform: uppercase; letter-spacing: 0.2em; margin: -24px 0 0 0;
 			}
-
+			
 	/* annotated videos */
 		.controls__annotation {
 			width: 2px; height: 4px;

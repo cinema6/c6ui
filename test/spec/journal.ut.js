@@ -189,6 +189,21 @@
 
                     });
 
+                    describe('findFirstIndex method',function(){
+                        it('should find first event of many with same name',function(){
+                            expect(journal.findFirstIndex('eventA')).toEqual(1);
+                        });
+                        
+                        it('should find first event of many with unique name',function(){
+                            expect(journal.findFirstIndex('eventC')).toEqual(2);
+                        });
+
+                        it('should find nothing with invalid name',function(){
+                            expect(journal.findFirstIndex('xxx')).toEqual(-1);
+                        });
+
+                    });
+
                     describe('findLast method', function(){
                         
                         it('should find last event of many with same name',function(){
@@ -208,6 +223,21 @@
                         });
 
                     });
+                    
+                    describe('findLastIndex method',function(){
+                        it('should find last event of many with same name',function(){
+                            expect(journal.findLastIndex('eventA')).toEqual(3);
+                        });
+                        
+                        it('should find last event of many with unique name',function(){
+                            expect(journal.findLastIndex('eventC')).toEqual(2);
+                        });
+
+                        it('should find nothing with invalid name',function(){
+                            expect(journal.findLastIndex('xxx')).toEqual(-1);
+                        });
+
+                    });
 
                     describe('findAll method', function(){
                         it('should find all events of many with same name',function(){
@@ -217,6 +247,16 @@
                             
                             expect(list[1].data).toBe(data[3]);
                             expect(list[1].name).toEqual('eventA');
+                        });
+
+                        it('should find all events if no name is passed',function(){
+                            var list  = journal.findAll();
+                            expect(list.length).toEqual(5);
+                            expect(list[0].data).toBe(data[0]);
+                            expect(list[0].name).toEqual('eventB');
+                            
+                            expect(list[4].data).toBe(data[4]);
+                            expect(list[4].name).toEqual('eventB');
                         });
 
                         it('should find nothing with invalid name',function(){
