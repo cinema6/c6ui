@@ -7,6 +7,8 @@
 		<button class="controls__btnReturn-icon" title="Return"><span class="ir">Return</span></button>
 		<button class="controls__btnFullscreen-icon" title="Return"><span class="ir">Fullscreen</span></button>
 		<div class="controls__slider">
+			
+			<!-- branching video example-->
 			<div class="controls__scene" style="left: 20%; margin-left: -32px">
 				<button class="controls__scene-btn"><span class="ir">Sympathize</span></button>
 				<p class="controls__caption-bottom">Sympathize</p>
@@ -15,11 +17,18 @@
 				<button class="controls__scene-btn"><span class="ir">Save Shaun</span></button>
 				<p class="controls__caption-top">Save Shaun</p>
 			</div>
-			<div class="controls__scene" style="left: 46%; margin-left: -40.5px;">  <!-- margin-left is negative half the element's width -->
+			<div class="controls__scene" style="left: 46%; margin-left: -40.5px;">
 				<button class="controls__scene-btn"><span class="ir">Do Something</span></button>
 				<p class="controls__caption-bottom">Do something</p>
 			</div>
-			<div class="controls__slider-past">&nbsp;</div>
+			<div class="controls__slider-past">&nbsp;</div> 
+
+			<!-- annotation video example
+			<div class="controls__annotation" style="left: 20%;">&nbsp;</div>
+			<div class="controls__annotation" style="left: 23%;">&nbsp;</div>
+			<div class="controls__annotation" style="left: 38%;">&nbsp;</div>
+			<div class="controls__annotation" style="left: 48%;">&nbsp;</div> -->
+
 			<div class="controls__slider-active">&nbsp;</div>
 			<div class="controls__playhead" style="left: {{state.playheadPosition || 50}}%;" ng-mousedown="handle.startSeeking($event)">&nbsp;</div>
 			<div class="controls__slider-buffer">&nbsp;</div>

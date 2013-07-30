@@ -180,3 +180,10 @@
 				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.5em; color: #a4a4a4;
 				text-transform: uppercase; letter-spacing: 0.2em; margin: -24px 0 0 0;
 			}
+
+	/* annotated videos */
+		.controls__annotation {
+			width: 2px; height: 4px;
+			position: absolute; top: 0;
+			background: #fff; z-index: 5; opacity: 0.3;
+		}
