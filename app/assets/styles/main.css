@@ -8,8 +8,8 @@
 	}
 	.video .controls {
 		position: absolute;
-		bottom: 10px; left: 50%;
-		width: 98%; margin-left: -49%;
+		bottom: 10px;
+		width: 100%;
 		z-index: 100
 	}
 
