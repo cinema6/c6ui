@@ -335,6 +335,80 @@
                         });
 
                     });
+
+                    describe('removeAt',function(){
+
+                        it('should remove a single element from a populated journal',
+                            function(){
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(4);
+                            var itm = journal.removeAt(2);
+                            expect(itm.name).toEqual('eventC');
+                            expect(itm.data).toBe(data[2]);
+
+                            expect(journal.size()).toEqual(4);
+                            expect(journal.index()).toEqual(3);
+                        });
+
+                        it('decrements the index if removeAt < index < end',function(){
+                            journal.moveTo(3);
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(3);
+
+                            var itm = journal.removeAt(2);
+                            expect(itm.name).toEqual('eventC');
+                            expect(itm.data).toBe(data[2]);
+
+                            expect(journal.size()).toEqual(4);
+                            expect(journal.index()).toEqual(2);
+                        });
+
+                        it('leaves the index alone if removeAt > index',function(){
+                            journal.moveTo(0);
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(0);
+
+                            var itm = journal.removeAt(2);
+                            expect(itm.name).toEqual('eventC');
+                            expect(itm.data).toBe(data[2]);
+
+                            expect(journal.size()).toEqual(4);
+                            expect(journal.index()).toEqual(0);
+                        });
+
+                        it('should remove a range of elements from a populated journal',
+                            function(){
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(4);
+                            var items = journal.removeAt(2,2);
+                            expect(items.length).toEqual(2);
+                            expect(items[0].name).toEqual('eventC');
+                            expect(items[0].data).toBe(data[2]);
+                            
+                            expect(items[1].name).toEqual('eventA');
+                            expect(items[1].data).toBe(data[3]);
+                            
+                            expect(journal.size()).toEqual(3);
+                            expect(journal.index()).toEqual(2);
+                        });
+                        
+                        it('should remove a range of elements with negative index',
+                            function(){
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(4);
+                            var items = journal.removeAt(-1,2);
+                            expect(items.length).toEqual(2);
+                            expect(items[0].name).toEqual('eventA');
+                            expect(items[0].data).toBe(data[3]);
+                            
+                            expect(items[1].name).toEqual('eventB');
+                            expect(items[1].data).toBe(data[4]);
+                            
+                            expect(journal.size()).toEqual(3);
+                            expect(journal.index()).toEqual(2);
+                        });
+
+                    });
                     
 
                 }); // end manipulation interface
@@ -370,7 +444,11 @@
                         it ('should throw Range Error when arg is too low',function(){
                             expect(function(){
                                 journal.moveTo(-1)
-                            }).toThrow('-1 is too low.');
+                            }).not.toThrow('-1 is too low.');
+                            
+                            expect(function(){
+                                journal.moveTo(-2)
+                            }).toThrow('-2 is too low.');
                         });
 
                         it ('should throw Range Error when arg is too high',function(){

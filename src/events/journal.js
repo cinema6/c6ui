@@ -204,8 +204,40 @@
                 return entry;
             };
 
-            journal.moveTo = function(idx){
+            journal.removeAt = function(idx,count){
+                var size = this.size(),
+                    result;
+                if (idx < (1 - size)) {
+                    throw new RangeError(idx + ' is too low.');
+                }
+
                 if (idx < 0) {
+                    idx = size + idx - 1;
+                }
+
+                if (idx >= size) {
+                    throw new RangeError(idx + ' is too high.');
+                }
+
+                if (!count) {
+                    count = 1;
+                }
+
+                result = events.splice(idx,count);
+
+                if (!result){
+                    return;
+                }
+
+                if (index > idx){
+                    index -= count;
+                }
+
+                return count === 1 ? result[0] : result;
+            };
+
+            journal.moveTo = function(idx){
+                if (idx < -1) {
                     throw new RangeError(idx + ' is too low.');
                 }
 
