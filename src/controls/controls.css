@@ -139,7 +139,7 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 				.volume__btnLow-icon:hover { opacity: 1; }
 
 			.volume__btnMute-icon {
-				background: url(img/volume_mute.png) no-repeat center center; background-size: 6%;
+				background: url(img/volume_mute.png) no-repeat center center; background-size: 36%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
@@ -163,6 +163,6 @@ body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; co
 				background: #181a1b; box-shadow: 0 1px 0 rgba(38, 40, 42, 1);
 			}
 			.volume__playhead {
-				height: 12px; width: 12px; position: absolute; margin-left: -4px; top: 0;
+				height: 12px; width: 12px; position: absolute; margin: 0 0 -6px -4px;
 				background: #a4a4a4; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); border-radius: 6px; cursor: pointer;
 			}

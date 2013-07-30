@@ -11,10 +11,10 @@
 		
 	</div>
 		<div class="volume__btn" title="Volume" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide()">
-			<button class="volume__btnHigh-icon"><span class="ir">Mute/Unmute</span></button>
-			<div class="volume__box" style="display: none;" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide()" ng-show="state.volume.show">
-			<div class="volume__slider">
-				<div class="volume__playhead" ng-mousedown="handle.volume.startSeeking()">&nbsp;</div>
+			<button class="volume__btn{{state.volume.levelTier()}}-icon" ng-click="handle.volume.muteUnmute()"><span class="ir">Mute/Unmute</span></button>
+			<div class="volume__box" style="display: none;" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide(); handle.volume.stopSeeking();" ng-mouseup="handle.volume.stopSeeking()" ng-show="state.volume.show">
+			<div class="volume__slider" ng-click="handle.volume.seekbarClick($event)">
+				<div class="volume__playhead" style="bottom: {{state.volume.playheadPosition || 0}}%;" ng-mousedown="handle.volume.startSeeking()">&nbsp;</div>
 			</div>
 		</div>
 		</div>
