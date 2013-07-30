@@ -233,7 +233,7 @@
                     index -= count;
                 }
 
-                return count === 1 ? result[0] : result;
+                return result;
             };
 
             journal.moveTo = function(idx){

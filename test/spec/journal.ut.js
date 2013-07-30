@@ -342,9 +342,9 @@
                             function(){
                             expect(journal.size()).toEqual(5);
                             expect(journal.index()).toEqual(4);
-                            var itm = journal.removeAt(2);
-                            expect(itm.name).toEqual('eventC');
-                            expect(itm.data).toBe(data[2]);
+                            var items = journal.removeAt(2);
+                            expect(items[0].name).toEqual('eventC');
+                            expect(items[0].data).toBe(data[2]);
 
                             expect(journal.size()).toEqual(4);
                             expect(journal.index()).toEqual(3);
@@ -355,9 +355,9 @@
                             expect(journal.size()).toEqual(5);
                             expect(journal.index()).toEqual(3);
 
-                            var itm = journal.removeAt(2);
-                            expect(itm.name).toEqual('eventC');
-                            expect(itm.data).toBe(data[2]);
+                            var items = journal.removeAt(2);
+                            expect(items[0].name).toEqual('eventC');
+                            expect(items[0].data).toBe(data[2]);
 
                             expect(journal.size()).toEqual(4);
                             expect(journal.index()).toEqual(2);
@@ -368,9 +368,9 @@
                             expect(journal.size()).toEqual(5);
                             expect(journal.index()).toEqual(0);
 
-                            var itm = journal.removeAt(2);
-                            expect(itm.name).toEqual('eventC');
-                            expect(itm.data).toBe(data[2]);
+                            var items = journal.removeAt(2);
+                            expect(items[0].name).toEqual('eventC');
+                            expect(items[0].data).toBe(data[2]);
 
                             expect(journal.size()).toEqual(4);
                             expect(journal.index()).toEqual(0);
