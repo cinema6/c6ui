@@ -249,6 +249,16 @@
                             expect(list[1].name).toEqual('eventA');
                         });
 
+                        it('should find all events if no name is passed',function(){
+                            var list  = journal.findAll();
+                            expect(list.length).toEqual(5);
+                            expect(list[0].data).toBe(data[0]);
+                            expect(list[0].name).toEqual('eventB');
+                            
+                            expect(list[4].data).toBe(data[4]);
+                            expect(list[4].name).toEqual('eventB');
+                        });
+
                         it('should find nothing with invalid name',function(){
                             expect(journal.findAll('xxx')).not.toBeDefined();
                         });

@@ -164,7 +164,14 @@
                 var result;
 
                 for (var i = 0, size = this.size(); i < size; i++){
-                    if (events[i].name === name) {
+                    if (name !== undefined) {
+                        if (events[i].name === name) {
+                            if (result === undefined){
+                                result = [];
+                            }
+                            result.push(new JournalEntry(events[i]));
+                        }
+                    } else {
                         if (result === undefined){
                             result = [];
                         }
