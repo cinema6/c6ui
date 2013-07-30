@@ -78,9 +78,12 @@
 				}
 
 			.controls__slider {
-				position: relative; margin: 0 58px; top:44%;
+				position: relative; margin: 0 58px; top: 10px;
 				height: 4px; cursor: pointer;
-				background: #181a1b; box-shadow: 0 1px 0 rgba(38, 40, 42, 1);
+				background: #181a1b; border: #1c1d1f solid 8px;
+			}
+			.controls__slider-shadow {
+				background: #26282a; height: 1px; width: 100%; position: absolute; top:4px;
 			}
 				.controls__slider-active {
 					position: absolute; height: 4px; width: 50%; background: #1c529c; z-index: 2;
@@ -146,9 +149,9 @@
 			}
 
 			.volume__slider {
-				position: relative; top: 10%; left:44%;
-				width: 4px; height: 80%; cursor: pointer;
-				background: #181a1b; box-shadow: 0 1px 0 rgba(38, 40, 42, 1);
+				position: relative; top: 6%; left:7px;
+				width: 4px; height: 66px; cursor: pointer;
+				background: #181a1b; border: #1c1d1f solid 8px;
 			}
 				.volume__slider-active {
 					position: absolute; width: 4px; height: 50%; bottom: 0; background: #1c529c; z-index: 2;
@@ -169,23 +172,23 @@
 
 		.controls__scene {
 			position: absolute; height: 40px; top: -20px;
-			margin: 2px 0 0 0; /*text-align: center;*/ z-index: 9;
+			margin: 2px 0 0 0; z-index: 9;
 		}
 
 			.controls__scene-btn {
-				height: 8px; width: 12px; position: inherit; 
+				height: 8px; width: 12px; position: inherit; cursor: pointer;
 				border: 0; border-radius: 2px; padding: 0; margin: 16px 46%;
 				background: url(img/btn_scene.png) no-repeat center center #a4a4a4;
 			}
 
     		.controls__caption-bottom {
 				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.5em; color: #a4a4a4;
-				text-transform: uppercase; letter-spacing: 0.1619em; margin: 26px 0 0 0; height: 16px;
+				text-transform: uppercase; letter-spacing: 0.1619em; margin: 26px 0 0 0; height: 16px; cursor: pointer;
 			}
 
 			.controls__caption-top {
 				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.5em; color: #a4a4a4;
-				text-transform: uppercase; letter-spacing: 0.1619em; margin: 2px 0 0 0; height: 16px;
+				text-transform: uppercase; letter-spacing: 0.1619em; margin: 2px 0 0 0; height: 16px; cursor: pointer;
 			}
 
 	/* annotated videos */
