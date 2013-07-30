@@ -189,6 +189,21 @@
 
                     });
 
+                    describe('findFirstIndex method',function(){
+                        it('should find first event of many with same name',function(){
+                            expect(journal.findFirstIndex('eventA')).toEqual(1);
+                        });
+                        
+                        it('should find first event of many with unique name',function(){
+                            expect(journal.findFirstIndex('eventC')).toEqual(2);
+                        });
+
+                        it('should find nothing with invalid name',function(){
+                            expect(journal.findFirstIndex('xxx')).toEqual(-1);
+                        });
+
+                    });
+
                     describe('findLast method', function(){
                         
                         it('should find last event of many with same name',function(){
@@ -205,6 +220,21 @@
 
                         it('should find nothing with invalid name',function(){
                             expect(journal.findFirst('xxx')).not.toBeDefined();
+                        });
+
+                    });
+                    
+                    describe('findLastIndex method',function(){
+                        it('should find last event of many with same name',function(){
+                            expect(journal.findLastIndex('eventA')).toEqual(3);
+                        });
+                        
+                        it('should find last event of many with unique name',function(){
+                            expect(journal.findLastIndex('eventC')).toEqual(2);
+                        });
+
+                        it('should find nothing with invalid name',function(){
+                            expect(journal.findLastIndex('xxx')).toEqual(-1);
                         });
 
                     });
