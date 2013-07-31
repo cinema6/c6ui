@@ -32,6 +32,9 @@
 
 					return length;
 				},
+				getSoundwaveOpacity = function(offset) {
+					return (state.volume.muted ? 0 : 1) && (Math.max(0, Math.min(1, ((state.volume.playheadPosition - offset)  * 33) / 1000)));
+				},
 				state = {
 					playing: false,
 					playheadPosition: 0,
@@ -50,13 +53,13 @@
 								}
 							},
 							low: function() {
-								return Math.min(1, ((state.volume.playheadPosition  * 33) / 1000));
+								return getSoundwaveOpacity(0);
 							},
 							med: function() {
-								return Math.max(0, Math.min(1, ((state.volume.playheadPosition - 33)  * 33) / 1000));
+								return getSoundwaveOpacity(33);
 							},
 							high: function() {
-								return Math.max(0, Math.min(1, ((state.volume.playheadPosition - 67)  * 33) / 1000));
+								return getSoundwaveOpacity(67);
 							}
 						}
 					},
