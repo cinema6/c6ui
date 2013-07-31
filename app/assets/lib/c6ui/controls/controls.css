@@ -56,7 +56,7 @@
 			-moz-transition:width 0.5s; -webkit-transition:width 0.5s; -o-transition:width 0.5s; transition:width 0.5s;
 		}
 			.controls__btnReturn-icon {
-				background: url(img/icon_return.svg) no-repeat center center; background-size: 50%;
+				background: url(img/icon_return.svg) no-repeat center center; background-size: 35%;
 				display: block; height: 100%; width: 58px;
 				opacity: 0.3; border: 0; padding: 0; cursor: pointer; 
 				float: left;
@@ -107,33 +107,33 @@
 		}
 			.volume__btn:hover {background: #313437;}
 
-			.volume__btnHigh-icon {
-				background: url(img/volume_high.svg) no-repeat center center; background-size: 36%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer; padding: 0;
+			.volume__btnVolume-icon {
+				background: url(img/icon_volume.svg) no-repeat center center; background-size: 36%;
+				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer; padding: 0; position: absolute; top: 0;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
-				.volume__btnHigh-icon:hover { opacity: 1; }
+				.volume__btnVolume-icon:hover { opacity: 1; }
 
-			.volume__btnMed-icon {
-				background: url(img/volume_med.svg) no-repeat center center; background-size: 36%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer; padding: 0;
-				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
-			}
-				.volume__btnMed-icon:hover { opacity: 1; } 
+				.volume__btnVolume-high {
+					background: url(img/icon_volume-high.svg) no-repeat center center; background-size: 36%;
+					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
+				}
 
-			.volume__btnLow-icon {
-				background: url(img/volume_low.svg) no-repeat center center; background-size: 36%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer; padding: 0;
-				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
-			}
-				.volume__btnLow-icon:hover { opacity: 1; }
 
-			.volume__btnMute-icon {
-				background: url(img/volume_mute.svg) no-repeat center center; background-size: 36%;
-				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer; padding: 0;
-				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
-			}
-				.volume__btnMute-icon:hover { opacity: 1; }
+				.volume__btnVolume-med {
+					background: url(img/icon_volume-med.svg) no-repeat center center; background-size: 36%;
+					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
+				}
+
+				.volume__btnVolume-low {
+					background: url(img/icon_volume-low.svg) no-repeat center center; background-size: 36%;
+					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
+				}
+
+				.volume__btnVolume-mute {
+					background: url(img/icon_volume-mute.svg) no-repeat center center; background-size: 36%;
+					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
+				}
 
 		.volume__box {
 			position: absolute; right: 20%; bottom: 150%;
