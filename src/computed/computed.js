@@ -28,10 +28,9 @@
 						});
 
 						cachedValue = computingFunction.apply(scope, actualDependencies);
-						return cachedValue;
-					} else {
-						return cachedValue;
 					}
+
+					return cachedValue;
 				};
 			};
 		}]);
