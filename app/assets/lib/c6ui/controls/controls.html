@@ -10,20 +10,8 @@
 
 			<div class="controls__slider-shadow">&nbsp;</div>	
 			<!-- branching video example-->
-			<div class="controls__scene" style="left: 20%; margin-left: -32px">
-				<button class="controls__scene-btn"><span class="ir">Sympathize</span></button>
-				<p class="controls__caption-bottom">Sympathize</p>
-			</div>
-			<div class="controls__scene" style="left: 25%; margin-left: -32.5px;">
-				<button class="controls__scene-btn"><span class="ir">Save Shaun</span></button>
-				<p class="controls__caption-top">Save Shaun</p>
-			</div>
-
-			<div class="controls__scene" style="left: 46%; margin-left: -40.5px;">
-				<button class="controls__scene-btn"><span class="ir">Do Something</span></button>
-				<p class="controls__caption-bottom">Do something</p>
-			</div>
-			<div class="controls__slider-past" style="width: {{state.pastSegmentsLength()}}%;">&nbsp;</div> 
+			<c6-controls-node ng-repeat="node in state.nodes" position="node.position" text="node.text"></c6-controls-node>
+			<div class="controls__slider-past" style="width: {{state.pastSegmentsLength()}}%;">&nbsp;</div>
 
 			<!-- annotation video example
 			<div class="controls__annotation" style="left: 20%;">&nbsp;</div>

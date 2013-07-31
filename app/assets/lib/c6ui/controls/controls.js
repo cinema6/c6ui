@@ -2,13 +2,37 @@
 	'use strict';
 	
 	angular.module('c6.ui')
+		.directive('c6ControlsNode', [function() {
+			return {
+				restrict: 'E',
+				scope: {
+					position: '&',
+					text: '&'
+				},
+				templateUrl: 'assets/lib/c6ui/controls/node.html',
+				replace: true,
+				link: function(scope, element) {
+					scope.$watch('position()', function(position) {
+						element.css('left', position + '%');
+					});
+
+					scope.$watch('text()', function() {
+						var width = element.prop('offsetWidth');
+
+						element.css('margin-left', ((width / 2) * -1) + 'px');
+					});
+				}
+			};
+		}])
+
 		.directive('c6Controls', [function() {
 			return {
 				restrict: 'E',
 				scope: {
 					delegate: '&',
 					controller: '&',
-					segments: '&'
+					segments: '&',
+					nodes: '&'
 				},
 				templateUrl: 'assets/lib/c6ui/controls/controls.html',
 				replace: true,
@@ -65,6 +89,7 @@
 					},
 					seeking: false,
 					segments: [],
+					nodes: [],
 					pastSegmentsLength: function() {
 						var length = 0;
 
@@ -192,6 +217,10 @@
 
 				state.segments[segmentIndex].bufferedPercent = percent;
 			};
+
+			$scope.$watch('nodes()', function(nodes) {
+				state.nodes = nodes;
+			}, true);
 
 			$scope.$watch('segments()', function(segments) {
 				if (!segments || !segments.length) {

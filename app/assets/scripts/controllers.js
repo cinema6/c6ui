@@ -71,6 +71,24 @@
 				}
 			];
 
+			this.nodes = [
+				{
+					position: 20,
+					style: 'scene',
+					text: 'Hello world!'
+				},
+				{
+					position: 25,
+					style: 'scene',
+					text: 'How is life?'
+				},
+				{
+					position: 46,
+					style: 'scene',
+					text: 'Foo'
+				}
+			];
+
 			this.ControlsController = {};
 
 			this.play = function() {
