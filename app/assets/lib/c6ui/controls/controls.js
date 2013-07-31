@@ -73,11 +73,12 @@
 					}
 				},
 				getMousePositionAsSeekbarPercent = function(seeker$, mousePosition) {
-						var position = mousePosition - seeker$[0].getBoundingClientRect().left,
+					var position = mousePosition - seeker$[0].getBoundingClientRect().left,
 						positionPercent = ((position / seeker$[0].offsetWidth) * 100),
-						leftPercent = Math.max(0, positionPercent - 5);
+						marginsAsPercent = ((132 / seeker$.prop('offsetWidth')) * 100),
+						leftPercent = Math.max(0, positionPercent - (marginsAsPercent / 2));
 
-						return Math.min(((leftPercent * 100) / 90), 100);
+					return Math.min(((leftPercent * 100) / (100 - marginsAsPercent)), 100);
 				},
 				getMousePositionAsVolumeSeekbarPercent = function(seeker$, mousePosition) {
 					var position = mousePosition - seeker$[0].getBoundingClientRect().top - $document.find('body').prop('scrollTop'),
@@ -112,7 +113,7 @@
 						state.seeking = true;
 					},
 					seekbarClick: function(event) {
-						var seeker$ = angular.element(event.target).parent();
+						var seeker$ = angular.element(event.currentTarget).parent();
 
 						delegate('seek', [getMousePositionAsSeekbarPercent(seeker$, event.pageX)]);
 					},

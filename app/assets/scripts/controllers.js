@@ -82,6 +82,7 @@
 			};
 
 			this.seek = function(percent) {
+				//console.log(percent);
 				video.player.currentTime = (percent * video.player.duration) / 100;
 			};
 
