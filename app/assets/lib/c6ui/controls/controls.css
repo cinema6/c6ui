@@ -19,7 +19,7 @@
 		-webkit-touch-callout: none;
 		-webkit-user-select: none;
 		-khtml-user-select: none;
-		-moz-user-select: moz-none;
+		-moz-user-select: none;
 		-ms-user-select: none;
 		user-select: none;
 	}
@@ -86,10 +86,10 @@
 				background: #26282a; height: 1px; width: 100%; position: absolute; top:4px;
 			}
 				.controls__slider-active {
-					position: absolute; height: 4px; width: 50%; background: #1c529c; z-index: 2;
+					position: absolute; height: 4px; background: #1c529c; z-index: 3;
 				}
 				.controls__slider-buffer {
-					position: absolute; height: 4px; width: 10%; left: 50%; background: #2a2d31; z-index: 2;
+					position: absolute; height: 4px; background: #2a2d31; z-index: 2;
 				}
 
 			.controls__playhead {
@@ -154,7 +154,7 @@
 				background: #181a1b; border: #1c1d1f solid 8px;
 			}
 				.volume__slider-active {
-					position: absolute; width: 4px; height: 50%; bottom: 0; background: #1c529c; z-index: 2;
+					position: absolute; width: 4px; bottom: 0; background: #1c529c; z-index: 2;
 				}
 			.volume__playhead {
 				height: 12px; width: 12px; position: absolute; margin: 0 0 -6px -4px; bottom: 50%;
@@ -167,7 +167,7 @@
 
     /* branching videos */
 		.controls__slider-past {
-			position: absolute; height: 4px; width: 46%; background: #0c2f5f; z-index: 3;
+			position: absolute; height: 4px; background: #0c2f5f; z-index: 4;
 		}
 
 		.controls__scene {

@@ -7,7 +7,8 @@
 				restrict: 'E',
 				scope: {
 					delegate: '&',
-					controller: '&'
+					controller: '&',
+					segments: '&'
 				},
 				templateUrl: 'assets/lib/c6ui/controls/controls.html',
 				replace: true,
@@ -22,9 +23,19 @@
 
 					(actualDelegate[method] || noop).apply(undefined, args);
 				},
+				getCombinedLengthOfPreviousSegments = function(segments, index) {
+					var length = 0;
+
+					while (index--) {
+						length += segments[index].portion;
+					}
+
+					return length;
+				},
 				state = {
 					playing: false,
 					playheadPosition: 0,
+					bufferedPercent: 0,
 					volume: {
 						show: false,
 						seeking: false,
@@ -45,7 +56,21 @@
 						},
 						muted: false
 					},
-					seeking: false
+					seeking: false,
+					segments: [],
+					pastSegmentsLength: function() {
+						var length = 0;
+
+						this.segments.some(function(segment) {
+							if (!segment.active()) {
+								length += segment.portion;
+							} else {
+								return true;
+							}
+						});
+
+						return length;
+					}
 				},
 				getMousePositionAsSeekbarPercent = function(seeker$, mousePosition) {
 						var position = mousePosition - seeker$[0].getBoundingClientRect().left,
@@ -152,6 +177,64 @@
 			controller().muteChange = function(mute) {
 				state.volume.muted = mute;
 			};
+			controller().buffer = function(percent, segmentIndex) {
+				if (segmentIndex === null || segmentIndex === undefined) {
+					segmentIndex = 0;
+				}
+
+				state.segments[segmentIndex].bufferedPercent = percent;
+			};
+
+			$scope.$watch('segments()', function(segments) {
+				if (!segments || !segments.length) {
+					var defaultSegment = {
+						portion: 100,
+						bufferedPercent: 0,
+						active: function() {
+							return true;
+						},
+						position: {
+							left: 0,
+							width: function() {
+								return defaultSegment.bufferedPercent;
+							}
+						}
+					};
+
+					state.segments.length = 0;
+					state.segments.push(defaultSegment);
+				} else {
+					var totalPortions = 0;
+
+					state.segments.length = 0;
+
+					segments.forEach(function(segment, index) {
+						var finalSegment = {
+							portion: segment.portion,
+							bufferedPercent: segment.bufferedPercent || 0,
+							active: function() {
+								return ((state.playheadPosition >= this.position.left) && (state.playheadPosition <= (this.position.left + this.portion)));
+							},
+							position: {
+								left: getCombinedLengthOfPreviousSegments(segments, index),
+								width: function() {
+									return ((finalSegment.bufferedPercent * finalSegment.portion) / 100);
+								}
+							}
+						};
+
+						totalPortions += finalSegment.portion;
+
+						state.segments.push(finalSegment);
+					});
+
+					if (totalPortions !== 100) {
+						throw new RangeError('The sum of all the portions must equal 100.');
+					}
+				}
+
+				controller().ready = true;
+			}, true);
 
 			$scope.handle = handle;
 

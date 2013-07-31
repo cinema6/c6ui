@@ -6,8 +6,8 @@
 	<div class="controls__seek" ng-mouseup="handle.stopSeeking()" ng-mouseleave="handle.stopSeeking()">
 		<button class="controls__btnReturn-icon" title="Return"><span class="ir">Return</span></button>
 		<button class="controls__btnFullscreen-icon" title="Return"><span class="ir">Fullscreen</span></button>
-
 		<div class="controls__slider" ng-click="handle.seekbarClick($event)">
+
 			<div class="controls__slider-shadow">&nbsp;</div>	
 			<!-- branching video example-->
 			<div class="controls__scene" style="left: 20%; margin-left: -32px">
@@ -18,11 +18,12 @@
 				<button class="controls__scene-btn"><span class="ir">Save Shaun</span></button>
 				<p class="controls__caption-top">Save Shaun</p>
 			</div>
+
 			<div class="controls__scene" style="left: 46%; margin-left: -40.5px;">
 				<button class="controls__scene-btn"><span class="ir">Do Something</span></button>
 				<p class="controls__caption-bottom">Do something</p>
 			</div>
-			<div class="controls__slider-past">&nbsp;</div> 
+			<div class="controls__slider-past" style="width: {{state.pastSegmentsLength()}}%;">&nbsp;</div> 
 
 			<!-- annotation video example
 			<div class="controls__annotation" style="left: 20%;">&nbsp;</div>
@@ -30,9 +31,9 @@
 			<div class="controls__annotation" style="left: 38%;">&nbsp;</div>
 			<div class="controls__annotation" style="left: 48%;">&nbsp;</div> -->
 
-			<div class="controls__slider-active">&nbsp;</div>
+			<div class="controls__slider-active" style="width: {{state.playheadPosition || 0}}%;">&nbsp;</div>
 			<div class="controls__playhead" ng-style="{left: state.playheadPosition + '%'}" ng-mousedown="handle.startSeeking()">&nbsp;</div>
-			<div class="controls__slider-buffer">&nbsp;</div>
+			<div ng-repeat="segment in state.segments" class="controls__slider-buffer" style="width: {{segment.position.width() || 0}}%; left: {{segment.position.left}}%;">&nbsp;</div>
 		</div>
 
 	</div>
@@ -40,7 +41,7 @@
 			<button class="volume__btn{{state.volume.levelTier()}}-icon" ng-click="handle.volume.muteUnmute()"><span class="ir">Mute/Unmute</span></button>
 			<div class="volume__box" style="display: none;" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide(); handle.volume.stopSeeking();" ng-mouseup="handle.volume.stopSeeking()" ng-show="state.volume.show">
 			<div class="volume__slider" ng-click="handle.volume.seekbarClick($event)">
-				<div class="volume__slider-active">&nbsp;</div>
+				<div class="volume__slider-active" style="height: {{state.volume.playheadPosition || 0}}%;">&nbsp;</div>
 				<div class="volume__playhead" style="bottom: {{state.volume.playheadPosition || 0}}%;" ng-mousedown="handle.volume.startSeeking()">&nbsp;</div>
 			</div>
 		</div>

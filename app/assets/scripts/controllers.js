@@ -10,29 +10,66 @@
 				self = this;
 
 			$scope.$on('c6video-ready', function(event, c6video) {
+				var setupEventListeners = function() {
+					c6video
+						.on('play', function() {
+							self.ControlsController.play();
+						})
+						.on('pause', function() {
+							self.ControlsController.pause();
+						})
+						.on('timeupdate', function(event) {
+							var currentTime = event.target.currentTime,
+								totalTime = event.target.duration;
+
+							self.ControlsController.progress((currentTime / totalTime) * 100);
+						})
+						.on('volumechange', function(event) {
+							var volumePercent = event.target.volume * 100,
+								muted = event.target.muted;
+
+							self.ControlsController.volumeChange(volumePercent);
+							self.ControlsController.muteChange(muted);
+						})
+						.on('progress', function() {
+							self.ControlsController.buffer(c6video.bufferedPercent() * 100);
+						});
+
+					self.ControlsController.buffer(c6video.bufferedPercent() * 100);
+				};
+				
 				video = c6video;
 
-				c6video
-					.on('play', function() {
-						self.ControlsController.play();
-					})
-					.on('pause', function() {
-						self.ControlsController.pause();
-					})
-					.on('timeupdate', function(event) {
-						var currentTime = event.target.currentTime,
-							totalTime = event.target.duration;
-
-						self.ControlsController.progress((currentTime / totalTime) * 100);
-					})
-					.on('volumechange', function(event) {
-						var volumePercent = event.target.volume * 100,
-							muted = event.target.muted;
-
-						self.ControlsController.volumeChange(volumePercent);
-						self.ControlsController.muteChange(muted);
+				if (self.ControlsController.ready) {
+					setupEventListeners();
+				} else {
+					var deactivateWatcher = $scope.$watch('VideoPlayerCtrl.ControlsController.ready', function(ready) {
+						if (ready) {
+							setupEventListeners();
+							deactivateWatcher();
+						}
 					});
+				}
 			});
+
+			this.segments = [
+				{
+					portion: 20,
+					bufferedPercent: 0
+				},
+				{
+					portion: 5,
+					bufferedPercent: 50
+				},
+				{
+					portion: 21,
+					bufferedPercent: 80
+				},
+				{
+					portion: 54,
+					bufferedPercent: 80
+				}
+			];
 
 			this.ControlsController = {};
 
