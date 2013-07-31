@@ -23,6 +23,15 @@
 
 					(actualDelegate[method] || noop).apply(undefined, args);
 				},
+				getCombinedLengthOfPreviousSegments = function(segments, index) {
+					var length = 0;
+
+					while (index--) {
+						length += segments[index].portion;
+					}
+
+					return length;
+				},
 				state = {
 					playing: false,
 					playheadPosition: 0,
@@ -48,7 +57,20 @@
 						muted: false
 					},
 					seeking: false,
-					segments: []
+					segments: [],
+					pastSegmentsLength: function() {
+						var length = 0;
+
+						this.segments.some(function(segment) {
+							if (!segment.active()) {
+								length += segment.portion;
+							} else {
+								return true;
+							}
+						});
+
+						return length;
+					}
 				},
 				getMousePositionAsSeekbarPercent = function(seeker$, mousePosition) {
 						var position = mousePosition - seeker$[0].getBoundingClientRect().left,
@@ -138,15 +160,6 @@
 						}
 					}
 				},
-				getCombinedLengthOfPreviousSegments = function(segments, index) {
-					var length = 0;
-
-					while (index--) {
-						length += segments[index].portion;
-					}
-
-					return length;
-				},
 				controller = $scope.controller;
 
 			controller().play = function() {
@@ -200,7 +213,7 @@
 							portion: segment.portion,
 							bufferedPercent: segment.bufferedPercent || 0,
 							active: function() {
-
+								return ((state.playheadPosition >= this.position.left) && (state.playheadPosition <= (this.position.left + this.portion)));
 							},
 							position: {
 								left: getCombinedLengthOfPreviousSegments(segments, index),

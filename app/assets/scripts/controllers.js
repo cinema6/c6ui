@@ -52,7 +52,7 @@
 				}
 			});
 
-			/*this.segments = [
+			this.segments = [
 				{
 					portion: 50,
 					bufferedPercent: 0
@@ -65,7 +65,7 @@
 					portion: 30,
 					bufferedPercent: 80
 				}
-			];*/
+			];
 
 			this.ControlsController = {};
 

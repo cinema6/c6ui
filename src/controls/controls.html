@@ -19,7 +19,7 @@
 				<button class="controls__scene-btn"><span class="ir">Do Something</span></button>
 				<p class="controls__caption-bottom">Do something</p>
 			</div>-->
-			<!--<div class="controls__slider-past" style="width: 0%;">&nbsp;</div>-->
+			<div class="controls__slider-past" style="width: {{state.pastSegmentsLength()}}%;">&nbsp;</div>
 			<div class="controls__slider-active" style="width: {{state.playheadPosition || 0}}%;">&nbsp;</div>
 			<div class="controls__playhead" style="left: {{state.playheadPosition || 0}}%;" ng-mousedown="handle.startSeeking()">&nbsp;</div>
 			<div ng-repeat="segment in state.segments" class="controls__slider-buffer" style="width: {{segment.position.width() || 0}}%; left: {{segment.position.left}}%;">&nbsp;</div>
