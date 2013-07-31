@@ -40,11 +40,11 @@
 		<div class="volume__btn" title="Volume" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide()">
 			<!--<button class="volume__btn{{state.volume.levelTier()}}-icon" ng-click="handle.volume.muteUnmute()"><span class="ir">Mute/Unmute</span></button>-->
 
-			<button class="volume__btnVolume-icon"><span class="ir">Volume</span>
-				<div class="volume__btnVolume-low" style="opacity: 1"><span class="ir">Low</span></div>
-				<div class="volume__btnVolume-med" style="opacity: 1"><span class="ir">Med</span></div>
-				<div class="volume__btnVolume-high" style="opacity: 1"><span class="ir">High</span></div>
-				<div class="volume__btnVolume-mute" style="opacity: 0"><span class="ir">High</span></div>
+			<button class="volume__btnVolume-icon" ng-click="handle.volume.muteUnmute()"><span class="ir">Volume</span>
+				<div class="volume__btnVolume-low" style="opacity: {{state.volume.tiers.low()}};"><span class="ir">Low</span></div>
+				<div class="volume__btnVolume-med" style="opacity: {{state.volume.tiers.med()}};"><span class="ir">Med</span></div>
+				<div class="volume__btnVolume-high" style="opacity: {{state.volume.tiers.high()}};"><span class="ir">High</span></div>
+				<div class="volume__btnVolume-mute" style="opacity: {{state.volume.tiers.mute()}};"><span class="ir">High</span></div>
 			</button>
 			
 			<div class="volume__box" style="display: none;" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide(); handle.volume.stopSeeking();" ng-mouseup="handle.volume.stopSeeking()" ng-show="state.volume.show">

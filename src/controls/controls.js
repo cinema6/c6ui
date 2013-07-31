@@ -40,21 +40,25 @@
 						show: false,
 						seeking: false,
 						playheadPosition: 100,
-						levelTier: function() {
-							var position = this.playheadPosition,
-								muted = this.muted;
-
-							if (position === 0 || muted) {
-								return 'Mute';
-							} else if (position > 0 && position <= 33) {
-								return 'Low';
-							} else if (position > 33 && position <= 66) {
-								return 'Med';
-							} else if (position > 66) {
-								return 'High';
+						muted: false,
+						tiers: {
+							mute: function() {
+								if (state.volume.playheadPosition === 0 || state.volume.muted) {
+									return 1;
+								} else {
+									return 0;
+								}
+							},
+							low: function() {
+								return Math.min(1, ((state.volume.playheadPosition  * 33) / 1000));
+							},
+							med: function() {
+								return Math.max(0, Math.min(1, ((state.volume.playheadPosition - 33)  * 33) / 1000));
+							},
+							high: function() {
+								return Math.max(0, Math.min(1, ((state.volume.playheadPosition - 67)  * 33) / 1000));
 							}
-						},
-						muted: false
+						}
 					},
 					seeking: false,
 					segments: [],
