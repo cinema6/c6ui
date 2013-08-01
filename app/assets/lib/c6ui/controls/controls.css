@@ -80,7 +80,7 @@
 			.controls__slider {
 				position: relative; margin: 0 58px; top: 10px;
 				height: 4px; cursor: pointer;
-				background: #181a1b; border: #1c1d1f solid 8px;
+				background: #131415; border: #1c1d1f solid 8px;
 			}
 			.controls__slider-shadow {
 				background: #26282a; height: 1px; width: 100%; position: absolute; top:4px;
@@ -119,7 +119,6 @@
 					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
 				}
 
-
 				.volume__btnVolume-med {
 					background: url(img/icon_volume-med.svg) no-repeat center center; background-size: 36%;
 					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
@@ -151,7 +150,7 @@
 			.volume__slider {
 				position: relative; top: 6%; left:7px;
 				width: 4px; height: 66px; cursor: pointer;
-				background: #181a1b; border: #1c1d1f solid 8px;
+				background: #131415; border: #1c1d1f solid 8px;
 			}
 				.volume__slider-active {
 					position: absolute; width: 4px; bottom: 0; background: #1c529c; z-index: 2;
