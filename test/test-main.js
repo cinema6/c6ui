@@ -32,7 +32,10 @@
             },
             "anicache/anicache" : {
                 "deps" : [ "events/emitter" ]
-            }
+            },
+			"computed/computed": {
+				"deps": ["c6ui"]
+			}
         },
 
         priority : [
