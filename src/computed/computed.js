@@ -3,7 +3,7 @@
 
 	angular.module('c6.ui')
 		.factory('c6Computed', [function() {
-			return function(scope, computingFunction, dependencies) {
+			return function(scope, computingFunction, dependencies, equality) {
 				var actualDependencies = [],
 					dirty = true,
 					cachedValue,
@@ -12,7 +12,7 @@
 					};
 
 				dependencies.forEach(function(dependency) {
-					scope.$watch(dependency, setDirty);
+					scope.$watch(dependency, setDirty, (equality || false));
 
 					actualDependencies.push(scope.$eval(dependency));
 				});

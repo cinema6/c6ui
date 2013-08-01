@@ -4,12 +4,22 @@
 	define(['computed/computed'], function() {
 		describe('c6Computed', function() {
 			var c6Computed,
-				$rootScope;
+				$rootScope,
+				$scope;
 
 			beforeEach(module('c6.ui'));
 			beforeEach(inject(function(_c6Computed_, _$rootScope_) {
 				c6Computed = _c6Computed_;
 				$rootScope = _$rootScope_;
+
+				$scope = $rootScope.$new();
+
+				$scope.test = 'hello';
+				$scope.test2 = 'world';
+
+				$scope.helloWorld = c6Computed($scope, function(test, test2) {
+					return test + ' ' + test2;
+				}, ['test', 'test2']);
 			}));
 
 			it('should exist', function() {
@@ -17,23 +27,12 @@
 			});
 
 			describe('setting up the scope', function() {
-				var $scope;
-
-				beforeEach(function() {
-					$scope = $rootScope.$new();
-
-					$scope.test = 'hello';
-					$scope.test2 = 'world';
-
-					$scope.helloWorld = c6Computed($scope, function(test, test2) {
-						return test + ' ' + test2;
-					}, ['test', 'test2']);
-				});
-
 				it ('should watch the passed in scope properties', function() {
 					expect($scope.$$watchers.length).toBe(2);
 				});
+			});
 
+			describe('getting and updating', function() {
 				it('should return the value of the computing function', function() {
 					expect($scope.helloWorld()).toBe('hello world');
 				});
@@ -95,6 +94,31 @@
 					$scope.$digest();
 
 					expect($scope.profile()).toBe('Name: Jessica Engelhart, Gender: Female.');
+				});
+
+				it('should only run the computing function when one of the dependencies changes.', function() {
+					var computedSpy = jasmine.createSpy();
+
+					$scope.favoriteFoods = ['Peanuts', 'Chips', 'Sushi'];
+					
+					$scope.favoriteFoodsString = c6Computed($scope, function(favoriteFoods) {
+						computedSpy();
+						return favoriteFoods.join(', ');
+					}, ['favoriteFoods']);
+
+					expect($scope.favoriteFoodsString()).toBe('Peanuts, Chips, Sushi');
+					expect(computedSpy.callCount).toBe(1);
+
+					$scope.$digest(); // After digest, because the dependency didn't change, the computing function shouldn't have run
+					expect(computedSpy.callCount).toBe(1);
+
+					$scope.favoriteFoods.push('Pasta');
+					$scope.$digest(); // Now that the dependency has changed, the computing function should've been run again.
+					expect($scope.favoriteFoodsString()).toBe('Peanuts, Chips, Sushi, Pasta');
+					expect(computedSpy.callCount).toBe(2);
+
+					$scope.$digest(); // It shouldn't have been called after this.
+					expect(computedSpy.callCount).toBe(2);
 				});
 			});
 		});
