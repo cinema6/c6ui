@@ -6,17 +6,17 @@
 			return {
 				restrict: 'E',
 				scope: {
-					position: '&',
-					text: '&'
+					model: '&',
+					handlers: '&'
 				},
 				templateUrl: 'assets/lib/c6ui/controls/node.html',
 				replace: true,
 				link: function(scope, element) {
-					scope.$watch('position()', function(position) {
+					scope.$watch('model().position', function(position) {
 						element.css('left', position + '%');
 					});
 
-					scope.$watch('text()', function() {
+					scope.$watch('model().text', function() {
 						var width = element.prop('offsetWidth');
 
 						element.css('margin-left', ((width / 2) * -1) + 'px');
@@ -88,13 +88,13 @@
 						}
 					},
 					seeking: false,
-					segments: [],
-					nodes: [],
+					segments: $scope.segments,
+					nodes: $scope.nodes,
 					pastSegmentsLength: function() {
 						var length = 0;
 
-						this.segments.some(function(segment) {
-							if (!segment.active()) {
+						this.segments().some(function(segment) {
+							if (!(segment.__c6Controls && segment.__c6Controls.active())) {
 								length += segment.portion;
 							} else {
 								return true;
@@ -131,6 +131,7 @@
 				},
 				slider$ = angular.element($element[0].querySelector('.controls__seek')),
 				volumeSlider$ = angular.element($element[0].querySelector('.volume__box')),
+				waitingForSeekClickToEnd = false,
 				hideVolumeSliderBoxTimeout,
 				handle = {
 					playPause: function() {
@@ -140,16 +141,21 @@
 							delegate('pause');
 						}
 					},
-					startSeeking: function() {
+					startSeeking: function(event) {
 						slider$.bind('mousemove', handlePlayheadDrag);
 						state.seeking = true;
 					},
 					seekbarClick: function(event) {
 						var seeker$ = angular.element(event.currentTarget).parent();
 
-						delegate('seek', [getMousePositionAsSeekbarPercent(seeker$, event.pageX)]);
+						if (!state.seeking) {
+							state.seeking = true;
+							waitingForSeekClickToEnd = true;
+							delegate('seek', [getMousePositionAsSeekbarPercent(seeker$, event.pageX)]);
+							// The next time our controller's progress method is called, we'll leave the "seeking" state.
+						}
 					},
-					stopSeeking: function() {
+					stopSeeking: function(event) {
 						if (state.seeking) {
 							slider$.unbind('mousemove', handlePlayheadDrag);
 							state.seeking = false;
@@ -189,10 +195,19 @@
 						hide: function() {
 							hideVolumeSliderBoxTimeout = $timeout(function() {
 								state.volume.show = false;
-							}, 500);
+							}, 1000);
+						}
+					},
+					node: {
+						click: function(event, model) {
+							event.stopPropagation();
+
+							delegate('nodeClicked', [model]);
 						}
 					}
 				},
+				nodesSeekbarExpectsToHit = [],
+				nodeDetectionSessionInitialized = false,
 				controller = $scope.controller;
 
 			controller().play = function() {
@@ -202,6 +217,32 @@
 				state.playing = false;
 			};
 			controller().progress = function(percent) {
+				if (state.seeking) {
+					nodesSeekbarExpectsToHit.length = 0;
+					nodeDetectionSessionInitialized = false;
+
+					if (waitingForSeekClickToEnd) {
+						waitingForSeekClickToEnd = false;
+						state.seeking = false;
+					}
+				} else {
+					if (!nodeDetectionSessionInitialized) {
+						state.nodes().forEach(function(node) {
+							if (node.position > state.playheadPosition) {
+								nodesSeekbarExpectsToHit.push(node);
+							}
+						});
+						nodeDetectionSessionInitialized = true;
+					}
+
+					nodesSeekbarExpectsToHit.forEach(function(node, index) {
+						if (node.position <= state.playheadPosition) {
+							nodesSeekbarExpectsToHit.splice(index, 1);
+							delegate('nodeReached', [node]);
+						}
+					});
+				}
+
 				state.playheadPosition = percent;
 			};
 			controller().volumeChange = function(percent) {
@@ -215,63 +256,36 @@
 					segmentIndex = 0;
 				}
 
-				state.segments[segmentIndex].bufferedPercent = percent;
+				state.segments()[segmentIndex].bufferedPercent = percent;
 			};
+			controller().ready = true;
 
-			$scope.$watch('nodes()', function(nodes) {
-				state.nodes = nodes;
-			}, true);
-
-			$scope.$watch('segments()', function(segments) {
-				if (!segments || !segments.length) {
-					var defaultSegment = {
-						portion: 100,
-						bufferedPercent: 0,
-						active: function() {
-							return true;
-						},
-						position: {
-							left: 0,
-							width: function() {
-								return defaultSegment.bufferedPercent;
-							}
-						}
-					};
-
-					state.segments.length = 0;
-					state.segments.push(defaultSegment);
-				} else {
-					var totalPortions = 0;
-
-					state.segments.length = 0;
-
-					segments.forEach(function(segment, index) {
-						var finalSegment = {
-							portion: segment.portion,
-							bufferedPercent: segment.bufferedPercent || 0,
-							active: function() {
-								return ((state.playheadPosition >= this.position.left) && (state.playheadPosition <= (this.position.left + this.portion)));
-							},
+			$scope.$watch('state.segments()', function(segments) {
+				segments.forEach(function(segment, index) {
+					if (!segment.__c6Controls) {
+						segment.__c6Controls = {
 							position: {
-								left: getCombinedLengthOfPreviousSegments(segments, index),
+								left: function() { return getCombinedLengthOfPreviousSegments(segments, index); },
 								width: function() {
-									return ((finalSegment.bufferedPercent * finalSegment.portion) / 100);
+									return ((segment.bufferedPercent * segment.portion) / 100);
 								}
+							},
+							active: function() {
+								return ((state.playheadPosition >= this.position.left()) && (state.playheadPosition <= (this.position.left() + segment.portion)));
 							}
 						};
-
-						totalPortions += finalSegment.portion;
-
-						state.segments.push(finalSegment);
-					});
-
-					if (totalPortions !== 100) {
-						throw new RangeError('The sum of all the portions must equal 100.');
 					}
-				}
+				});
+			});
 
-				controller().ready = true;
-			}, true);
+			// Notify our delegate whenever seeking starts or stops
+			$scope.$watch('state.seeking', function(seeking, previousState) {
+				if (seeking === true) {
+					delegate('seekStart');
+				} else if (seeking === false && seeking != previousState) {
+					delegate('seekStop');
+				}
+			});
 
 			$scope.handle = handle;
 

@@ -4,13 +4,13 @@
 	</div>
 
 	<div class="controls__seek" ng-mouseup="handle.stopSeeking()" ng-mouseleave="handle.stopSeeking()">
-		<button class="controls__btnReturn-icon" title="Return"><span class="ir">Return</span></button>
-		<button class="controls__btnFullscreen-icon" title="Return"><span class="ir">Fullscreen</span></button>
+		<button class="controls__btnReturn-icon" ng-click="delegate().return()" title="Return"><span class="ir">Return</span></button>
+		<button class="controls__btnFullscreen-icon" ng-click="delegate().fullscreen()" title="Return"><span class="ir">Fullscreen</span></button>
 		<div class="controls__slider" ng-click="handle.seekbarClick($event)">
 
-			<div class="controls__slider-shadow">&nbsp;</div>	
+			<div class="controls__slider-shadow">&nbsp;</div>
 			<!-- branching video example-->
-			<c6-controls-node ng-repeat="node in state.nodes" position="node.position" text="node.text"></c6-controls-node>
+			<c6-controls-node ng-repeat="node in state.nodes()" model="node" handlers="handle.node"></c6-controls-node>
 			<div class="controls__slider-past" style="width: {{state.pastSegmentsLength()}}%;">&nbsp;</div>
 
 			<!-- annotation video example
@@ -20,15 +20,15 @@
 			<div class="controls__annotation" style="left: 48%;">&nbsp;</div> -->
 
 			<div class="controls__slider-active" style="width: {{state.playheadPosition || 0}}%;">&nbsp;</div>
-			<div class="controls__playhead" ng-style="{left: state.playheadPosition + '%'}" ng-mousedown="handle.startSeeking()">&nbsp;</div>
-			<div ng-repeat="segment in state.segments" class="controls__slider-buffer" style="width: {{segment.position.width() || 0}}%; left: {{segment.position.left}}%;">&nbsp;</div>
+			<div class="controls__playhead" ng-style="{left: state.playheadPosition + '%'}" ng-mousedown="handle.startSeeking($event)">&nbsp;</div>
+			<div ng-repeat="segment in state.segments()" class="controls__slider-buffer" style="width: {{segment.__c6Controls.position.width() || 0}}%; left: {{segment.__c6Controls.position.left()}}%;">&nbsp;</div>
 		</div>
 
 	</div>
 		<div class="volume__btn" title="Volume" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide()">
 			<!--<button class="volume__btn{{state.volume.levelTier()}}-icon" ng-click="handle.volume.muteUnmute()"><span class="ir">Mute/Unmute</span></button>-->
 
-			<button class="volume__btnVolume-icon" ng-click="handle.volume.muteUnmute()"><span class="ir">Volume</span>
+			<button class="volume__btnVolume-icon" ng-mouseenter="handle.volume.show()" ng-click="handle.volume.muteUnmute()"><span class="ir">Volume</span>
 				<div class="volume__btnVolume-low" style="opacity: {{state.volume.tiers.low()}};"><span class="ir">Low</span></div>
 				<div class="volume__btnVolume-med" style="opacity: {{state.volume.tiers.med()}};"><span class="ir">Med</span></div>
 				<div class="volume__btnVolume-high" style="opacity: {{state.volume.tiers.high()}};"><span class="ir">High</span></div>

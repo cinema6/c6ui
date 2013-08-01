@@ -5,7 +5,7 @@
 		.controller('AppController', ['$scope', function($scope) {
 
 		}])
-		.controller('VideoPlayerController', ['$scope', function($scope) {
+		.controller('VideoPlayerController', ['$scope', '$log', function($scope, $log) {
 			var video,
 				self = this;
 
@@ -99,9 +99,16 @@
 				video.player.pause();
 			};
 
+			this.seekStart = function() {
+				$log.log('seeking started');
+			};
+
 			this.seek = function(percent) {
-				//console.log(percent);
 				video.player.currentTime = (percent * video.player.duration) / 100;
+			};
+
+			this.seekStop = function() {
+				$log.log('seeking stopped');
 			};
 
 			this.volumeSeek = function(percent) {
@@ -114,6 +121,22 @@
 
 			this.unmute = function() {
 				video.player.muted = false;
+			};
+
+			this.fullscreen = function() {
+				$log.log('fullscreen');
+			};
+
+			this.return = function() {
+				$log.log('return');
+			};
+
+			this.nodeClicked = function(node) {
+				$log.log('node clicked! Text: ' + node.text);
+			};
+
+			this.nodeReached = function(node) {
+				$log.log('node reached! Text: ' + node.text);
 			};
 
 			$scope.VideoPlayerCtrl = this;

@@ -1,4 +1,4 @@
 <div class="controls__scene">
-	<button class="controls__scene-btn"><span class="ir">{{text()}}</span></button>
-	<p class="controls__caption-bottom">{{text()}}</p>
+	<button class="controls__scene-btn" ng-click="handlers().click($event, model())"><span class="ir">{{model().text}}</span></button>
+	<p class="controls__caption-bottom">{{model().text}}</p>
 </div>
