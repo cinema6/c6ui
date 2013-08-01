@@ -13,8 +13,6 @@
 
 				dependencies.forEach(function(dependency) {
 					scope.$watch(dependency, setDirty, (equality || false));
-
-					actualDependencies.push(scope.$eval(dependency));
 				});
 
 				return function() {
