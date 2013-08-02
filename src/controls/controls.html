@@ -4,9 +4,9 @@
 	</div>
 
 	<div class="controls__seek" ng-mouseup="handle.stopSeeking()" ng-mouseleave="handle.stopSeeking()">
-		<button class="controls__btnReturn-icon" ng-click="delegate().return()" title="Return"><span class="ir">Return</span></button>
-		<button class="controls__btnFullscreen-icon" ng-click="delegate().fullscreen()" title="Return"><span class="ir">Fullscreen</span></button>
-		<div class="controls__slider" ng-click="handle.seekbarClick($event)">
+		<button ng-if="state.hasButton('return')" class="controls__btnReturn-icon" ng-click="delegate().return()" title="Return"><span class="ir">Return</span></button>
+		<button ng-if="state.hasButton('fullscreen')" class="controls__btnFullscreen-icon" ng-click="delegate().fullscreen()" title="Return"><span class="ir">Fullscreen</span></button>
+		<div class="controls__slider" ng-style="{'margin-left': state.leftMargin() + 'px', 'margin-right': state.rightMargin() + 'px'}" ng-click="handle.seekbarClick($event)">
 
 			<div class="controls__slider-shadow">&nbsp;</div>
 			<!-- branching video example-->

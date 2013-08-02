@@ -78,7 +78,7 @@
 				}
 
 			.controls__slider {
-				position: relative; margin: 0 58px; top: 10px;
+				position: relative; margin: 0 22px; top: 10px;
 				height: 4px; cursor: pointer;
 				background: #131415; border: #1c1d1f solid 8px;
 			}

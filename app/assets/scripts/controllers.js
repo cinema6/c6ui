@@ -22,7 +22,7 @@
 							var currentTime = event.target.currentTime,
 								totalTime = event.target.duration;
 
-							self.ControlsController.progress((currentTime / totalTime) * 100);
+							self.ControlsController.progress((currentTime / totalTime) * 100, self.segments[0]);
 						})
 						.on('volumechange', function(event) {
 							var volumePercent = event.target.volume * 100,
@@ -103,8 +103,12 @@
 				$log.log('seeking started');
 			};
 
-			this.seek = function(percent) {
-				video.player.currentTime = (percent * video.player.duration) / 100;
+			this.seek = function(percent, segment, percentOfSegment) {
+				if (segment === self.segments[0]) {
+					video.player.currentTime = (percentOfSegment * video.player.duration) / 100;
+				} else {
+					self.ControlsController.progress(100, self.segments[0]);
+				}
 			};
 
 			this.seekStop = function() {

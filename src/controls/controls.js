@@ -32,7 +32,8 @@
 					delegate: '&',
 					controller: '&',
 					segments: '&',
-					nodes: '&'
+					nodes: '&',
+					buttons: '&'
 				},
 				templateUrl: 'assets/lib/c6ui/controls/controls.html',
 				replace: true,
@@ -40,7 +41,7 @@
 			};
 		}])
 
-		.controller('C6ControlsController', ['$scope', '$attrs', '$element', '$document', '$timeout', function($scope, $attrs, $element, $document, $timeout) {
+		.controller('C6ControlsController', ['$scope', '$element', '$document', '$timeout', 'c6Computed', function($scope, $element, $document, $timeout, c) {
 			var noop = angular.noop,
 				delegate = function(method, args) {
 					var actualDelegate = ($scope.delegate || function() { return {}; })();
@@ -56,44 +57,78 @@
 
 					return length;
 				},
-				getSoundwaveOpacity = function(offset) {
-					return (state.volume.muted ? 0 : 1) && (Math.max(0, Math.min(1, ((state.volume.playheadPosition - offset)  * 33) / 1000)));
+				getSoundwaveOpacity = function(offset, muted, playheadPosition) {
+					return (muted ? 0 : 1) && (Math.max(0, Math.min(1, ((playheadPosition - offset)  * 33) / 1000)));
+				},
+				volumeTierDependencies = ['state.volume.playheadPosition', 'state.volume.muted'],
+				leftButtons = ['return'],
+				rightButtons = ['fullscreen'],
+				sortedButtons = function(buttons) {
+					var sorted = {
+						left: [],
+						right: []
+					};
+
+					buttons.forEach(function(button) {
+						if (leftButtons.indexOf(button) !== -1) {
+							sorted.left.push(button);
+						} else if (rightButtons.indexOf(button) !== -1) {
+							sorted.right.push(button);
+						} else {
+							throw new Error(button + ' is not a valid button... :-(');
+						}
+					});
+
+					return sorted;
 				},
 				state = {
 					playing: false,
 					playheadPosition: 0,
 					bufferedPercent: 0,
+					hasButton: function(button) {
+						return ($scope.buttons() || []).indexOf(button) !== -1;
+					},
+					leftMargin: c($scope, function() {
+						var myButtons = sortedButtons(this.buttons() || []).left;
+
+						return myButtons.length ? (myButtons.length * 58) : 22;
+					}, ['buttons().length']),
+					rightMargin: c($scope, function() {
+						var myButtons = sortedButtons(this.buttons() || []).right;
+
+						return myButtons.length ? (myButtons.length * 58) : 22;
+					}, ['buttons().length']),
 					volume: {
 						show: false,
 						seeking: false,
 						playheadPosition: 100,
 						muted: false,
 						tiers: {
-							mute: function() {
+							mute: c($scope, function(playheadPosition, muted) {
 								if (state.volume.playheadPosition === 0 || state.volume.muted) {
 									return 1;
 								} else {
 									return 0;
 								}
-							},
-							low: function() {
-								return getSoundwaveOpacity(0);
-							},
-							med: function() {
-								return getSoundwaveOpacity(33);
-							},
-							high: function() {
-								return getSoundwaveOpacity(67);
-							}
+							}, volumeTierDependencies),
+							low: c($scope, function(playheadPosition, muted) {
+								return getSoundwaveOpacity(0, muted, playheadPosition);
+							}, volumeTierDependencies),
+							med: c($scope, function(playheadPosition, muted) {
+								return getSoundwaveOpacity(33, muted, playheadPosition);
+							}, volumeTierDependencies),
+							high: c($scope, function(playheadPosition, muted) {
+								return getSoundwaveOpacity(67, muted, playheadPosition);
+							}, volumeTierDependencies)
 						}
 					},
 					seeking: false,
 					segments: $scope.segments,
 					nodes: $scope.nodes,
-					pastSegmentsLength: function() {
+					pastSegmentsLength: c($scope, function(segments) {
 						var length = 0;
 
-						this.segments().some(function(segment) {
+						state.segments().some(function(segment) {
 							if (!(segment.__c6Controls && segment.__c6Controls.active())) {
 								length += segment.portion;
 							} else {
@@ -102,13 +137,13 @@
 						});
 
 						return length;
-					}
+					}, ['state.playheadPosition', 'state.segments()'])
 				},
 				getMousePositionAsSeekbarPercent = function(seeker$, mousePosition) {
 					var position = mousePosition - seeker$[0].getBoundingClientRect().left,
 						positionPercent = ((position / seeker$[0].offsetWidth) * 100),
-						marginsAsPercent = ((132 / seeker$.prop('offsetWidth')) * 100),
-						leftPercent = Math.max(0, positionPercent - (marginsAsPercent / 2));
+						marginsAsPercent = (((state.leftMargin() + state.rightMargin() + 16) / seeker$.prop('offsetWidth')) * 100),
+						leftPercent = Math.max(0, positionPercent - (((state.leftMargin() + 8) / seeker$.prop('offsetWidth')) * 100));
 
 					return Math.min(((leftPercent * 100) / (100 - marginsAsPercent)), 100);
 				},
@@ -119,10 +154,33 @@
 
 					return Math.abs((Math.min(((topPercent * 100) / 72), 100)) - 100);
 				},
-				handlePlayheadDrag = function(event) {
-					var seeker$ = angular.element(event.currentTarget);
+				getSegmentAtSeekbarPercent = function(percent) {
+					var leftPosition,
+						foundSegment;
 
-					delegate('seek', [getMousePositionAsSeekbarPercent(seeker$, event.pageX)]);
+					state.segments().some(function(segment) {
+						leftPosition = segment.__c6Controls && segment.__c6Controls.position.left();
+
+						if ((percent >= leftPosition) && (percent <= (leftPosition + segment.portion))) {
+							foundSegment = segment;
+							return true;
+						}
+					});
+
+					return foundSegment;
+				},
+				getSeekbarPercentAsPercentOfSegment = function(percent, segment) {
+					var percentAfterSegmentStart = percent - segment.__c6Controls.position.left();
+
+					return ((percentAfterSegmentStart * 100) / segment.portion);
+				},
+				handlePlayheadDrag = function(event) {
+					var seeker$ = angular.element(event.currentTarget),
+						seekbarPercent = getMousePositionAsSeekbarPercent(seeker$, event.pageX),
+						segmentMouseIsOver = getSegmentAtSeekbarPercent(seekbarPercent),
+						percentOfSegment = getSeekbarPercentAsPercentOfSegment(seekbarPercent, segmentMouseIsOver);
+
+					delegate('seek', [seekbarPercent, segmentMouseIsOver, percentOfSegment]);
 				},
 				handleVolumePlayheadDrag = function(event) {
 					var seeker$ = angular.element(event.currentTarget);
@@ -146,12 +204,15 @@
 						state.seeking = true;
 					},
 					seekbarClick: function(event) {
-						var seeker$ = angular.element(event.currentTarget).parent();
+						var seeker$ = angular.element(event.currentTarget).parent(),
+							seekbarPercent = getMousePositionAsSeekbarPercent(seeker$, event.pageX),
+							segmentMouseIsOver = getSegmentAtSeekbarPercent(seekbarPercent),
+							percentOfSegment = getSeekbarPercentAsPercentOfSegment(seekbarPercent, segmentMouseIsOver);
 
-						if (!state.seeking) {
+						if (!state.seeking && !angular.element(event.target).hasClass('controls__playhead')) {
 							state.seeking = true;
 							waitingForSeekClickToEnd = true;
-							delegate('seek', [getMousePositionAsSeekbarPercent(seeker$, event.pageX)]);
+							delegate('seek', [seekbarPercent, segmentMouseIsOver, percentOfSegment]);
 							// The next time our controller's progress method is called, we'll leave the "seeking" state.
 						}
 					},
@@ -216,7 +277,7 @@
 			controller().pause = function() {
 				state.playing = false;
 			};
-			controller().progress = function(percent) {
+			controller().progress = function(percent, segment) {
 				if (state.seeking) {
 					nodesSeekbarExpectsToHit.length = 0;
 					nodeDetectionSessionInitialized = false;
@@ -243,7 +304,13 @@
 					});
 				}
 
-				state.playheadPosition = percent;
+				state.playheadPosition = (function(_percent) {
+					if (!segment) {
+						return _percent;
+					} else {
+						return ((segment.portion / 100) * _percent);
+					}
+				})(percent);
 			};
 			controller().volumeChange = function(percent) {
 				state.volume.playheadPosition = percent;
