@@ -328,21 +328,23 @@
 			controller().ready = true;
 
 			$scope.$watch('state.segments()', function(segments) {
-				segments.forEach(function(segment, index) {
-					if (!segment.__c6Controls) {
-						segment.__c6Controls = {
-							position: {
-								left: function() { return getCombinedLengthOfPreviousSegments(segments, index); },
-								width: function() {
-									return ((segment.bufferedPercent * segment.portion) / 100);
+				if (segments) {
+					segments.forEach(function(segment, index) {
+						if (!segment.__c6Controls) {
+							segment.__c6Controls = {
+								position: {
+									left: function() { return getCombinedLengthOfPreviousSegments(segments, index); },
+									width: function() {
+										return ((segment.bufferedPercent * segment.portion) / 100);
+									}
+								},
+								active: function() {
+									return ((state.playheadPosition >= this.position.left()) && (state.playheadPosition <= (this.position.left() + segment.portion)));
 								}
-							},
-							active: function() {
-								return ((state.playheadPosition >= this.position.left()) && (state.playheadPosition <= (this.position.left() + segment.portion)));
-							}
-						};
-					}
-				});
+							};
+						}
+					});
+				}
 			});
 
 			// Notify our delegate whenever seeking starts or stops
