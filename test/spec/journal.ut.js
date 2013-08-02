@@ -335,6 +335,80 @@
                         });
 
                     });
+
+                    describe('removeAt',function(){
+
+                        it('should remove a single element from a populated journal',
+                            function(){
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(4);
+                            var items = journal.removeAt(2);
+                            expect(items[0].name).toEqual('eventC');
+                            expect(items[0].data).toBe(data[2]);
+
+                            expect(journal.size()).toEqual(4);
+                            expect(journal.index()).toEqual(3);
+                        });
+
+                        it('decrements the index if removeAt < index < end',function(){
+                            journal.moveTo(3);
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(3);
+
+                            var items = journal.removeAt(2);
+                            expect(items[0].name).toEqual('eventC');
+                            expect(items[0].data).toBe(data[2]);
+
+                            expect(journal.size()).toEqual(4);
+                            expect(journal.index()).toEqual(2);
+                        });
+
+                        it('leaves the index alone if removeAt > index',function(){
+                            journal.moveTo(0);
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(0);
+
+                            var items = journal.removeAt(2);
+                            expect(items[0].name).toEqual('eventC');
+                            expect(items[0].data).toBe(data[2]);
+
+                            expect(journal.size()).toEqual(4);
+                            expect(journal.index()).toEqual(0);
+                        });
+
+                        it('should remove a range of elements from a populated journal',
+                            function(){
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(4);
+                            var items = journal.removeAt(2,2);
+                            expect(items.length).toEqual(2);
+                            expect(items[0].name).toEqual('eventC');
+                            expect(items[0].data).toBe(data[2]);
+                            
+                            expect(items[1].name).toEqual('eventA');
+                            expect(items[1].data).toBe(data[3]);
+                            
+                            expect(journal.size()).toEqual(3);
+                            expect(journal.index()).toEqual(2);
+                        });
+                        
+                        it('should remove a range of elements with negative index',
+                            function(){
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(4);
+                            var items = journal.removeAt(-1,2);
+                            expect(items.length).toEqual(2);
+                            expect(items[0].name).toEqual('eventA');
+                            expect(items[0].data).toBe(data[3]);
+                            
+                            expect(items[1].name).toEqual('eventB');
+                            expect(items[1].data).toBe(data[4]);
+                            
+                            expect(journal.size()).toEqual(3);
+                            expect(journal.index()).toEqual(2);
+                        });
+
+                    });
                     
 
                 }); // end manipulation interface
@@ -370,7 +444,11 @@
                         it ('should throw Range Error when arg is too low',function(){
                             expect(function(){
                                 journal.moveTo(-1)
-                            }).toThrow('-1 is too low.');
+                            }).not.toThrow('-1 is too low.');
+                            
+                            expect(function(){
+                                journal.moveTo(-2)
+                            }).toThrow('-2 is too low.');
                         });
 
                         it ('should throw Range Error when arg is too high',function(){
@@ -420,7 +498,7 @@
 
                         it('with same event and differnt data should emit',function(){
                             var historyChanged = false;
-                            journal.on('historyIsRewritten',function(index,newVal,origVal){
+                            journal.on('historyIsUpdated',function(index,newVal,origVal){
                                 expect(newVal.name).toEqual(origVal.name);
                                 expect(newVal.data).toBeNull();
                                 expect(newVal.updated).not.toBeNull();
@@ -448,6 +526,43 @@
                             expect(itmNew.name).toEqual(itmOrig.name);
                             expect(itmNew.data).toBeNull();
                             expect(itmNew.updated).not.toBeNull();
+
+                            expect(function(){ $timeout.flush(); }).not.toThrow();
+
+                            expect(historyChanged).toBeTruthy();
+
+                        });
+
+                        it('with different event and differnt data should emit',function(){
+                            var historyChanged = false;
+                            journal.on('historyIsRewritten',function(index,newVal,origVal){
+                                expect(newVal.name).not.toEqual(origVal.name);
+                                expect(newVal.data).toBeNull();
+                                expect(newVal.updated).toBeNull();
+                                historyChanged = true; 
+                            });
+
+                            // Move to index 1
+                            journal.moveTo(1);
+
+                            // Get what's in the next slot
+                            var itmOrig = journal.getAt(journal.index() + 1);
+                            expect(itmOrig.updated).toBeNull();
+
+                            // Record over it with same event name but no data
+                            journal.recordEvent('aDifferentEventName');
+                            
+                            // The size of the journal should be the same and
+                            // the index should have incremented to the next slot
+                            expect(journal.size()).toEqual(5);
+                            expect(journal.index()).toEqual(2);
+
+                           
+                            // Get what's there now
+                            var itmNew = journal.getAt();
+                            expect(itmNew.name).toEqual('aDifferentEventName');
+                            expect(itmNew.data).toBeNull();
+                            expect(itmNew.updated).toBeNull();
 
                             expect(function(){ $timeout.flush(); }).not.toThrow();
 
@@ -496,16 +611,16 @@
                         });
 
                         describe('events',function(){
-                            it('emits historyIsRewritten',function(){
+                            it('emits historyIsUpdated',function(){
                                 var historyChanged = false, historyChanged_s = false;
-                                journal.on('historyIsRewritten',function(index,newVal,origVal){
+                                journal.on('historyIsUpdated',function(index,newVal,origVal){
                                     expect(newVal.name).toEqual(origVal.name);
                                     expect(newVal.data).toBeNull();
                                     expect(newVal.updated).not.toBeNull();
                                     historyChanged = true; 
                                 });
 
-                                subscriber.on('historyIsRewritten',function(index,newVal,origVal){
+                                subscriber.on('historyIsUpdated',function(index,newVal,origVal){
                                     expect(newVal.name).toEqual(origVal.name);
                                     expect(newVal.data).toBeNull();
                                     expect(newVal.updated).not.toBeNull();
