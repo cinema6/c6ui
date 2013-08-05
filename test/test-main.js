@@ -35,6 +35,9 @@
             },
 			"computed/computed": {
 				"deps": ["c6ui"]
+			},
+			"controls/controls": {
+				"deps": ["computed/computed"]
 			}
         },
 
