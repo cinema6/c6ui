@@ -506,6 +506,9 @@
 
 							$scope.controller().progress(50, segments[0]);
 							expect($scope.state.playheadPosition).toBe(25);
+
+							$scope.controller().progress(50, segments[1]);
+							expect($scope.state.playheadPosition).toBe(75);
 						});
 
 						describe('node notifications', function() {

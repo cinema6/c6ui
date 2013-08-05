@@ -5,40 +5,49 @@
 		.controller('AppController', ['$scope', function($scope) {
 
 		}])
-		.controller('VideoPlayerController', ['$scope', '$log', function($scope, $log) {
-			var video,
-				self = this;
+		.controller('VideoPlayerController', ['$scope', '$timeout', '$log', function($scope, $timeout, $log) {
+			var videos = {},
+				self = this,
+				videoHandlers = {
+					play: function() {
+						self.ControlsController.play();
+					},
+					pause: function() {
+						self.ControlsController.pause();
+					},
+					progress: function(event, c6video) {
+						self.ControlsController.buffer(c6video.bufferedPercent() * 100, self.segments[c6video.id]);
+					},
+					timeupdate: function(event, c6video) {
+						if (self.currentVideoIndex == c6video.id) {
+							self.ControlsController.progress((c6video.player.currentTime / c6video.player.duration) * 100, self.segments[c6video.id]);
+						}
+					},
+					ended: function(event, c6video) {
+						var segmentsLength = Object.keys(self.segments).length;
+
+						c6video.player.pause();
+
+						if (c6video.id < (segmentsLength - 1)) {
+							self.currentVideoIndex += 1;
+							videos[self.currentVideoIndex].player.play();
+						}
+					}
+				};
 
 			$scope.$on('c6video-ready', function(event, c6video) {
 				var setupEventListeners = function() {
 					c6video
-						.on('play', function() {
-							self.ControlsController.play();
-						})
-						.on('pause', function() {
-							self.ControlsController.pause();
-						})
-						.on('timeupdate', function(event) {
-							var currentTime = event.target.currentTime,
-								totalTime = event.target.duration;
+						.on('play', videoHandlers.play)
+						.on('pause', videoHandlers.pause)
+						.on('progress', videoHandlers.progress)
+						.on('timeupdate', videoHandlers.timeupdate)
+						.on('ended', videoHandlers.ended);
 
-							self.ControlsController.progress((currentTime / totalTime) * 100, self.segments[0]);
-						})
-						.on('volumechange', function(event) {
-							var volumePercent = event.target.volume * 100,
-								muted = event.target.muted;
-
-							self.ControlsController.volumeChange(volumePercent);
-							self.ControlsController.muteChange(muted);
-						})
-						.on('progress', function() {
-							self.ControlsController.buffer(c6video.bufferedPercent() * 100);
-						});
-
-					self.ControlsController.buffer(c6video.bufferedPercent() * 100);
+					self.ControlsController.buffer(c6video.bufferedPercent() * 100, self.segments[c6video.id]);
 				};
-				
-				video = c6video;
+
+				videos[c6video.id] = c6video;
 
 				if (self.ControlsController.ready) {
 					setupEventListeners();
@@ -52,51 +61,62 @@
 				}
 			});
 
+			this.currentVideoIndex = 0;
+
 			this.segments = [
 				{
-					portion: 20,
-					bufferedPercent: 0
+					src: 'http://c6.dev.s3-website-us-east-1.amazonaws.com/media/demo/EBH',
+					portion: 29
 				},
 				{
-					portion: 5,
-					bufferedPercent: 50
+					src: 'http://c6.dev.s3-website-us-east-1.amazonaws.com/media/demo/Guitar_Tap',
+					portion: 13
 				},
 				{
-					portion: 21,
-					bufferedPercent: 80
+					src: 'http://c6.dev.s3-website-us-east-1.amazonaws.com/media/demo/McLaren',
+					portion: 42
 				},
 				{
-					portion: 54,
-					bufferedPercent: 80
+					src: 'http://c6.dev.s3-website-us-east-1.amazonaws.com/media/demo/Puddle',
+					portion: 2
+				},
+				{
+					src: 'http://c6.dev.s3-website-us-east-1.amazonaws.com/media/demo/Unbelievable_Dinner',
+					portion: 14
 				}
 			];
 
 			this.nodes = [
 				{
-					position: 20,
+					position: 29,
 					style: 'scene',
-					text: 'Hello world!'
+					text: 'Guitar Tap'
 				},
 				{
-					position: 25,
+					position: 42,
 					style: 'scene',
-					text: 'How is life?'
+					text: 'McLaren'
 				},
 				{
-					position: 46,
+					position: 84,
 					style: 'scene',
-					text: 'Foo'
+					text: 'Puddle'
+				},
+				{
+					position: 86,
+					style: 'scene',
+					text: 'Dinner'
 				}
 			];
 
 			this.ControlsController = {};
 
 			this.play = function() {
-				video.player.play();
+				videos[self.currentVideoIndex].player.play();
 			};
 
 			this.pause = function() {
-				video.player.pause();
+				videos[self.currentVideoIndex].player.pause();
 			};
 
 			this.seekStart = function() {
@@ -104,10 +124,12 @@
 			};
 
 			this.seek = function(percent, segment, percentOfSegment) {
-				if (segment === self.segments[0]) {
-					video.player.currentTime = (percentOfSegment * video.player.duration) / 100;
+				if (segment === self.segments[self.currentVideoIndex]) {
+					videos[self.currentVideoIndex].player.currentTime = (percentOfSegment * videos[self.currentVideoIndex].player.duration) / 100;
 				} else {
-					self.ControlsController.progress(100, self.segments[0]);
+					videos[self.currentVideoIndex].player.pause();
+					self.currentVideoIndex = self.segments.indexOf(segment);
+					self.seek(percent, segment, percentOfSegment);
 				}
 			};
 
@@ -116,15 +138,33 @@
 			};
 
 			this.volumeSeek = function(percent) {
-				video.player.volume = percent / 100;
+				var key;
+
+				for (key in videos) {
+					videos[key].player.volume = percent / 100;
+				}
+
+				$timeout(function() { self.ControlsController.volumeChange(percent); }, 0);
 			};
 
 			this.mute = function() {
-				video.player.muted = true;
+				var key;
+
+				for (key in videos) {
+					videos[key].player.muted = true;
+				}
+
+				self.ControlsController.muteChange(true);
 			};
 
 			this.unmute = function() {
-				video.player.muted = false;
+				var key;
+
+				for (key in videos) {
+					videos[key].player.muted = false;
+				}
+
+				self.ControlsController.muteChange(false);
 			};
 
 			this.fullscreen = function() {
@@ -132,7 +172,7 @@
 			};
 
 			this.return = function() {
-				$log.log('return');
+				videos[self.currentVideoIndex].player.currentTime = 0.25;
 			};
 
 			this.nodeClicked = function(node) {

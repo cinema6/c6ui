@@ -16,8 +16,10 @@
 	</head>
 	<body>
 		<div class="video" ng-controller="VideoPlayerController">
-			<video id="player" c6video c6-src="'http://media.w3.org/2010/05/sintel/trailer'"></video>
-			<c6-controls delegate="VideoPlayerCtrl" controller="VideoPlayerCtrl.ControlsController" segments="VideoPlayerCtrl.segments" nodes="VideoPlayerCtrl.nodes" class="controls"></c6-video-controls>
+			<div class="player" ng-repeat="segment in VideoPlayerCtrl.segments" ng-show="$index === VideoPlayerCtrl.currentVideoIndex">
+				<video id="{{$index}}" c6video c6-src="segment.src"></video>
+			</div>
+			<c6-controls delegate="VideoPlayerCtrl" controller="VideoPlayerCtrl.ControlsController" segments="VideoPlayerCtrl.segments" nodes="VideoPlayerCtrl.nodes" buttons="['return']" class="controls"></c6-video-controls>
 		</div>
 	</body>
 </html>

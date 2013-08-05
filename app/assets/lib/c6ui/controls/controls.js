@@ -282,7 +282,7 @@
 					if (!segment) {
 						return _percent;
 					} else {
-						return ((segment.portion / 100) * _percent);
+						return (((segment.portion / 100) * _percent) + segment.__c6Controls.position.left());
 					}
 				})(percent);
 
