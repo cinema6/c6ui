@@ -3,6 +3,9 @@
 	display: inline-block;
 	width: 100%;
 }
+	.video .player {
+		max-height: 95%;
+	}
 	.video video {
 		width: 100%;
 		max-height: 95%;

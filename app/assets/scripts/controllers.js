@@ -30,6 +30,7 @@
 
 						if (c6video.id < (segmentsLength - 1)) {
 							self.currentVideoIndex += 1;
+							videos[self.currentVideoIndex].player.currentTime = 0;
 							videos[self.currentVideoIndex].player.play();
 						}
 					}
