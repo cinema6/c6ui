@@ -278,6 +278,14 @@
 				state.playing = false;
 			};
 			controller().progress = function(percent, segment) {
+				state.playheadPosition = (function(_percent) {
+					if (!segment) {
+						return _percent;
+					} else {
+						return ((segment.portion / 100) * _percent);
+					}
+				})(percent);
+
 				if (state.seeking) {
 					nodesSeekbarExpectsToHit.length = 0;
 					nodeDetectionSessionInitialized = false;
@@ -287,6 +295,8 @@
 						state.seeking = false;
 					}
 				} else {
+					var nodesToTrash = [];
+
 					if (!nodeDetectionSessionInitialized) {
 						state.nodes().forEach(function(node) {
 							if (node.position > state.playheadPosition) {
@@ -298,19 +308,15 @@
 
 					nodesSeekbarExpectsToHit.forEach(function(node, index) {
 						if (node.position <= state.playheadPosition) {
-							nodesSeekbarExpectsToHit.splice(index, 1);
+							nodesToTrash.push(node);
 							delegate('nodeReached', [node]);
 						}
 					});
-				}
 
-				state.playheadPosition = (function(_percent) {
-					if (!segment) {
-						return _percent;
-					} else {
-						return ((segment.portion / 100) * _percent);
-					}
-				})(percent);
+					nodesToTrash.forEach(function(node) {
+						nodesSeekbarExpectsToHit.splice(nodesSeekbarExpectsToHit.indexOf(node), 1);
+					});
+				}
 			};
 			controller().volumeChange = function(percent) {
 				state.volume.playheadPosition = percent;
@@ -318,31 +324,50 @@
 			controller().muteChange = function(mute) {
 				state.volume.muted = mute;
 			};
-			controller().buffer = function(percent, segmentIndex) {
-				if (segmentIndex === null || segmentIndex === undefined) {
-					segmentIndex = 0;
-				}
-
-				state.segments()[segmentIndex].bufferedPercent = percent;
+			controller().buffer = function(percent, segment) {
+				(segment || state.segments()[0]).bufferedPercent = percent;
 			};
 			controller().ready = true;
 
-			$scope.$watch('state.segments()', function(segments) {
-				segments.forEach(function(segment, index) {
-					if (!segment.__c6Controls) {
-						segment.__c6Controls = {
-							position: {
-								left: function() { return getCombinedLengthOfPreviousSegments(segments, index); },
-								width: function() {
-									return ((segment.bufferedPercent * segment.portion) / 100);
+			$scope.$watch('segments()', function(segments) {
+				if (segments && segments.length) {
+					state.segments = $scope.segments;
+
+					segments.forEach(function(segment, index) {
+						if (!segment.__c6Controls) {
+							segment.__c6Controls = {
+								position: {
+									left: function() { return getCombinedLengthOfPreviousSegments(segments, index); },
+									width: function() {
+										return ((segment.bufferedPercent * segment.portion) / 100);
+									}
+								},
+								active: function() {
+									return ((state.playheadPosition >= this.position.left()) && (state.playheadPosition <= (this.position.left() + segment.portion)));
 								}
+							};
+						}
+					});
+				} else {
+					var segment = {
+						portion: 100,
+						bufferedPercent: 0,
+						__c6Controls: {
+							position: {
+								left: function() { return 0; },
+								width: function() { return segment.bufferedPercent; }
 							},
 							active: function() {
-								return ((state.playheadPosition >= this.position.left()) && (state.playheadPosition <= (this.position.left() + segment.portion)));
+								return true;
 							}
-						};
-					}
-				});
+						}
+					},
+					wrappedSegment = [segment];
+
+					state.segments = function() {
+						return wrappedSegment;
+					};
+				}
 			});
 
 			// Notify our delegate whenever seeking starts or stops

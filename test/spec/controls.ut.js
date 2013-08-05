@@ -6,6 +6,7 @@
 			describe('the controller', function() {
 				var Controller,
 					$rootScope,
+					$timeout,
 					$scope,
 					$element = [{
 						querySelector: function(query) {
@@ -13,18 +14,35 @@
 						}
 					}],
 					$document,
-					buttons;
+					buttons,
+					segments,
+					nodes,
+					delegate,
+					controller = {};
 
 				beforeEach(module('c6.ui'));
-				beforeEach(inject(function($controller, _$rootScope_, $timeout, c6Computed) {
+				beforeEach(inject(function($controller, _$rootScope_, _$timeout_, c6Computed) {
 					$rootScope = _$rootScope_;
+					$timeout = _$timeout_;
+
+					segments = null;
+					buttons = null;
 
 					$scope = $rootScope.$new(true);
+					$scope.delegate = function() {
+						return delegate;
+					};
 					$scope.controller = function() {
-						return {};
+						return controller;
 					};
 					$scope.buttons = function() {
 						return buttons;
+					};
+					$scope.segments = function() {
+						return segments;
+					};
+					$scope.nodes = function() {
+						return nodes;
 					};
 
 					Controller = $controller('C6ControlsController', { $scope: $scope, $element: $element, $document: $document, $timeout: $timeout, c6Computed: c6Computed });
@@ -91,7 +109,7 @@
 					});
 
 					describe('volume tiers', function() {
-						beforeEach(function() { $scope.state.volume.playheadPosition = 0 });
+						beforeEach(function() { $scope.state.volume.playheadPosition = 0; });
 
 						describe('mute', function() {
 							it('should be 1 if the controls are muted or the volume is 0', function() {
@@ -125,6 +143,14 @@
 								$scope.$digest();
 								expect($scope.state.volume.tiers.low()).toBe(1);
 							});
+
+							it('should be 0 if the controls are muted', function() {
+								$scope.state.volume.playheadPosition = 50;
+								$scope.state.volume.muted = true;
+								$scope.$digest();
+
+								expect($scope.state.volume.tiers.low()).toBe(0);
+							});
 						});
 
 						describe('med', function() {
@@ -151,6 +177,14 @@
 							it('should never go below 0', function() {
 								expect($scope.state.volume.tiers.med()).toBe(0);
 							});
+
+							it('should be 0 if the controls are muted', function() {
+								$scope.state.volume.playheadPosition = 50;
+								$scope.state.volume.muted = true;
+								$scope.$digest();
+
+								expect($scope.state.volume.tiers.med()).toBe(0);
+							});
 						});
 
 						describe('high', function() {
@@ -171,6 +205,416 @@
 							it('should never go below 0', function() {
 								expect($scope.state.volume.tiers.high()).toBe(0);
 							});
+
+							it('should be 0 if the controls are muted', function() {
+								$scope.state.volume.playheadPosition = 50;
+								$scope.state.volume.muted = true;
+								$scope.$digest();
+
+								expect($scope.state.volume.tiers.high()).toBe(0);
+							});
+						});
+					});
+
+					describe('segments', function() {
+						beforeEach(function() { segments = null; });
+
+						it('should create a default segment if none are passed in', function() {
+							$scope.$digest();
+
+							expect($scope.state.segments().length).toBe(1);
+						});
+
+						it('should be "active" if the playhead is in the segment', function() {
+							var segmentIsActive = function(segment) {
+								segments.forEach(function(thisSegment) {
+									if (segment === thisSegment) {
+										expect(thisSegment.__c6Controls.active()).toBe(true);
+									} else {
+										expect(thisSegment.__c6Controls.active()).toBe(false);
+									}
+								});
+							};
+
+							segments = [
+								{
+									portion: 25,
+									bufferedPercent: 100
+								},
+								{
+									portion: 25,
+									bufferedPercent: 100
+								},
+								{
+									portion: 30,
+									bufferedPercent: 100
+								},
+								{
+									portion: 20,
+									bufferedPercent: 100
+								}
+							];
+
+							$scope.state.playheadPosition = 0;
+							$scope.$digest();
+
+							segmentIsActive(segments[0]);
+
+							$scope.state.playheadPosition = 30;
+							$scope.$digest();
+
+							segmentIsActive(segments[1]);
+
+							$scope.state.playheadPosition = 75;
+							$scope.$digest();
+
+							segmentIsActive(segments[2]);
+
+							$scope.state.playheadPosition = 99;
+							$scope.$digest();
+							segmentIsActive(segments[3]);
+						});
+
+						describe('past segments length', function() {
+							it('should be the length of all the segments before the active one', function() {
+								segments = [
+									{
+										portion: 25,
+										bufferedPercent: 0
+									},
+									{
+										portion: 25,
+										bufferedPercent: 0
+									},
+									{
+										portion: 50,
+										bufferedPercent: 0
+									}
+								];
+								$scope.$digest();
+
+								expect($scope.state.pastSegmentsLength()).toBe(0);
+
+								$scope.state.playheadPosition = 30;
+								$scope.$digest();
+								expect($scope.state.pastSegmentsLength()).toBe(25);
+
+								$scope.state.playheadPosition = 60;
+								$scope.$digest();
+								expect($scope.state.pastSegmentsLength()).toBe(50);
+							});
+						});
+					});
+				});
+
+				describe('handling user events', function() {
+					beforeEach(function() {
+						delegate = {
+							play: jasmine.createSpy(),
+							pause: jasmine.createSpy(),
+							seek: jasmine.createSpy(),
+							mute: jasmine.createSpy(),
+							unmute: jasmine.createSpy(),
+							nodeClicked: jasmine.createSpy(),
+							seekStart: jasmine.createSpy(),
+							seekStop: jasmine.createSpy()
+						};
+					});
+
+					describe('seek', function() {
+						it('should notify the delegate when seeking starts and stops', function() {
+							expect($scope.delegate().seekStart).not.toHaveBeenCalled();
+
+							$scope.handle.startSeeking();
+							$scope.$digest();
+							expect($scope.delegate().seekStart).toHaveBeenCalled();
+
+							expect($scope.delegate().seekStop).not.toHaveBeenCalled();
+
+							$scope.handle.stopSeeking();
+							$scope.$digest();
+							expect($scope.delegate().seekStop).toHaveBeenCalled();
+						});
+
+						it('should notify the delegate when seeking starts, but not when seeking ends until the controller\'s progress method is called, when the seekbar is clicked', function() {
+							var event = {
+								currentTarget: {
+									parentNode: {
+										getBoundingClientRect: function() {
+											return {
+												left: 50
+											};
+										},
+										offsetWidth: 600
+									}
+								},
+								target: {},
+								pageX: 100
+							};
+
+							$scope.$digest();
+
+							$scope.handle.seekbarClick(event);
+							$scope.$digest();
+							expect($scope.delegate().seekStart).toHaveBeenCalled();
+							expect($scope.delegate().seekStop).not.toHaveBeenCalled();
+
+							$scope.controller().progress(0);
+							$scope.$digest();
+							expect($scope.delegate().seekStop).toHaveBeenCalled();
+						});
+					});
+
+					describe('playPause', function() {
+						it('should notify the delegate of play/pause depending on the state.', function() {
+							expect($scope.delegate().play).not.toHaveBeenCalled();
+
+							$scope.handle.playPause();
+							expect($scope.delegate().play).toHaveBeenCalled();
+							expect($scope.delegate().pause).not.toHaveBeenCalled();
+
+							$scope.state.playing = true;
+							$scope.handle.playPause();
+							expect($scope.delegate().pause).toHaveBeenCalled();
+						});
+					});
+
+					describe('seeking', function() {
+						beforeEach(function() {
+							$scope.state.seeking = false;
+						});
+
+						it('should set the seeking state to true', function() {
+							expect($scope.state.seeking).toBe(false);
+
+							$scope.handle.startSeeking();
+							expect($scope.state.seeking).toBe(true);
+						});
+					});
+
+					describe('volume', function() {
+						describe('muteUnmute', function() {
+							it('should notify the delegate of mute/unmute depending on the state.', function() {
+								expect($scope.delegate().mute).not.toHaveBeenCalled();
+
+								$scope.handle.volume.muteUnmute();
+								expect($scope.delegate().mute).toHaveBeenCalled();
+								expect($scope.delegate().unmute).not.toHaveBeenCalled();
+
+								$scope.state.volume.muted = true;
+								$scope.handle.volume.muteUnmute();
+								expect($scope.delegate().unmute).toHaveBeenCalled();
+							});
+						});
+
+						describe('showing/hiding the box', function() {
+							it('should immediately show', function() {
+								$scope.handle.volume.show();
+								expect($scope.state.volume.show).toBe(true);
+							});
+
+							it('should wait 1 second before hiding', function() {
+								$scope.state.volume.show = true;
+
+								$scope.handle.volume.hide();
+								expect($scope.state.volume.show).toBe(true);
+								$timeout.flush();
+								expect($scope.state.volume.show).toBe(false);
+							});
+						});
+					});
+
+					describe('nodes', function() {
+						describe('clicking', function() {
+							it('should notify the delegate when one is clicked', function() {
+								var event = {
+									stopPropagation: function() {}
+								};
+
+								nodes = [
+									{
+										position: 25,
+										text: 'hey'
+									},
+									{
+										position: 50,
+										text: 'hello'
+									},
+									{
+										position: 75,
+										text: 'foo'
+									}
+								];
+
+								expect($scope.delegate().nodeClicked).not.toHaveBeenCalled();
+
+								$scope.handle.node.click(event, nodes[1]);
+
+								expect($scope.delegate().nodeClicked).toHaveBeenCalledWith(nodes[1]);
+							});
+						});
+					});
+				});
+
+				describe('controller methods', function() {
+					beforeEach(function() {
+						waitsFor(function() {
+							return $scope.controller().ready;
+						});
+					});
+
+					describe('play', function() {
+						it('should set the state to playing', function() {
+							expect($scope.state.playing).toBe(false);
+
+							$scope.controller().play();
+							expect($scope.state.playing).toBe(true);
+						});
+					});
+
+					describe('pause', function() {
+						it('should set the state to not playing', function() {
+							$scope.state.playing = true;
+
+							$scope.controller().pause();
+							expect($scope.state.playing).toBe(false);
+						});
+					});
+
+					describe('progress', function() {
+						it('should change the position of the playhead', function() {
+							expect($scope.state.playheadPosition).toBe(0);
+
+							$scope.controller().progress(25);
+							expect($scope.state.playheadPosition).toBe(25);
+						});
+
+						it('should only progress in a segment if that segment is passed in', function() {
+							segments = [
+								{
+									portion: 50,
+									bufferedPercent: 100
+								},
+								{
+									portion: 50,
+									bufferedPercent: 100
+								}
+							];
+							$scope.$digest();
+
+							expect($scope.state.playheadPosition).toBe(0);
+
+							$scope.controller().progress(50, segments[0]);
+							expect($scope.state.playheadPosition).toBe(25);
+						});
+
+						describe('node notifications', function() {
+							beforeEach(function() {
+								nodes = [
+									{
+										position: 25
+									},
+									{
+										position: 50
+									},
+									{
+										position: 70
+									},
+									{
+										position: 95
+									}
+								];
+
+								delegate = {
+									nodeReached: jasmine.createSpy()
+								};
+							});
+
+							it('should normally notify you', function() {
+								expect($scope.delegate().nodeReached.callCount).toBe(0);
+
+								$scope.controller().progress(1);
+								expect($scope.delegate().nodeReached.callCount).toBe(0);
+
+								$scope.controller().progress(30);
+								expect($scope.delegate().nodeReached.callCount).toBe(1);
+
+								$scope.controller().progress(50.1);
+								expect($scope.delegate().nodeReached.callCount).toBe(2);
+
+								$scope.controller().progress(100);
+								expect($scope.delegate().nodeReached.callCount).toBe(4);
+							});
+
+							it('should not notify you if you are seeking', function() {
+								expect($scope.delegate().nodeReached).not.toHaveBeenCalled();
+
+								$scope.state.seeking = true;
+
+								$scope.controller().progress(1);
+								expect($scope.delegate().nodeReached).not.toHaveBeenCalled();
+
+								$scope.controller().progress(30);
+								expect($scope.delegate().nodeReached).not.toHaveBeenCalled();
+
+								$scope.controller().progress(50.1);
+								expect($scope.delegate().nodeReached).not.toHaveBeenCalled();
+
+								$scope.controller().progress(100);
+								expect($scope.delegate().nodeReached).not.toHaveBeenCalled();
+							});
+						});
+					});
+
+					describe('volumeChange', function() {
+						it('should change the volume playhead position', function() {
+							expect($scope.state.volume.playheadPosition).toBe(100);
+
+							$scope.controller().volumeChange(50);
+							expect($scope.state.volume.playheadPosition).toBe(50);
+						});
+					});
+
+					describe('muteChange', function() {
+						it('should change the muted state of the player', function() {
+							expect($scope.state.volume.muted).toBe(false);
+
+							$scope.controller().muteChange(true);
+							expect($scope.state.volume.muted).toBe(true);
+
+							$scope.controller().muteChange(false);
+							expect($scope.state.volume.muted).toBe(false);
+						});
+					});
+
+					describe('buffer', function() {
+						it('should change the bufferedPercent property of the first segment if no segment is passed in', function() {
+							$scope.$digest();
+
+							expect($scope.state.segments()[0].bufferedPercent).toBe(0);
+
+							$scope.controller().buffer(50);
+							expect($scope.state.segments()[0].bufferedPercent).toBe(50);
+						});
+
+						it('should changed the bufferedPercent property of a specific segment if that segment is passed in', function() {
+							segments = [
+								{
+									portion: 50
+								},
+								{
+									portion: 50
+								}
+							];
+
+							$scope.$digest();
+
+							expect($scope.state.segments()[0].bufferedPercent).toBeFalsy();
+							expect($scope.state.segments()[1].bufferedPercent).toBeFalsy();
+
+							$scope.controller().buffer(50, segments[1]);
+							expect($scope.state.segments()[0].bufferedPercent).toBeFalsy();
+							expect($scope.state.segments()[1].bufferedPercent).toBe(50);
 						});
 					});
 				});
