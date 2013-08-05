@@ -69,7 +69,7 @@ module.exports = function (grunt) {
 						return [
 							connect.static(options.base),
 							connect.directory(options.base)
-						]
+						];
 					}
 				}
 			}
@@ -109,7 +109,7 @@ module.exports = function (grunt) {
         grunt.task.run('clean');
 		grunt.task.run('copy:dist');
     });
-	
+
 	grunt.registerTask('server', function() {
 		grunt.task.run('copy:app');
         grunt.task.run('connect:dev');
