@@ -1,6 +1,6 @@
 (function() {
 	'use strict';
-	
+
 	angular.module('c6.ui')
 		.directive('c6ControlsNode', [function() {
 			return {
@@ -105,7 +105,7 @@
 						muted: false,
 						tiers: {
 							mute: c($scope, function(playheadPosition, muted) {
-								if (state.volume.playheadPosition === 0 || state.volume.muted) {
+								if (playheadPosition === 0 || muted) {
 									return 1;
 								} else {
 									return 0;
@@ -125,10 +125,10 @@
 					seeking: false,
 					segments: $scope.segments,
 					nodes: $scope.nodes,
-					pastSegmentsLength: c($scope, function(segments) {
+					pastSegmentsLength: c($scope, function(playheadPosition, segments) {
 						var length = 0;
 
-						state.segments().some(function(segment) {
+						segments.some(function(segment) {
 							if (!(segment.__c6Controls && segment.__c6Controls.active())) {
 								length += segment.portion;
 							} else {
@@ -199,7 +199,7 @@
 							delegate('pause');
 						}
 					},
-					startSeeking: function(event) {
+					startSeeking: function() {
 						slider$.bind('mousemove', handlePlayheadDrag);
 						state.seeking = true;
 					},
@@ -216,7 +216,7 @@
 							// The next time our controller's progress method is called, we'll leave the "seeking" state.
 						}
 					},
-					stopSeeking: function(event) {
+					stopSeeking: function() {
 						if (state.seeking) {
 							slider$.unbind('mousemove', handlePlayheadDrag);
 							state.seeking = false;
@@ -306,7 +306,7 @@
 						nodeDetectionSessionInitialized = true;
 					}
 
-					nodesSeekbarExpectsToHit.forEach(function(node, index) {
+					nodesSeekbarExpectsToHit.forEach(function(node) {
 						if (node.position <= state.playheadPosition) {
 							nodesToTrash.push(node);
 							delegate('nodeReached', [node]);
@@ -374,7 +374,7 @@
 			$scope.$watch('state.seeking', function(seeking, previousState) {
 				if (seeking === true) {
 					delegate('seekStart');
-				} else if (seeking === false && seeking != previousState) {
+				} else if (seeking === false && seeking !== previousState) {
 					delegate('seekStop');
 				}
 			});
