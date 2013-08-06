@@ -2,25 +2,53 @@
 	'use strict';
 
 	angular.module('c6.ui')
-		.directive('c6ControlsNode', [function() {
+		.directive('c6ControlsNode', ['c6Computed', '$timeout', '$window', function(c, $timeout, $window) {
 			return {
 				restrict: 'E',
 				scope: {
 					model: '&',
 					handlers: '&'
 				},
+				require: '^c6Controls',
 				templateUrl: 'assets/lib/c6ui/controls/node.html',
 				replace: true,
-				link: function(scope, element) {
-					scope.$watch('model().position', function(position) {
-						element.css('left', position + '%');
-					});
+				link: function(scope, element, attrs, C6ControlsController) {
+					var setRectPosition = function() {
+						if (!scope.model()) {
+							return false; // Not ready yet...
+						} else if (!scope.model().__c6ControlsNode) {
+							scope.model().__c6ControlsNode = {
+								position: {},
+								top: false
+							};
+						}
 
-					scope.$watch('model().text', function() {
+						var positionObject = scope.model().__c6ControlsNode.position,
+							rect = element[0].getBoundingClientRect();
+
+						positionObject.left = rect.left;
+						positionObject.right = rect.right;
+					};
+					$timeout(setRectPosition, 0); // Initialize
+
+					scope.leftMargin = c(scope, function() {
 						var width = element.prop('offsetWidth');
 
-						element.css('margin-left', ((width / 2) * -1) + 'px');
+						return ((width / 2) * -1);
+					}, ['model().text']);
+
+					angular.element($window).bind('resize', function() { scope.$apply(setRectPosition()); });
+					scope.$watch('leftMargin()', function(newValue, oldValue) {
+						if (newValue !== oldValue) {
+							setRectPosition();
+						}
 					});
+
+					scope.$watch('model().__c6ControlsNode.position', function(position) {
+						if (position) {
+							C6ControlsController.shuffleNodes(scope.model());
+						}
+					}, true);
 				}
 			};
 		}])
@@ -378,6 +406,28 @@
 					delegate('seekStop');
 				}
 			});
+
+			this.shuffleNodes = function() {
+				var nodes = state.nodes();
+
+				nodes.forEach(function(node, index) {
+					if (index) {
+						var previousNode = nodes[index - 1],
+							nodesAreReady = !!(previousNode.__c6ControlsNode && node.__c6ControlsNode);
+
+						if (nodesAreReady) {
+							var myPosition = node.__c6ControlsNode.position,
+								previousNodePosition = previousNode.__c6ControlsNode.position;
+
+							if ((myPosition.left > previousNodePosition.right) || previousNode.__c6ControlsNode.top) {
+								node.__c6ControlsNode.top = false;
+							} else if (myPosition.left <= previousNodePosition.right) {
+								node.__c6ControlsNode.top = true;
+							}
+						}
+					}
+				});
+			};
 
 			$scope.handle = handle;
 
