@@ -326,7 +326,7 @@
 					var nodesToTrash = [];
 
 					if (!nodeDetectionSessionInitialized) {
-						state.nodes().forEach(function(node) {
+						(state.nodes() || []).forEach(function(node) {
 							if (node.position > state.playheadPosition) {
 								nodesSeekbarExpectsToHit.push(node);
 							}
