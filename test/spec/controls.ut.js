@@ -27,6 +27,7 @@
 
 					segments = null;
 					buttons = null;
+					nodes = null;
 
 					$scope = $rootScope.$new(true);
 					$scope.delegate = function() {
