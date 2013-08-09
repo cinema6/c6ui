@@ -21,7 +21,7 @@
 
 			<div class="controls__slider-active" ng-style="{width: (state.playheadPosition || 0) + '%'}">&nbsp;</div>
 			<div class="controls__playhead" ng-style="{left: state.playheadPosition + '%'}" ng-mousedown="handle.startSeeking()">&nbsp;</div>
-			<div ng-repeat="segment in state.segments()" class="controls__slider-buffer" ng-style="{width: (segment.__c6Controls.position.width() || 0) + '%', left: segment.__c6Controls.position.left() + '%;'}">&nbsp;</div>
+			<div ng-repeat="segment in state.segments()" class="controls__slider-buffer" ng-style="{width: (segment.__c6Controls.position.width() || 0) + '%', left: segment.__c6Controls.position.left() + '%'}">&nbsp;</div>
 		</div>
 
 	</div>
