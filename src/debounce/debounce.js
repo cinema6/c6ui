@@ -4,14 +4,16 @@
 	angular.module('c6.ui')
 		.factory('c6Debounce', ['$timeout', function($timeout) {
 			return function(func, debounceTime) {
-				var canExecute = true;
+				var debounceInProgress = false;
 
 				return function() {
-					if (canExecute) {
-						func.call(this, arguments);
-						canExecute = false;
+					var args = arguments;
+
+					if (!debounceInProgress) {
+						debounceInProgress = true;
 						$timeout(function() {
-							canExecute = true;
+							debounceInProgress = false;
+							func.call(this, args);
 						}, debounceTime);
 					}
 				};
