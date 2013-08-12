@@ -38,6 +38,9 @@
 			},
 			"controls/controls": {
 				"deps": ["computed/computed"]
+			},
+			"debounce/debounce": {
+				"deps": ["c6ui"]
 			}
         },
 
