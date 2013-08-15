@@ -121,6 +121,46 @@
 					expect(computedSpy.callCount).toBe(2);
 				});
 			});
+
+			describe('invalidate method', function() {
+				it('should make the cached value invalid (and compute the value again', function() {
+					var computedSpy = jasmine.createSpy();
+
+					$scope.seniorDesigner = 'Moo';
+					$scope.juniorDesigner = 'Steph';
+
+					$scope.designersMessage = c6Computed($scope, function(seniorDesigner, juniorDesigner) {
+						computedSpy();
+						return 'The Cinema6 designers are ' + seniorDesigner + ' and ' + juniorDesigner + '!';
+					}, ['seniorDesigner', 'juniorDesigner']);
+
+					expect(computedSpy.callCount).toBe(0);
+
+					$scope.designersMessage();
+
+					expect(computedSpy.callCount).toBe(1);
+
+					$scope.designersMessage();
+
+					expect(computedSpy.callCount).toBe(1);
+
+					$scope.designersMessage.invalidate();
+
+					$scope.designersMessage();
+					expect(computedSpy.callCount).toBe(2);
+				});
+
+				it('should return the computed value', function() {
+					$scope.ceo = 'Jason';
+					$scope.lunch = 'Chicken & Mushrooms';
+
+					$scope.ceosLunch = c6Computed($scope, function(ceo, lunch) {
+						return ceo + ' had ' + lunch + ' for lunch today!';
+					}, ['ceo', 'lunch']);
+
+					expect($scope.ceosLunch.invalidate()).toBe('Jason had Chicken & Mushrooms for lunch today!');
+				});
+			});
 		});
 	});
 })();

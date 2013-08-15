@@ -3,7 +3,7 @@
 
 	angular.module('c6.ui')
 		.factory('c6Computed', [function() {
-			return function(scope, computingFunction, dependencies, equality) {
+			function c6Computed(scope, computingFunction, dependencies, equality) {
 				var actualDependencies = [],
 					dirty = true,
 					cachedValue,
@@ -15,7 +15,7 @@
 					scope.$watch(dependency, setDirty, (equality || false));
 				});
 
-				return function() {
+				var c6ComputedResult = function() {
 					if (dirty) {
 						dirty = false;
 
@@ -30,6 +30,18 @@
 
 					return cachedValue;
 				};
+				c6ComputedResult.invalidate = function() {
+					dirty = true;
+
+					return c6ComputedResult();
+				};
+
+				return c6ComputedResult;
+			}
+			c6Computed.invalidate = function() {
+
 			};
+
+			return c6Computed;
 		}]);
 })();
