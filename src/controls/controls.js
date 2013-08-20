@@ -10,7 +10,7 @@
 					handlers: '&'
 				},
 				require: '^c6Controls',
-				templateUrl: 'assets/lib/c6ui/controls/node.html',
+				templateUrl: appBaseUrl + '/lib/c6ui/controls/node.html',
 				replace: true,
 				link: function(scope, element, attrs, C6ControlsController) {
 					var setRectPosition = function() {
