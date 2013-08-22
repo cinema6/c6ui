@@ -41,6 +41,9 @@
 			},
 			"debounce/debounce": {
 				"deps": ["c6ui"]
+			},
+			"sfx/sfx": {
+				"deps": ["c6ui"]
 			}
         },
 
