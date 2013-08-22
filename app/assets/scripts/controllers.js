@@ -5,7 +5,7 @@
 		.controller('AppController', ['$scope', function($scope) {
 
 		}])
-		.controller('VideoPlayerController', ['$scope', '$timeout', '$log', function($scope, $timeout, $log) {
+		.controller('VideoPlayerController', ['$scope', 'c6Sfx', '$timeout', '$log', function($scope, c6Sfx, $timeout, $log) {
 			var videos = {},
 				self = this,
 				videoHandlers = {
@@ -35,6 +35,33 @@
 						}
 					}
 				};
+
+			c6Sfx.loadSounds([
+				{
+					name: 'brake',
+					src: 'assets/sfx/brake'
+				},
+				{
+					name: 'peelout',
+					src: 'assets/sfx/peelout'
+				},
+				{
+					name: 'playball',
+					src: 'assets/sfx/playball'
+				},
+				{
+					name: 'pop',
+					src: 'assets/sfx/pop'
+				},
+				{
+					name: 'whistle',
+					src: 'assets/sfx/whistle'
+				},
+				{
+					name: 'wilhelm',
+					src: 'assets/sfx/wilhelm'
+				}
+			]);
 
 			$scope.$on('c6video-ready', function(event, c6video) {
 				var setupEventListeners = function() {
@@ -113,14 +140,17 @@
 			this.ControlsController = {};
 
 			this.play = function() {
+				c6Sfx.playSound('playball');
 				videos[self.currentVideoIndex].player.play();
 			};
 
 			this.pause = function() {
+				c6Sfx.playSound('whistle');
 				videos[self.currentVideoIndex].player.pause();
 			};
 
 			this.seekStart = function() {
+				c6Sfx.playSound('peelout');
 				$log.log('seeking started');
 			};
 
@@ -135,11 +165,16 @@
 			};
 
 			this.seekStop = function() {
+				c6Sfx.playSound('brake');
 				$log.log('seeking stopped');
 			};
 
 			this.volumeSeek = function(percent) {
 				var key;
+
+				if (Math.floor(percent % 10) === 0) {
+					c6Sfx.playSound('pop');
+				}
 
 				for (key in videos) {
 					videos[key].player.volume = percent / 100;
@@ -150,6 +185,8 @@
 
 			this.mute = function() {
 				var key;
+
+				c6Sfx.playSound('wilhelm');
 
 				for (key in videos) {
 					videos[key].player.muted = true;
