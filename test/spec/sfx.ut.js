@@ -21,6 +21,7 @@
 				};
 
 			beforeEach(function() {
+				$window.reset();
 				module('c6.ui');
 				module(function($provide) {
 					$provide.value('$window', $window);
@@ -29,13 +30,11 @@
 
 			it('should be undefined if there are no audio contexts', function() {
 				inject(function(c6AudioContext) {
-					$window.reset();
 					expect(c6AudioContext).toBeUndefined();
 				});
 			});
 
 			it('should be defined if there is a prefix-free implementation', function() {
-				$window.reset();
 				$window.AudioContext = {};
 				inject(function(c6AudioContext) {
 					expect(c6AudioContext).toBeDefined();
@@ -43,7 +42,6 @@
 			});
 
 			it('should be defined if there is a webkit implementation', function() {
-				$window.reset();
 				$window.webkitAudioContext = {};
 				inject(function(c6AudioContext) {
 					expect(c6AudioContext).toBeDefined();
@@ -51,7 +49,6 @@
 			});
 
 			it('should be defined if there is a microsoft implementation', function() {
-				$window.reset();
 				$window.msAudioContext = {};
 				inject(function(c6AudioContext) {
 					expect(c6AudioContext).toBeDefined();
@@ -59,7 +56,6 @@
 			});
 
 			it('should be defined if there is a mozilla implementation', function() {
-				$window.reset();
 				$window.mozAudioContext = {};
 				inject(function(c6AudioContext) {
 					expect(c6AudioContext).toBeDefined();
