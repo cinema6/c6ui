@@ -36,6 +36,19 @@
 					}
 				};
 
+			$scope.$on('c6MouseActivityStart', function() {
+				self.showControls = true;
+			});
+
+			$scope.$on('c6MouseActivityStop', function() {
+				if (!self.userIsUsingControls) {
+					self.showControls = false;
+				}
+			});
+
+			this.showControls = false;
+			this.userIsUsingControls = false;
+
 			c6Sfx.loadSounds([
 				{
 					name: 'brake',

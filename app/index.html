@@ -13,15 +13,20 @@
 		<script src="assets/lib/c6ui/sfx/sfx.js"></script>
 		<script src="assets/lib/c6ui/computed/computed.js"></script>
 		<script src="assets/lib/c6ui/controls/controls.js"></script>
+		<script src="assets/lib/c6ui/mouseactivity/mouseactivity.js"></script>
 		<script src="assets/scripts/app.js"></script>
 		<script src="assets/scripts/controllers.js"></script>
 	</head>
 	<body>
 		<div class="video" ng-controller="VideoPlayerController">
-			<div class="player" ng-repeat="segment in VideoPlayerCtrl.segments" ng-show="$index === VideoPlayerCtrl.currentVideoIndex">
-				<video id="{{$index}}" c6video c6-src="segment.src"></video>
+			<div c6-mouse-activity="2500">
+				<div class="player" ng-repeat="segment in VideoPlayerCtrl.segments" ng-show="$index === VideoPlayerCtrl.currentVideoIndex">
+					<video id="{{$index}}" c6video c6-src="segment.src"></video>
+				</div>
 			</div>
-			<c6-controls delegate="VideoPlayerCtrl" controller="VideoPlayerCtrl.ControlsController" segments="VideoPlayerCtrl.segments" nodes="VideoPlayerCtrl.nodes" buttons="['return']" class="controls"></c6-video-controls>
+			<div ng-mouseenter="VideoPlayerCtrl.userIsUsingControls = true;" ng-mouseleave="VideoPlayerCtrl.userIsUsingControls = false;" ng-show="VideoPlayerCtrl.showControls">
+				<c6-controls delegate="VideoPlayerCtrl" controller="VideoPlayerCtrl.ControlsController" segments="VideoPlayerCtrl.segments" nodes="VideoPlayerCtrl.nodes" buttons="['return']" class="controls"></c6-video-controls>
+			<div>
 		</div>
 	</body>
 </html>
