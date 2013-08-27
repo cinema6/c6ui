@@ -44,6 +44,9 @@
 			},
 			"sfx/sfx": {
 				"deps": ["c6ui"]
+			},
+			"mouseactivity/mouseactivity": {
+				"deps": ["c6ui"]
 			}
         },
 
