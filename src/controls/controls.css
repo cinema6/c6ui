@@ -175,20 +175,22 @@
 		}
 
 			.controls__scene-btn {
-				height: 20px; width: 20px; position: inherit; cursor: pointer;
-				margin: 10px 40%;
-				background: url(img/btn_scene.png) no-repeat center center; padding: 0; border: 0;
+				height: 12px; width: 100%; cursor: pointer; position: inherit;
+				margin: 14px 0; padding: 0; border: 0;
+				background: url(img/btn_scene.png) no-repeat center center; 
 			}
 
     		.controls__caption-bottom {
+    			margin: 28px 0 0 0; height: 16px;
 				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.48em; color: #a4a4a4;
-				text-transform: uppercase; letter-spacing: 0.1619em; margin: 26px 0 0 0; height: 16px; cursor: pointer;
+				text-transform: uppercase; letter-spacing: 0.1619em; cursor: pointer;
 				-moz-transition:opacity 0.2s; -webkit-transition:opacity 0.2s; -o-transition:opacity 0.2s; transition:opacity 0.2s;
 			}
 
 			.controls__caption-top {
+				margin: 2px 0 0 0; height: 16px;
 				font-family: "open-sans", Arial, Helvetica, sans-serif; font-size: 0.48em; color: #a4a4a4;
-				text-transform: uppercase; letter-spacing: 0.1619em; margin: 2px 0 0 0; height: 16px; cursor: pointer;
+				text-transform: uppercase; letter-spacing: 0.1619em; cursor: pointer;
 				-moz-transition:opacity 0.2s; -webkit-transition:opacity 0.2s; -o-transition:opacity 0.2s; transition:opacity 0.2s;
 			}
 				@media screen and (max-width: 620px) {
@@ -196,6 +198,7 @@
 						opacity: 0;
 					}
 				}
+
 	/* annotated videos */
 		.controls__annotation {
 			width: 2px; height: 4px;
