@@ -38,6 +38,7 @@
 
 			$scope.$on('c6MouseActivityStart', function() {
 				self.showControls = true;
+				self.ControlsController.repositionNodes();
 			});
 
 			$scope.$on('c6MouseActivityStop', function() {
