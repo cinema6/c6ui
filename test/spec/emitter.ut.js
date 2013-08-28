@@ -28,6 +28,7 @@
             describe('adding and removing of listeners', function(){
                 var emitter,
                     event1List, event2List, event3List,
+                    newListenerSpy, removeListenerSpy,
                     testFunc_1_0 = function(){ return 'testEvent1-0'; },
                     testFunc_2_0 = function(){ return 'testEvent2-0'; },
                     testFunc_2_1 = function(){ return 'testEvent2-1'; },
@@ -36,7 +37,12 @@
                     testFunc_3_2 = function(){ return 'testEvent3-2'; };
 
                 beforeEach(function(){
-                    emitter = c6EventEmitter({ });
+                    emitter             = c6EventEmitter({ });
+                    newListenerSpy      = jasmine.createSpy();
+                    removeListenerSpy   = jasmine.createSpy();
+
+                    emitter.on('newListener',newListenerSpy);
+                    emitter.on('removeListener',removeListenerSpy);
 
                     // Emitter on returns a ref to the emitter for chaining
                     emitter.on('testEvent1',testFunc_1_0);
@@ -45,6 +51,10 @@
                     emitter.on('testEvent3',testFunc_3_0); 
                     emitter.on('testEvent3',testFunc_3_1); 
                     emitter.on('testEvent3',testFunc_3_2); 
+                });
+
+                it('should signal newListener when newListeners are added',function(){
+					expect(newListenerSpy.callCount).toEqual(8);
                 });
 
                 it('on should return reference to emitter',function(){
@@ -66,6 +76,7 @@
                     // Emitter on returns a ref to the emitter for chaining
                     expect( emitter.removeListener('testEvent2',testFunc_2_0) ).toBe(emitter);
 
+                    expect(removeListenerSpy.callCount).toEqual(1);
                     event1List = emitter.listeners('testEvent1');
                     event2List = emitter.listeners('testEvent2');
                     event3List = emitter.listeners('testEvent3');
@@ -80,6 +91,8 @@
                 it('should enable removal of all listeners for an event', function(){
                     expect( emitter.removeAllListeners('testEvent2') ).toBe(emitter);
                     
+                    expect(removeListenerSpy.callCount).toEqual(2);
+
                     event1List = emitter.listeners('testEvent1');
                     event2List = emitter.listeners('testEvent2');
                     event3List = emitter.listeners('testEvent3');
