@@ -37,6 +37,10 @@
 						return ((width / 2) * -1);
 					}, ['model().text']);
 
+					scope.$on('c6ControlsNodesShouldReposition', function() {
+						$timeout(function() { scope.leftMargin.invalidate(); });
+					});
+
 					angular.element($window).bind('resize', function() { scope.$apply(setRectPosition()); });
 					scope.$watch('leftMargin()', function(newValue, oldValue) {
 						if (newValue !== oldValue) {
@@ -354,6 +358,9 @@
 			};
 			controller().buffer = function(percent, segment) {
 				(segment || state.segments()[0]).bufferedPercent = percent;
+			};
+			controller().repositionNodes = function() {
+				$scope.$broadcast('c6ControlsNodesShouldReposition');
 			};
 			controller().ready = true;
 
