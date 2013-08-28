@@ -14,7 +14,9 @@
                         eventName : eventName,
                         listener  : listener,
                         reuse     : (once === true) ? false : true
-                    };
+                    },
+                    notNew = (this.listeners(eventName).indexOf(listener) > -1);
+
                 if (!evtBucket) {
                     evtBucket = events[eventName] = [];
                 }
@@ -24,6 +26,10 @@
                 if ((maxListeners > 0) && (maxListeners < evtBucket.length)) {
                     $log.error('Event [' + eventName + '] listeners (' + evtBucket.length +
                         ') exceeds max(' + maxListeners + ').');
+                }
+
+                if (!notNew){
+                    this.emit('newListener',eventName,listener);
                 }
 
                 return this;
@@ -43,11 +49,23 @@
                     }
                 }
 
+                if (this.listeners(eventName).indexOf(listener) < 0){
+                    this.emit('removeListener',eventName,listener);
+                }
+
                 return this;
             };
 
             emitter.removeAllListeners = function(eventName){
                 if (eventName) {
+                    var bucket = events[eventName], itm;
+                    if (bucket){
+                        itm = bucket[0];
+                        while(itm !== undefined){
+                            this.removeListener(itm.eventName,itm.listener);
+                            itm = bucket[0];
+                        }
+                    }
                     events[eventName] = [];
                 } else {
                     angular.forEach(events,function(val,key){
