@@ -65,6 +65,13 @@
 				.controls__btnReturn-icon:hover {
 					opacity: 1;
 				}
+			.controls__btnReturn-disabled {
+				background: url(img/icon_return.svg) no-repeat center center; background-size: 35%;
+				display: block; height: 100%; width: 58px;
+				opacity: 0.1; border: 0; padding: 0; cursor: pointer; 
+				float: left;
+			}	
+
 
 			.controls__btnFullscreen-icon {
 				background: url(img/icon_fullscreen.svg) no-repeat center center; background-size: 28%;

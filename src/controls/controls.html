@@ -4,8 +4,13 @@
 	</div>
 
 	<div class="controls__seek" ng-mouseup="handle.stopSeeking()" ng-mouseleave="handle.stopSeeking()">
-		<button ng-if="state.hasButton('return')" class="controls__btnReturn-icon" ng-click="delegate().return()" title="Return"><span class="ir">Return</span></button>
-		<button ng-if="state.hasButton('fullscreen')" class="controls__btnFullscreen-icon" ng-click="delegate().fullscreen()" title="Return"><span class="ir">Fullscreen</span></button>
+		<button ng-repeat="button in buttons()"
+			class="controls__btn{{state.buttonsConfig()[$index].class}}-{{state.buttonsConfig()[$index].disabled ? 'disabled' : 'icon'}}"
+			ng-click="delegate()[button]()"
+			title="{{state.buttonsConfig()[$index].class}}">
+			<span class="ir">{{state.buttonsConfig()[$index].class}}</span>
+		</button>
+		<!--<button ng-if="state.hasButton('fullscreen')" class="controls__btnFullscreen-icon" ng-click="delegate().fullscreen()" title="Return"><span class="ir">Fullscreen</span></button>-->
 		<div class="controls__slider" ng-style="{'margin-left': state.leftMargin() + 'px', 'margin-right': state.rightMargin() + 'px'}" ng-click="handle.seekbarClick($event)">
 
 			<div class="controls__slider-shadow">&nbsp;</div>

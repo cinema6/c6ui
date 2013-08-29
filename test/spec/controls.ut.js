@@ -54,7 +54,7 @@
 				});
 
 				describe('controls state', function() {
-					describe('hasButton', function() {
+					/*describe('hasButton', function() {
 						beforeEach(function() { buttons = null; });
 
 						it('should figure out if the given button is enabled', function() {
@@ -70,6 +70,46 @@
 						it('should just return false if there are no buttons passed into the config', function() {
 							expect($scope.state.hasButton).not.toThrow();
 							expect($scope.state.hasButton('fullscreen')).toBe(false);
+						});
+					});*/
+					describe('buttonsConfig', function() {
+						it('should have an object for every button passed in.', function() {
+							expect($scope.state.buttonsConfig().length).toBe(0);
+
+							buttons = ['return'];
+							$scope.$digest();
+							expect($scope.state.buttonsConfig().length).toBe(1);
+
+							buttons.push('fullscreen');
+							$scope.$digest();
+							expect($scope.state.buttonsConfig().length).toBe(2);
+
+							buttons.splice(0, 1);
+							$scope.$digest();
+							expect($scope.state.buttonsConfig().length).toBe(1);
+
+							buttons = null;
+							$scope.$digest();
+							expect($scope.state.buttonsConfig().length).toBe(0);
+						});
+
+						it('should set the configs class property to the button name with the first letter capitalized', function() {
+							buttons = ['fullscreen', 'return'];
+							$scope.$digest();
+
+							var buttonsConfig = $scope.state.buttonsConfig();
+
+							expect(buttonsConfig[0].class).toBe('Fullscreen');
+							expect(buttonsConfig[1].class).toBe('Return');
+						});
+
+						it('should put the buttons in an enabled state by default', function() {
+							buttons = ['fullscreen', 'return'];
+							$scope.$digest();
+
+							$scope.state.buttonsConfig().forEach(function(config) {
+								expect(config.disabled).toBe(false);
+							});
 						});
 					});
 
@@ -463,6 +503,28 @@
 							return $scope.controller().ready;
 						});
 					});
+
+					describe('setButtonDisabled', function() {
+						beforeEach(function() {
+							buttons = ['return', 'fullscreen'];
+							$scope.$digest();
+						});
+
+						it('should disable and reenable the button', function() {
+							$scope.controller().setButtonDisabled('return', true);
+							expect($scope.state.buttonsConfig()[0].disabled).toBe(true);
+
+							$scope.controller().setButtonDisabled('fullscreen', true);
+							expect($scope.state.buttonsConfig()[1].disabled).toBe(true);
+
+							$scope.controller().setButtonDisabled('return', false);
+							expect($scope.state.buttonsConfig()[0].disabled).toBe(false);
+
+							$scope.controller().setButtonDisabled('fullscreen', false);
+							expect($scope.state.buttonsConfig()[1].disabled).toBe(false);
+						});
+					});
+
 
 					describe('play', function() {
 						it('should set the state to playing', function() {
