@@ -120,6 +120,22 @@
 					hasButton: function(button) {
 						return ($scope.buttons() || []).indexOf(button) !== -1;
 					},
+					buttonsConfig: c($scope, function(buttons) {
+						var config = [];
+
+						if (angular.isArray(buttons)) {
+							angular.forEach(buttons, function(button) {
+								config.push({
+									class: button.charAt(0).toUpperCase() + button.slice(1),
+									disabled: false
+								});
+							});
+
+							return config;
+						} else {
+							return config;
+						}
+					}, ['buttons()'], true),
 					leftMargin: c($scope, function() {
 						var myButtons = sortedButtons(this.buttons() || []).left;
 
@@ -361,6 +377,11 @@
 			};
 			controller().repositionNodes = function() {
 				$scope.$broadcast('c6ControlsNodesShouldReposition');
+			};
+			controller().setButtonDisabled = function(buttonName, disable) {
+				var index = $scope.buttons().indexOf(buttonName);
+
+				state.buttonsConfig()[index].disabled = disable;
 			};
 			controller().ready = true;
 
