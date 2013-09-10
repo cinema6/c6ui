@@ -47,6 +47,9 @@
 			},
 			"mouseactivity/mouseactivity": {
 				"deps": ["c6ui"]
+			},
+			"imagepreloader/imagepreloader": {
+				"deps": ["c6ui"]
 			}
         },
 
