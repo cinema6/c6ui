@@ -1,9 +1,9 @@
 (function() {
 	'use strict';
 
-	define(['preload/preload'], function() {
-		describe('c6Preload', function() {
-			var c6Preload,
+	define(['imagepreloader/imagepreloader'], function() {
+		describe('c6ImagePreloader', function() {
+			var c6ImagePreloader,
 				$rootScope,
 				images = [],
 				imageCreateSpy,
@@ -45,8 +45,8 @@
 					$provide
 						.value('$window', $window);
 				});
-				inject(function(_c6Preload_, _$rootScope_) {
-					c6Preload = _c6Preload_;
+				inject(function(_c6ImagePreloader_, _$rootScope_) {
+					c6ImagePreloader = _c6ImagePreloader_;
 					$rootScope = _$rootScope_;
 				});
 
@@ -55,14 +55,14 @@
 			});
 
 			it('should exist', function() {
-				expect(c6Preload).toBeDefined();
+				expect(c6ImagePreloader).toBeDefined();
 			});
 
 			describe('load method', function() {
 				it('should create an image for every url passed in', function() {
 					var urlsToLoad = ['foo/test.jpg', 'foo/image.jpg', 'foo/nyancat.gif'];
 
-					c6Preload.load(urlsToLoad);
+					c6ImagePreloader.load(urlsToLoad);
 
 					expect(imageCreateSpy.callCount).toBe(3);
 
@@ -82,7 +82,7 @@
 				it('should return a promise that resolves when the images finish loading', function() {
 					var promiseSpy = jasmine.createSpy();
 
-					c6Preload.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy);
+					c6ImagePreloader.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy);
 
 					expect(promiseSpy).not.toHaveBeenCalled();
 
@@ -93,16 +93,6 @@
 					$rootScope.$digest();
 
 					expect(promiseSpy).toHaveBeenCalled();
-				});
-			});
-
-			describe('clear method', function() {
-				it('should null out the srcs of the images and remove them', function() {
-					c6Preload.clear();
-
-					images.forEach(function(image) {
-						expect(image.src).toBeNull();
-					});
 				});
 			});
 		});

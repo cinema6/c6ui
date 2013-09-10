@@ -2,9 +2,7 @@
 	'use strict';
 
 	angular.module('c6.ui')
-		.service('c6Preload', ['$window', '$q', function($window, $q) {
-			var images = [];
-
+		.service('c6ImagePreloader', ['$window', '$q', function($window, $q) {
 			this.load = function(imageUrls) {
 				var image,
 					imageStatuses = {},
@@ -27,21 +25,12 @@
 					image = new $window.Image();
 					image.src = imageUrl;
 
-					images.push(image);
 					imageStatuses[image] = false;
 
 					image.addEventListener('load', handleImageLoad, false);
 				});
 
 				return deferred.promise;
-			};
-
-			this.clear = function() {
-				angular.forEach(images, function(image) {
-					image.src = null;
-				});
-
-				images.length = 0;
 			};
 		}]);
 })(window.angular);

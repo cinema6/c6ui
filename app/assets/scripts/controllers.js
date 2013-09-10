@@ -2,8 +2,8 @@
 	'use strict';
 
 	angular.module('app')
-		.controller('AppController', ['$scope', 'c6Preload', '$log', function($scope, c6Preload, $log) {
-			c6Preload.load(['http://farm9.staticflickr.com/8459/8020272673_8478cc3c85_b_d.jpg', 'http://farm9.staticflickr.com/8315/8024081498_35e3d37d1e_b_d.jpg']).then(function() {
+		.controller('AppController', ['$scope', 'c6ImagePreloader', '$log', function($scope, c6ImagePreloader, $log) {
+			c6ImagePreloader.load(['http://farm9.staticflickr.com/8459/8020272673_8478cc3c85_b_d.jpg', 'http://farm9.staticflickr.com/8315/8024081498_35e3d37d1e_b_d.jpg']).then(function() {
 				$log.log('Images preloaded!');
 			});
 		}])
