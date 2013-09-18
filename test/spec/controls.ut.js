@@ -54,24 +54,6 @@
 				});
 
 				describe('controls state', function() {
-					/*describe('hasButton', function() {
-						beforeEach(function() { buttons = null; });
-
-						it('should figure out if the given button is enabled', function() {
-							expect($scope.state.hasButton('fullscreen')).toBe(false);
-
-							buttons = ['fullscreen'];
-							expect($scope.state.hasButton('fullscreen')).toBe(true);
-
-							buttons.push('return');
-							expect($scope.state.hasButton('return')).toBe(true);
-						});
-
-						it('should just return false if there are no buttons passed into the config', function() {
-							expect($scope.state.hasButton).not.toThrow();
-							expect($scope.state.hasButton('fullscreen')).toBe(false);
-						});
-					});*/
 					describe('buttonsConfig', function() {
 						it('should have an object for every button passed in.', function() {
 							expect($scope.state.buttonsConfig().length).toBe(0);
@@ -377,6 +359,41 @@
 							expect($scope.delegate().seekStop).toHaveBeenCalled();
 						});
 
+						it('should call seekStart before seek', function() {
+							var event = {
+								currentTarget: {
+									parentNode: {
+										getBoundingClientRect: function() {
+											return {
+												left: 50
+											};
+										},
+										offsetWidth: 600
+									}
+								},
+								pageX: 100
+							};
+
+							$scope.$digest();
+
+							segments = [{
+								__c6Controls: {
+									position: {
+										left: function() {
+											return 0;
+										},
+										portion: 100
+									}
+								}
+							}];
+
+							delegate.seek = function() {
+								expect($scope.delegate().seekStart).toHaveBeenCalled();
+							};
+
+							$scope.handle.seekbarClick(event);
+						});
+
 						it('should notify the delegate when seeking starts, but not when seeking ends until the controller\'s progress method is called, when the seekbar is clicked', function() {
 							var event = {
 								currentTarget: {
@@ -399,6 +416,7 @@
 							$scope.$digest();
 							expect($scope.delegate().seekStart).toHaveBeenCalled();
 							expect($scope.delegate().seekStop).not.toHaveBeenCalled();
+							$timeout.flush();
 
 							$scope.controller().progress(0);
 							$scope.$digest();

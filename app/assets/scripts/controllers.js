@@ -171,6 +171,7 @@
 			};
 
 			this.seek = function(percent, segment, percentOfSegment) {
+				$log.log('seeking!');
 				if (segment === self.segments[self.currentVideoIndex]) {
 					videos[self.currentVideoIndex].player.currentTime = (percentOfSegment * videos[self.currentVideoIndex].player.duration) / 100;
 				} else {
