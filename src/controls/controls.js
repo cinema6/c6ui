@@ -248,8 +248,8 @@
 						}
 					},
 					startSeeking: function() {
-						slider$.bind('mousemove', handlePlayheadDrag);
 						state.seeking = true;
+						$timeout(function() { slider$.bind('mousemove', handlePlayheadDrag); });
 					},
 					seekbarClick: function(event) {
 						var seeker$ = angular.element(event.currentTarget).parent(),
@@ -259,9 +259,11 @@
 
 						if (!state.seeking && !angular.element(event.target).hasClass('controls__playhead')) {
 							state.seeking = true;
-							waitingForSeekClickToEnd = true;
-							delegate('seek', [seekbarPercent, segmentMouseIsOver, percentOfSegment]);
-							// The next time our controller's progress method is called, we'll leave the "seeking" state.
+							$timeout(function() {
+								waitingForSeekClickToEnd = true;
+								delegate('seek', [seekbarPercent, segmentMouseIsOver, percentOfSegment]);
+								// The next time our controller's progress method is called, we'll leave the "seeking" state.
+							});
 						}
 					},
 					stopSeeking: function() {
