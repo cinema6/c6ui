@@ -165,9 +165,9 @@
 				videos[self.currentVideoIndex].player.pause();
 			};
 
-			this.seekStart = function() {
+			this.seekStart = function(percent, segment, percentOfSegment) {
 				c6Sfx.playSound('peelout');
-				$log.log('seeking started');
+				$log.log('seeking started. Percent:', percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(segment), 'Percent of segment:', percentOfSegment);
 			};
 
 			this.seek = function(percent, segment, percentOfSegment) {
@@ -181,9 +181,9 @@
 				}
 			};
 
-			this.seekStop = function() {
+			this.seekStop = function(percent, segment, percentOfSegment) {
 				c6Sfx.playSound('brake');
-				$log.log('seeking stopped');
+				$log.log('seeking stopped. Percent:', percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(segment), 'Percent of segment:', percentOfSegment);
 			};
 
 			this.volumeSeek = function(percent) {
