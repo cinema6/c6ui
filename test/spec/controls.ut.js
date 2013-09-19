@@ -352,11 +352,33 @@
 							$scope.$digest();
 							expect($scope.delegate().seekStart).toHaveBeenCalled();
 
+							$scope.state.seekPercent = 50;
+
 							expect($scope.delegate().seekStop).not.toHaveBeenCalled();
 
 							$scope.handle.stopSeeking();
 							$scope.$digest();
 							expect($scope.delegate().seekStop).toHaveBeenCalled();
+						});
+
+						it('should call seekStart and seekStop with the percent seeking stopped at, the segment seeking stopped at and the percent of the segment seeking stopped at.', function() {
+							$scope.handle.startSeeking();
+							$scope.$digest();
+							$scope.state.seekPercent = 50;
+							$scope.$digest();
+							$scope.handle.stopSeeking();
+							$scope.$digest();
+
+							var seekStartArguments = delegate.seekStart.mostRecentCall.args,
+								seekStopArguments = delegate.seekStop.mostRecentCall.args;
+
+							expect(typeof seekStartArguments[0]).toBe('number');
+							expect(seekStartArguments[1]).toBe($scope.state.segments()[0]);
+							expect(typeof seekStartArguments[2]).toBe('number');
+
+							expect(typeof seekStopArguments[0]).toBe('number');
+							expect(seekStopArguments[1]).toBe($scope.state.segments()[0]);
+							expect(typeof seekStopArguments[2]).toBe('number');
 						});
 
 						it('should call seekStart before seek', function() {
