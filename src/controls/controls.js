@@ -171,6 +171,7 @@
 						}
 					},
 					seeking: false,
+					seekPercent: undefined,
 					segments: $scope.segments,
 					nodes: $scope.nodes,
 					pastSegmentsLength: c($scope, function(playheadPosition, segments) {
@@ -228,6 +229,7 @@
 						segmentMouseIsOver = getSegmentAtSeekbarPercent(seekbarPercent),
 						percentOfSegment = getSeekbarPercentAsPercentOfSegment(seekbarPercent, segmentMouseIsOver);
 
+					state.seekPercent = seekbarPercent;
 					delegate('seek', [seekbarPercent, segmentMouseIsOver, percentOfSegment]);
 				},
 				handleVolumePlayheadDrag = function(event) {
@@ -259,6 +261,7 @@
 
 						if (!state.seeking && !angular.element(event.target).hasClass('controls__playhead')) {
 							state.seeking = true;
+							state.seekPercent = seekbarPercent;
 							$timeout(function() {
 								waitingForSeekClickToEnd = true;
 								delegate('seek', [seekbarPercent, segmentMouseIsOver, percentOfSegment]);
@@ -430,10 +433,23 @@
 
 			// Notify our delegate whenever seeking starts or stops
 			$scope.$watch('state.seeking', function(seeking, previousState) {
+				var percent,
+					segment,
+					percentOfSegment;
 				if (seeking === true) {
-					delegate('seekStart');
-				} else if (seeking === false && seeking !== previousState) {
-					delegate('seekStop');
+					percent = state.playheadPosition;
+					segment = getSegmentAtSeekbarPercent(percent);
+					percentOfSegment = getSeekbarPercentAsPercentOfSegment(percent, segment);
+
+					delegate('seekStart', [percent, segment, percentOfSegment]);
+				} else if (seeking === false && seeking !== previousState && !angular.isUndefined(state.seekPercent)) {
+					percent = state.seekPercent;
+					segment = getSegmentAtSeekbarPercent(percent);
+					percentOfSegment = getSeekbarPercentAsPercentOfSegment(percent, segment);
+
+					state.seekPercent = undefined;
+
+					delegate('seekStop', [percent, segment, percentOfSegment]);
 				}
 			});
 
