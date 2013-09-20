@@ -8,7 +8,7 @@
 					moving = false,
 					stopMoving = function() {
 						moving = false;
-						scope.$emit('c6MouseActivityStop');
+						scope.$emit('c6MouseActivityStop',element);
 					},
 					time;
 
@@ -18,7 +18,7 @@
 
 				element.bind('mousemove', function() {
 					if (!moving) {
-						scope.$apply(scope.$emit('c6MouseActivityStart'));
+						scope.$apply(scope.$emit('c6MouseActivityStart',element));
 						moving = true;
 					}
 					if (timeout) { $timeout.cancel(timeout); }

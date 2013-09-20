@@ -333,15 +333,17 @@
 				describe('handling user events', function() {
 					beforeEach(function() {
 						delegate = {
-							play: jasmine.createSpy(),
-							pause: jasmine.createSpy(),
-							seek: jasmine.createSpy(),
-							mute: jasmine.createSpy(),
-							unmute: jasmine.createSpy(),
-							nodeClicked: jasmine.createSpy(),
-							seekStart: jasmine.createSpy(),
-							seekStop: jasmine.createSpy()
+							play: jasmine.createSpy('delegate:play'),
+							pause: jasmine.createSpy('delegate:pause'),
+							seek: jasmine.createSpy('delegate:seek'),
+							mute: jasmine.createSpy('delegate:mute'),
+							unmute: jasmine.createSpy('delegate:unmute'),
+							nodeClicked: jasmine.createSpy('delegate:nodeClicked'),
+							seekStart: jasmine.createSpy('delegate:seekStart'),
+							seekStop: jasmine.createSpy('delegate:seekStop')
 						};
+
+						$scope.$digest();
 					});
 
 					describe('seek', function() {
@@ -361,6 +363,33 @@
 							expect($scope.delegate().seekStop).toHaveBeenCalled();
 						});
 
+						it('should put the event type into the seek event', function() {
+							var event = {
+								currentTarget: {
+									parentNode: {
+										getBoundingClientRect: function() {
+											return {
+												left: 50
+											};
+										},
+										offsetWidth: 600
+									}
+								},
+								pageX: 100
+							};
+
+							$scope.$digest();
+
+							$scope.handle.seekbarClick(event);
+
+							controller.progress(50);
+							$scope.$digest();
+
+							expect(delegate.seekStart.mostRecentCall.args[0].type).toBe('seekStart');
+							expect(delegate.seek.mostRecentCall.args[0].type).toBe('seek');
+							expect(delegate.seekStop.mostRecentCall.args[0].type).toBe('seekStop');
+						});
+
 						it('should call seekStart and seekStop with the percent seeking stopped at, the segment seeking stopped at and the percent of the segment seeking stopped at.', function() {
 							$scope.handle.startSeeking();
 							$scope.$digest();
@@ -369,16 +398,43 @@
 							$scope.handle.stopSeeking();
 							$scope.$digest();
 
-							var seekStartArguments = delegate.seekStart.mostRecentCall.args,
-								seekStopArguments = delegate.seekStop.mostRecentCall.args;
+							var seekStartEvent = delegate.seekStart.mostRecentCall.args[0],
+								seekStopEvent = delegate.seekStop.mostRecentCall.args[0];
 
-							expect(typeof seekStartArguments[0]).toBe('number');
-							expect(seekStartArguments[1]).toBe($scope.state.segments()[0]);
-							expect(typeof seekStartArguments[2]).toBe('number');
+							expect(typeof seekStartEvent.percent).toBe('number');
+							expect(seekStartEvent.segment).toBe($scope.state.segments()[0]);
+							expect(typeof seekStartEvent.percentOfSegment).toBe('number');
 
-							expect(typeof seekStopArguments[0]).toBe('number');
-							expect(seekStopArguments[1]).toBe($scope.state.segments()[0]);
-							expect(typeof seekStopArguments[2]).toBe('number');
+							expect(typeof seekStopEvent.percent).toBe('number');
+							expect(seekStopEvent.segment).toBe($scope.state.segments()[0]);
+							expect(typeof seekStopEvent.percentOfSegment).toBe('number');
+						});
+
+						it('should provide the seek delegates with a bool which is true if seeking was caused by a seekbar click', function() {
+							var event = {
+								currentTarget: {
+									parentNode: {
+										getBoundingClientRect: function() {
+											return {
+												left: 50
+											};
+										},
+										offsetWidth: 600
+									}
+								},
+								pageX: 100
+							};
+
+							$scope.$digest();
+
+							$scope.handle.seekbarClick(event);
+
+							controller.progress(50);
+							$scope.$digest();
+
+							expect(delegate.seekStart.mostRecentCall.args[0].isClick).toBe(true);
+							expect(delegate.seek.mostRecentCall.args[0].isClick).toBe(true);
+							expect(delegate.seekStop.mostRecentCall.args[0].isClick).toBe(true);
 						});
 
 						it('should call seekStart before seek', function() {
@@ -398,22 +454,13 @@
 
 							$scope.$digest();
 
-							segments = [{
-								__c6Controls: {
-									position: {
-										left: function() {
-											return 0;
-										},
-										portion: 100
-									}
-								}
-							}];
-
 							delegate.seek = function() {
 								expect($scope.delegate().seekStart).toHaveBeenCalled();
 							};
 
 							$scope.handle.seekbarClick(event);
+
+							$scope.$digest();
 						});
 
 						it('should notify the delegate when seeking starts, but not when seeking ends until the controller\'s progress method is called, when the seekbar is clicked', function() {
@@ -438,7 +485,6 @@
 							$scope.$digest();
 							expect($scope.delegate().seekStart).toHaveBeenCalled();
 							expect($scope.delegate().seekStop).not.toHaveBeenCalled();
-							$timeout.flush();
 
 							$scope.controller().progress(0);
 							$scope.$digest();
