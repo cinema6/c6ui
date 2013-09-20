@@ -165,13 +165,13 @@
 				videos[self.currentVideoIndex].player.pause();
 			};
 
-			this.seekStart = function(percent, segment, percentOfSegment) {
+			this.seekStart = function(percent, segment, percentOfSegment, isClick) {
 				c6Sfx.playSound('peelout');
-				$log.log('seeking started. Percent:', percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(segment), 'Percent of segment:', percentOfSegment);
+				$log.log('seeking started. Percent:', percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(segment), 'Percent of segment:', percentOfSegment, 'Caused by click:', isClick);
 			};
 
-			this.seek = function(percent, segment, percentOfSegment) {
-				$log.log('seeking!');
+			this.seek = function(percent, segment, percentOfSegment, isClick) {
+				$log.log('seeking! Caused by click:', isClick);
 				if (segment === self.segments[self.currentVideoIndex]) {
 					videos[self.currentVideoIndex].player.currentTime = (percentOfSegment * videos[self.currentVideoIndex].player.duration) / 100;
 				} else {
@@ -181,9 +181,9 @@
 				}
 			};
 
-			this.seekStop = function(percent, segment, percentOfSegment) {
+			this.seekStop = function(percent, segment, percentOfSegment, isClick) {
 				c6Sfx.playSound('brake');
-				$log.log('seeking stopped. Percent:', percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(segment), 'Percent of segment:', percentOfSegment);
+				$log.log('seeking stopped. Percent:', percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(segment), 'Percent of segment:', percentOfSegment, 'Caused by click:', isClick);
 			};
 
 			this.volumeSeek = function(percent) {
