@@ -363,6 +363,33 @@
 							expect($scope.delegate().seekStop).toHaveBeenCalled();
 						});
 
+						it('should put the event type into the seek event', function() {
+							var event = {
+								currentTarget: {
+									parentNode: {
+										getBoundingClientRect: function() {
+											return {
+												left: 50
+											};
+										},
+										offsetWidth: 600
+									}
+								},
+								pageX: 100
+							};
+
+							$scope.$digest();
+
+							$scope.handle.seekbarClick(event);
+
+							controller.progress(50);
+							$scope.$digest();
+
+							expect(delegate.seekStart.mostRecentCall.args[0].type).toBe('seekStart');
+							expect(delegate.seek.mostRecentCall.args[0].type).toBe('seek');
+							expect(delegate.seekStop.mostRecentCall.args[0].type).toBe('seekStop');
+						});
+
 						it('should call seekStart and seekStop with the percent seeking stopped at, the segment seeking stopped at and the percent of the segment seeking stopped at.', function() {
 							$scope.handle.startSeeking();
 							$scope.$digest();
