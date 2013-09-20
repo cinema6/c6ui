@@ -165,25 +165,25 @@
 				videos[self.currentVideoIndex].player.pause();
 			};
 
-			this.seekStart = function(percent, segment, percentOfSegment) {
+			this.seekStart = function(event) {
 				c6Sfx.playSound('peelout');
-				$log.log('seeking started. Percent:', percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(segment), 'Percent of segment:', percentOfSegment);
+				$log.log('seeking started. Percent:', event.percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(event.segment), 'Percent of segment:', event.percentOfSegment, 'Caused by click:', event.isClick);
 			};
 
-			this.seek = function(percent, segment, percentOfSegment) {
-				$log.log('seeking!');
-				if (segment === self.segments[self.currentVideoIndex]) {
-					videos[self.currentVideoIndex].player.currentTime = (percentOfSegment * videos[self.currentVideoIndex].player.duration) / 100;
+			this.seek = function(event) {
+				$log.log('seeking! Caused by click:', event.isClick);
+				if (event.segment === self.segments[self.currentVideoIndex]) {
+					videos[self.currentVideoIndex].player.currentTime = (event.percentOfSegment * videos[self.currentVideoIndex].player.duration) / 100;
 				} else {
 					videos[self.currentVideoIndex].player.pause();
-					self.currentVideoIndex = self.segments.indexOf(segment);
-					self.seek(percent, segment, percentOfSegment);
+					self.currentVideoIndex = self.segments.indexOf(event.segment);
+					self.seek(event);
 				}
 			};
 
-			this.seekStop = function(percent, segment, percentOfSegment) {
+			this.seekStop = function(event) {
 				c6Sfx.playSound('brake');
-				$log.log('seeking stopped. Percent:', percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(segment), 'Percent of segment:', percentOfSegment);
+				$log.log('seeking stopped. Percent:', event.percent, 'Segment index:', $scope.VideoPlayerCtrl.segments.indexOf(event.segment), 'Percent of segment:', event.percentOfSegment, 'Caused by click:', event.isClick);
 			};
 
 			this.volumeSeek = function(percent) {
