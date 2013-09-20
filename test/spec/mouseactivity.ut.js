@@ -31,12 +31,14 @@
 
 			it('should emit the c6MouseActivityStart event on the first mousemove', function() {
 				expect(activityStart.callCount).toBe(1);
+                expect(activityStart.mostRecentCall.args[1]).toEqual(element$);
 			});
 
 			it('should emit the c6MouseActivityStop event once after the mouse stops moving', function() {
 				expect(activityStop).not.toHaveBeenCalled();
 				$timeout.flush();
 				expect(activityStop.callCount).toBe(1);
+                expect(activityStop.mostRecentCall.args[1]).toEqual(element$);
 			});
 		});
 	});
