@@ -230,7 +230,7 @@
 						percentOfSegment = getSeekbarPercentAsPercentOfSegment(seekbarPercent, segmentMouseIsOver);
 
 					state.seekPercent = seekbarPercent;
-					delegate('seek', [seekbarPercent, segmentMouseIsOver, percentOfSegment, false]);
+					delegate('seek', [{ percent: seekbarPercent, segment: segmentMouseIsOver, percentOfSegment: percentOfSegment, isClick: false }]);
 				},
 				handleVolumePlayheadDrag = function(event) {
 					var seeker$ = angular.element(event.currentTarget);
@@ -238,13 +238,20 @@
 					delegate('volumeSeek', [getMousePositionAsVolumeSeekbarPercent(seeker$, event.pageY)]);
 				},
 				setSeek = function(seekState, percent, segment, percentOfSegment, isClick) {
+					var seekEvent = {
+						percent: percent,
+						segment: segment,
+						percentOfSegment: percentOfSegment,
+						isClick: isClick
+					};
+
 					state.seeking = seekState;
 
 					if (seekState === true) {
-						delegate('seekStart', [percent, segment, percentOfSegment, isClick]);
+						delegate('seekStart', [seekEvent]);
 						state.seekPercent = percent;
 					} else {
-						delegate('seekStop', [percent, segment, percentOfSegment, isClick]);
+						delegate('seekStop', [seekEvent]);
 						state.seekPercent = undefined;
 					}
 				},
@@ -283,7 +290,7 @@
 
 							waitingForSeekClickToEnd = true;
 							state.seekPercent = seekbarPercent;
-							delegate('seek', [seekbarPercent, segmentMouseIsOver, percentOfSegment, true]);
+							delegate('seek', [{ percent: seekbarPercent, segment: segmentMouseIsOver, percentOfSegment: percentOfSegment, isClick: true }]);
 							// The next time our controller's progress method is called, we'll leave the "seeking" state.
 						}
 					},

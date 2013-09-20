@@ -371,16 +371,16 @@
 							$scope.handle.stopSeeking();
 							$scope.$digest();
 
-							var seekStartArguments = delegate.seekStart.mostRecentCall.args,
-								seekStopArguments = delegate.seekStop.mostRecentCall.args;
+							var seekStartEvent = delegate.seekStart.mostRecentCall.args[0],
+								seekStopEvent = delegate.seekStop.mostRecentCall.args[0];
 
-							expect(typeof seekStartArguments[0]).toBe('number');
-							expect(seekStartArguments[1]).toBe($scope.state.segments()[0]);
-							expect(typeof seekStartArguments[2]).toBe('number');
+							expect(typeof seekStartEvent.percent).toBe('number');
+							expect(seekStartEvent.segment).toBe($scope.state.segments()[0]);
+							expect(typeof seekStartEvent.percentOfSegment).toBe('number');
 
-							expect(typeof seekStopArguments[0]).toBe('number');
-							expect(seekStopArguments[1]).toBe($scope.state.segments()[0]);
-							expect(typeof seekStopArguments[2]).toBe('number');
+							expect(typeof seekStopEvent.percent).toBe('number');
+							expect(seekStopEvent.segment).toBe($scope.state.segments()[0]);
+							expect(typeof seekStopEvent.percentOfSegment).toBe('number');
 						});
 
 						it('should provide the seek delegates with a bool which is true if seeking was caused by a seekbar click', function() {
@@ -405,9 +405,9 @@
 							controller.progress(50);
 							$scope.$digest();
 
-							expect(delegate.seekStart.mostRecentCall.args[3]).toBe(true);
-							expect(delegate.seek.mostRecentCall.args[3]).toBe(true);
-							expect(delegate.seekStop.mostRecentCall.args[3]).toBe(true);
+							expect(delegate.seekStart.mostRecentCall.args[0].isClick).toBe(true);
+							expect(delegate.seek.mostRecentCall.args[0].isClick).toBe(true);
+							expect(delegate.seekStop.mostRecentCall.args[0].isClick).toBe(true);
 						});
 
 						it('should call seekStart before seek', function() {
