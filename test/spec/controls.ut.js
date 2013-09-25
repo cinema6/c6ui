@@ -14,6 +14,8 @@
 						}
 					}],
 					$document,
+					volume,
+					playPause,
 					buttons,
 					segments,
 					nodes,
@@ -44,6 +46,12 @@
 					};
 					$scope.nodes = function() {
 						return nodes;
+					};
+					$scope.volume = function() {
+						return volume;
+					};
+					$scope.playPause = function() {
+						return playPause;
 					};
 
 					Controller = $controller('C6ControlsController', { $scope: $scope, $element: $element, $document: $document, $timeout: $timeout, c6Computed: c6Computed });
@@ -92,6 +100,59 @@
 							$scope.state.buttonsConfig().forEach(function(config) {
 								expect(config.disabled).toBe(false);
 							});
+						});
+					});
+
+					describe('volume button', function() {
+						it('should be true by default', function() {
+							volume = undefined;
+							$scope.$digest();
+							expect($scope.state.showVolume()).toBe(true);
+						});
+
+						it('should be false if you specify false', function() {
+							volume = false;
+							$scope.$digest();
+							expect($scope.state.showVolume()).toBe(false);
+						});
+					});
+
+					describe('playPause button', function() {
+						it('should be true by default', function() {
+							playPause = undefined;
+							$scope.$digest();
+							expect($scope.state.showPlayPause()).toBe(true);
+						});
+
+						it('should be false if you specify false', function() {
+							playPause = false;
+							$scope.$digest();
+							expect($scope.state.showPlayPause()).toBe(false);
+						});
+					});
+
+					describe('seekbarStyles', function() {
+						it('should change depending on whether or not the playPause/volume button is present', function() {
+							var styles = $scope.state.seekbarStyles;
+
+							function checkStyles(left, right) {
+								expect(styles().marginLeft).toBe(left + 'px');
+								expect(styles().marginRight).toBe(right + 'px');
+							}
+
+							volume = false;
+							playPause = false;
+							$scope.$digest();
+
+							checkStyles(22, 22);
+
+							playPause = true;
+							$scope.$digest();
+							checkStyles(90, 22);
+
+							volume = true;
+							$scope.$digest();
+							checkStyles(90, 90);
 						});
 					});
 
