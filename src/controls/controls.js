@@ -65,7 +65,9 @@
 					controller: '&',
 					segments: '&',
 					nodes: '&',
-					buttons: '&'
+					buttons: '&',
+					playPause: '&',
+					volume: '&'
 				},
 				templateUrl: appBaseUrl + '/lib/c6ui/controls/controls.html',
 				replace: true,
@@ -120,6 +122,23 @@
 					hasButton: function(button) {
 						return ($scope.buttons() || []).indexOf(button) !== -1;
 					},
+					seekbarStyles: c($scope, function(hasPlayPause, hasVolume) {
+						var leftMargin = 22,
+							rightMargin = 22;
+
+						if (hasPlayPause) {
+							leftMargin += 68;
+						}
+
+						if (hasVolume) {
+							rightMargin += 68;
+						}
+
+						return {
+							marginLeft: leftMargin + 'px',
+							marginRight: rightMargin + 'px'
+						};
+					}, ['state.showPlayPause()', 'state.showVolume()']),
 					buttonsConfig: c($scope, function(buttons) {
 						var config = [];
 
@@ -186,7 +205,21 @@
 						});
 
 						return length;
-					}, ['state.playheadPosition', 'state.segments()'])
+					}, ['state.playheadPosition', 'state.segments()']),
+					showPlayPause: c($scope, function(playPause) {
+						if (angular.isUndefined(playPause)) {
+							return true;
+						} else {
+							return playPause;
+						}
+					}, ['playPause()']),
+					showVolume: c($scope, function(volume) {
+						if (angular.isUndefined(volume)) {
+							return true;
+						} else {
+							return volume;
+						}
+					}, ['volume()'])
 				},
 				getMousePositionAsSeekbarPercent = function(seeker$, mousePosition) {
 					var position = mousePosition - seeker$[0].getBoundingClientRect().left,
