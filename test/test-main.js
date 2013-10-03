@@ -56,6 +56,9 @@
             },
             "videos/playlist_history": {
                 "deps": ["events/emitter", "events/journal"]
+            },
+            "videos/playlist": {
+                "deps": ["c6ui"]
             }
         },
 

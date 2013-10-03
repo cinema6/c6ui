@@ -1,4 +1,6 @@
 (function() {
+    'use strict';
+
     angular.module('c6.ui')
         .service('c6PlaylistHistoryService', ['c6Journal', 'c6EventEmitter', '$timeout','$log',
             function(c6Journal, c6EventEmitter, $timeout, $log) {
