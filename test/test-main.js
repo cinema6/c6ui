@@ -36,24 +36,27 @@
             "anicache/anicache" : {
                 "deps" : [ "events/emitter" ]
             },
-			"computed/computed": {
-				"deps": ["c6ui"]
-			},
-			"controls/controls": {
-				"deps": ["computed/computed"]
-			},
-			"debounce/debounce": {
-				"deps": ["c6ui"]
-			},
-			"sfx/sfx": {
-				"deps": ["c6ui"]
-			},
-			"mouseactivity/mouseactivity": {
-				"deps": ["c6ui"]
-			},
-			"imagepreloader/imagepreloader": {
-				"deps": ["c6ui"]
-			}
+            "computed/computed": {
+                "deps": ["c6ui"]
+            },
+            "controls/controls": {
+                "deps": ["computed/computed"]
+            },
+            "debounce/debounce": {
+                "deps": ["c6ui"]
+            },
+            "sfx/sfx": {
+                "deps": ["c6ui"]
+            },
+            "mouseactivity/mouseactivity": {
+                "deps": ["c6ui"]
+            },
+            "imagepreloader/imagepreloader": {
+                "deps": ["c6ui"]
+            },
+            "videos/playlist_history": {
+                "deps": ["events/emitter", "events/journal"]
+            }
         },
 
         priority : [
