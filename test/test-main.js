@@ -54,6 +54,9 @@
             "imagepreloader/imagepreloader": {
                 "deps": ["c6ui"]
             },
+            "videos/playlist_history": {
+                "deps": ["events/emitter", "events/journal"]
+            },
             "videos/playlist": {
                 "deps": ["c6ui"]
             }
