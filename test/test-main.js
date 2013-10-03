@@ -62,7 +62,10 @@
             },
             "videos/video": {
                 "deps": ["c6ui"]
-            }
+            },
+            "panels/panels": {
+                "deps": ["anicache/anicache"]
+            },
         },
 
         priority : [
