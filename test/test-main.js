@@ -56,6 +56,9 @@
             },
             "videos/playlist": {
                 "deps": ["c6ui"]
+            },
+            "videos/video": {
+                "deps": ["c6ui"]
             }
         },
 
