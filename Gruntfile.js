@@ -10,7 +10,7 @@ module.exports = function (grunt) {
     var initProps = {
             src         : path.join(__dirname,'src'),
             dist        : path.join(__dirname,'dist'),
-		    app         : path.join(__dirname,'app')
+            app         : path.join(__dirname,'app')
         };
 
     grunt.initConfig({
@@ -32,16 +32,16 @@ module.exports = function (grunt) {
                     }
                 ]
             },
-			app: {
-				files: [
-					{
-						expand: true,
-						cwd: '<%= settings.src %>',
-						dest: '<%= settings.app %>/assets/lib/c6ui',
+            app: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: '<%= settings.src %>',
+                        dest: '<%= settings.app %>/assets/lib/c6ui',
                         src: [
                             '**'
                         ]
-					},
+                    },
                     {
                         expand: true,
                         cwd: 'lib',
@@ -50,8 +50,8 @@ module.exports = function (grunt) {
                             '**'
                         ]
                     }
-				]
-			}
+                ]
+            }
         },
         watch: {
             build: {
@@ -59,21 +59,21 @@ module.exports = function (grunt) {
                 tasks: 'copy:app'
             }
         },
-		connect: {
-			dev: {
-				options: {
-					port: 9000,
-					hostname: '*',
-					base: '<%= settings.app %>',
-					middleware: function(connect, options) {
-						return [
-							connect.static(options.base),
-							connect.directory(options.base)
-						];
-					}
-				}
-			}
-		},
+        connect: {
+            dev: {
+                options: {
+                    port: 9000,
+                    hostname: '*',
+                    base: '<%= settings.app %>',
+                    middleware: function(connect, options) {
+                        return [
+                            connect.static(options.base),
+                            connect.directory(options.base)
+                        ];
+                    }
+                }
+            }
+        },
         jshint: {
             options: {
                 jshintrc: 'jshint.json'
@@ -107,14 +107,14 @@ module.exports = function (grunt) {
     grunt.registerTask('build',function(){
         grunt.task.run('test');
         grunt.task.run('clean');
-		grunt.task.run('copy:dist');
+        grunt.task.run('copy:dist');
     });
 
-	grunt.registerTask('server', function() {
-		grunt.task.run('copy:app');
+    grunt.registerTask('server', function() {
+        grunt.task.run('copy:app');
         grunt.task.run('connect:dev');
         grunt.task.run('watch');
-	});
+    });
 
     grunt.registerTask('default', ['build']);
 };

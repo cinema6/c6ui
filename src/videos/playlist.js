@@ -206,7 +206,7 @@
                                                         '<li ng-repeat="buffId in playerBuffers" class="player__item"' +
                                                             'ng-class="{\'player__item--active\': videos[buffId].showPlayer}"' +
                                                             'ng-show="videos[buffId].showPlayer">' +
-                                                            '<video c6video id="{{buffId}}" c6-src="model.cli[buffId].data.src"' +
+                                                            '<video c6-video id="{{buffId}}" c6-src="model.cli[buffId].data.src"' +
                                                                 'preload="auto" class="video__item"> </video>' +
                                                         '</li>' +
                                                     '</ul>' +
