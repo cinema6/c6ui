@@ -45,6 +45,7 @@
         return {
             link: fnLink,
             template : template,
+            restrict: 'E,A',
             scope : {
                 show : '='
             }
