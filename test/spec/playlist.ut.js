@@ -69,15 +69,15 @@
                     data: {
                         video1: {
                             duration: 30,
-                            src: 'video1'
+                            src: 'video1file'
                         },
                         video2: {
                             duration: 14.2,
-                            src: 'video2'
+                            src: 'video2file'
                         },
                         video3: {
                             duration: 10,
-                            src: 'video3'
+                            src: 'video3file'
                         }
                     }
                 };
@@ -163,7 +163,7 @@
                         });
                     });
 
-                    describe('loadPlayList(id, rqsUrl, callback)', function() {
+                    describe('loadPlayList(params, callback)', function() {
                         var spy;
 
                         beforeEach(function() {
@@ -172,7 +172,7 @@
 
                         describe('failure', function() {
                             beforeEach(function() {
-                                $scope.loadPlayList('teamHappy', 'playlist.jso', spy);
+                                $scope.loadPlayList({ id : 'teamHappy', rqsUrl : 'playlist.jso'}, spy);
 
                                 $httpBackend.flush();
                             });
@@ -188,7 +188,7 @@
                         describe('success', function() {
                             beforeEach(function() {
                                 spyOn(C6PlaylistCtrl, '_compilePlayList');
-                                $scope.loadPlayList('teamHappy', 'playlist.json', spy);
+                                $scope.loadPlayList({ id : 'teamHappy', rqsUrl : 'playlist.json'}, spy);
 
                                 $httpBackend.flush();
                             });
@@ -330,7 +330,7 @@
                     });
 
                     it('should be set when a playlist is loaded', function() {
-                        $scope.loadPlayList('myID', 'playlist.json', function() {});
+                        $scope.loadPlayList({ id : 'myID', rqsUrl : 'playlist.json'}, function() {});
                         $httpBackend.flush();
                         expect(C6PlaylistCtrl.id()).toBe('myID');
                     });
@@ -766,6 +766,38 @@
 
                     it('should attach the playlist.data to the result', function() {
                         expect(result.playListData).toBe(playlistData.data);
+                        expect(result.playListData.video1.src).toBe("video1file");
+                    });
+                });
+                describe('_compilePlayList(playList, output, urlFunc)', function() {
+                    var urlFunc = function(name){
+                            return 'http://cdn.example.com/' + name; 
+                        },
+                        result = {},
+                        resultOfFunction;
+
+                    beforeEach(function() {
+                        playlistData.data.video1.label = 'awesome';
+                        playlistData.data.video1.foo = 'bar';
+                        playlistData.data.video1.src = 
+                            [ { "type": "video/webm", "src": "video1file.webm" },
+                              { "src": "video1file.mp4"  } ];
+                        resultOfFunction = C6PlaylistCtrl._compilePlayList(playlistData, result,urlFunc);
+                    });
+
+                    it('should attach the playlist.data to the result', function() {
+                        expect(result.playListData).not.toBe(playlistData.data);
+                        expect(result.playListData.video1.label).toEqual('awesome');
+                        expect(result.playListData.video1.foo).toEqual('bar');
+                        expect(result.playListData.video1.duration).toEqual(30);
+                        expect(result.playListData.video1.src[0].type).toEqual("video/webm");
+                        expect(result.playListData.video1.src[0].src).toEqual("http://cdn.example.com/video1file.webm");
+                        expect(result.playListData.video1.src[1].type).not.toBeDefined();
+                        expect(result.playListData.video1.src[1].src).toEqual("http://cdn.example.com/video1file.mp4");
+                        expect(result.playListData.video2.duration).toEqual(14.2);
+                        expect(result.playListData.video2.src).toEqual("http://cdn.example.com/video2file");
+                        expect(result.playListData.video3.duration).toEqual(10);
+                        expect(result.playListData.video3.src).toEqual("http://cdn.example.com/video3file");
                     });
                 });
             });
