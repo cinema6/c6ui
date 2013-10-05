@@ -66,6 +66,9 @@
             "panels/panels": {
                 "deps": ["anicache/anicache"]
             },
+            "visible/visible": {
+                "deps": ["c6ui"]
+            }
         },
 
         priority : [
