@@ -36,17 +36,24 @@
                     scope.playerBuffers.push('buffer' + i.toString());
                 }
 
-                scope.loadPlayList(attrs.id,scope.url,function(err){
-                    if (err){
-                        $log.error('loadPlayList Failed: ' + err.message);
-                        return;
-                    }
+                scope.loadPlayList(
+                    {
+                        id                   : attrs.id,
+                        rqsUrl               : scope.url,
+                        videoSrcUrlFormatter : scope.urlFormatter
+                    },
+                    function(err){
+                        if (err){
+                            $log.error('loadPlayList Failed: ' + err.message);
+                            return;
+                        }
 
-                    $log.log('PlayList is loaded.');
-                    if (scope.model.clients.length === scope.buffers){
-                        scope.setReady();
+                        $log.log('PlayList is loaded.');
+                        if (scope.model.clients.length === scope.buffers){
+                            scope.setReady();
+                        }
                     }
-                });
+                );
 
                 scope.$on('c6video-ready',function(evt,video){
                     $log.info('New video: ' + video.id);
@@ -215,7 +222,7 @@
 
                                 })(),
                 replace      : true,
-                scope        : { buffers : '=', url : '=' },
+                scope        : { buffers : '=', url : '=', urlFormatter : '=' },
                 link         : linker
             };
         }])
@@ -257,16 +264,20 @@
                 $scope.$emit('c6PlayListReady',self);
             };
 
-            $scope.loadPlayList = function(id, rqsUrl, callback){
+            $scope.loadPlayList = function(params, callback){
+                var id      = params.id,
+                    rqsUrl  = params.rqsUrl,
+                    urlFunc = params.videoSrcUrlFormatter,
+                    req;
                 $log.log('Loading playlist: ' + id);
                 model.id = id;
-                var  req = $http({method: 'GET', url: (rqsUrl)});
+                req = $http({method: 'GET', url: (rqsUrl)});
 
                 $log.info('Requesting: ' + rqsUrl);
 
                 req.success(function(data/*,status,headers,config*/){
                     $log.info('PlayList request succeeded');
-                    self._compilePlayList( data, model );
+                    self._compilePlayList( data, model, urlFunc );
                     callback(null);
                     return;
                 });
@@ -591,7 +602,7 @@
                 client.data = (node.name) ? model.playListData[node.name] : {};
             };
 
-            this._compilePlayList = function(playList, output){
+            this._compilePlayList = function(playList, output, urlFunc){
                 if (!output){
                     output = {};
                 }
@@ -624,7 +635,36 @@
                     return newNode;
                 }(playList.tree,null));
 
-                output.playListData   = playList.data;
+                if (!urlFunc){
+                    // No url transform function, go ahead and return
+                    output.playListData   = playList.data;
+                    return output;
+                }
+
+                output.playListData = {};
+                angular.forEach(playList.data,function(data,key){
+                    var copy = {};
+                    angular.forEach(data,function(val,name){
+                        if (name === 'src'){
+                            if (angular.isArray(val)){
+                                copy.src = [];
+                                angular.forEach(val,function(source){
+                                    var src = {};
+                                    if (source.type){
+                                        src.type = source.type;
+                                    }
+                                    src.src = urlFunc(source.src);
+                                    copy.src.push(src);
+                                });
+                            } else {
+                                copy.src = urlFunc(val);
+                            }
+                        } else {
+                            copy[name] = val;
+                        }
+                    });
+                    output.playListData[key]=copy;
+                });
 
                 return output;
             };
