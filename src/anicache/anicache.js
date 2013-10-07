@@ -6,6 +6,7 @@
         $log.log('Create c6AniCache service');
         var service,
             anis    = [],
+            data    = {},
             enabled = false;
 
         service = function(ani){
@@ -128,6 +129,15 @@
             }
 
             return this;
+        };
+
+        service.data  = function(key,val){
+            if (val === undefined){
+                return data[key];
+            }
+
+            data[key] = val;
+            return service;
         };
 
         return c6EventEmitter(service);
