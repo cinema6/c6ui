@@ -68,6 +68,9 @@
             },
             "visible/visible": {
                 "deps": ["c6ui"]
+            },
+            "url/urlmaker": {
+                "deps": ["c6ui"]
             }
         },
 
