@@ -131,7 +131,8 @@
                 bestFormat = c6videoService.bestFormat();
 
                 if (!src) {
-                    if (video.src) { this.regenerate(); }
+                    //if (video.src) { this.regenerate(); }
+                    $log.warn(this.id + ': Cannot set a video src to null');
                     return false;
                 }
 
@@ -321,6 +322,7 @@
         if (c6videoService.isChrome) {
             var hackyHackyChromeySucky = function(event) {
                 var video = event.target;
+                $log.info(c6video.id + ': Applied Chrome Hack - ' + video.currentSrc);
 
                 // SEE THE SPAGHETTI YOU MAKE ME WRITE, GOOGLE?!
                 // Make sure I can play this video
