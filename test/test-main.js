@@ -71,6 +71,9 @@
             },
             "url/urlmaker": {
                 "deps": ["c6ui"]
+            },
+            "format/format": {
+                "deps": ["c6ui"]
             }
         },
 
