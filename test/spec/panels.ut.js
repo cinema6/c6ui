@@ -23,35 +23,41 @@
                     c6AniCache      = _c6AniCache_;
                 });
             });
-
             describe('initialization',function(){
+                beforeEach(function(){
+                    $scope = $rootScope.$new();
+                });
+
                 describe('static',function(){
                     it('should use default with no duration',function(){
                         $element = $compile(
                            '<div c6-panels x-show="showPanels"></div>' 
-                        )($rootScope.$new());
+                        )($scope);
+                        $scope.$digest();
                         expect(c6AniCache.data('c6Panels').duration).toEqual(0.6);
                     });
                     it('should use a valid duration',function(){
                         $element = $compile(
                            '<div c6-panels x-duration="4" x-show="showPanels"></div>' 
-                        )($rootScope.$new());
+                        )($scope);
+                        $scope.$digest();
                         expect(c6AniCache.data('c6Panels').duration).toEqual(4);
                     });
                     it('should except if duration is invalid',function(){
                         expect(function(){
                             $element = $compile(
-                               '<div c6-panels x-duration="apple" x-show="showPanels"></div>' 
-                            )($rootScope.$new());
+                               '<div c6-panels x-duration="\'apple\'" x-show="showPanels"></div>' 
+                            )($scope);
+                            $scope.$digest();
                         }).toThrow('Invalid duration: apple. c6Panels duration must be a number.');
                     });
                 });
+
                 describe('dynamic',function(){
                     beforeEach(function(){
                         $element = $compile(
-                           '<div c6-panels x-duration="{{myDuration}}" x-show="showPanels"></div>' 
-                        )($rootScope.$new());
-                        $scope = $element.scope();
+                           '<div c6-panels x-duration="myDuration" x-show="showPanels"></div>' 
+                        )($scope);
                         $scope.$digest();
                     });
 
