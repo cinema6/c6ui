@@ -38,8 +38,7 @@
                             return resolvedValue;
                         }
                     });
-                },
-                recordToHistory = function(name, data) {
+                }, recordToHistory = function(name, data) {
                     history.recordEvent(name, data);
                     set('index', self.index + 1);
                     self.emit('historyModified', history.createSubscriber());
@@ -80,19 +79,19 @@
                     isMostRecent = (index === historyLength - 1),
                     data = playListCtrl.getDataForNode(nodeId);
 
-                playListCtrl.load(nodeId, 0, true);
-
                 set('currentNode.id', data.id);
                 set('currentNode.name', data.name);
 
                 if (isMostRecent) {
                     recordToHistory(data.id, data);
+                    this.moveTo(nodeId);
                 } else if (nodeId === history.getAt(index + 1).name) {
                     this.moveTo(nodeId);
                 } else {
                     history.removeAt(index + 1, historyLength - (index + 1));
                     this.push(nodeId);
                 }
+
             };
             this.moveTo = function(nodeId, time) {
                 var index = history.findFirstIndex(nodeId),

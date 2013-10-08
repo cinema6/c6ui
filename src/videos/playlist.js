@@ -471,6 +471,30 @@
 
                     return;
                 }
+                //Check if any of our clients have no node
+                angular.forEach(model.clients,function(client){
+                    if (    (nextClient === null) &&
+                            (client.node.name === undefined) ){
+                        nextClient = client;
+                    }
+                });
+
+                if (nextClient !== null){
+                    $log.info('Set Client ' +
+                            nextClient + ' node to ' + nd);
+
+                    model.currentClient = nextClient;
+                    this._setClientWithNode(model.currentClient,nd);
+
+                    model.currentClient.startTime = startTime;
+                    $scope.$emit('loadStarted', model.currentClient);
+
+                    if (andComplete){
+                        this.completeLoad();
+                    }
+                    return;
+
+                }
 
                 if (model.currentClient){
                     // None of our clients have that node so we will assign it

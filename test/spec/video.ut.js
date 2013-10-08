@@ -140,19 +140,19 @@
                 });
             });
 
-            it('should set the src to undefined if you pass in null to the src method.', function() {
+            it('should not set the src to undefined if you pass in null to the src method.', function() {
                 waitsFor(function() {
                     return c6video;
                 }, 'never got the player object', 1000);
                 runs(function() {
                     c6video.src(null);
-                    expect(c6video.player.src).toBe(undefined);
+                    expect(c6video.player.src).toBe('test/hey/hola.mp4');
 
                     c6video.src('test.mp4');
                     expect(c6video.player.src).toBe('test.mp4');
 
                     c6video.src(null);
-                    expect(c6video.player.src).toBe(undefined);
+                    expect(c6video.player.src).toBe('test.mp4');
                 });
             });
 
