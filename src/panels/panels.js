@@ -4,14 +4,14 @@
     'use strict';
 
     angular.module('c6.ui')
-    .directive('c6Panels', ['$log', '$timeout', 'c6AniCache', function($log,$timeout, c6AniCache){
+    .directive('c6Panels', ['$log', 'c6AniCache', function($log, c6AniCache){
         var template =
             '<div class="panel__top" ng-show="panels.showUpper" ng-animate="\'upperPanel\'">' +
             '&nbsp;</div>' +
             '<div class="panel__bottom" ng-show="panels.showLower" ng-animate="\'lower-panel\'">' +
             '&nbsp;</div>' ;
 
-        function fnLink($scope/*,$element,$attrs*/){
+        function fnLink($scope,$element,$attrs){
             $log.info('In c6Panels');
 
             $scope.panels = {
@@ -21,12 +21,39 @@
                 hide      : function() { this.showUpper = this.showLower = false; }
             };
 
+            var defaultDuration = Number($attrs.duration);
+            if (isNaN(defaultDuration)){
+                if ($attrs.duration){
+                    throw new TypeError('Invalid duration: ' + $attrs.duration +
+                        '. c6Panels duration must be a number.');
+                }
+                defaultDuration = 0.6;
+            }
+
+            c6AniCache.data('c6Panels',{ duration : defaultDuration });
+
+            $attrs.$observe('duration',function(newVal){
+                $log.info('duration changed to: ' + newVal);
+                var val = Number(newVal);
+                if ((val === undefined) || (val === 0)){
+                    c6AniCache.data('c6Panels',{ duration : 0.6 });
+                    return;
+                }
+
+                if (isNaN(val)){
+                    throw new TypeError('Invalid duration: ' + newVal +
+                        '. c6Panels duration must be a number.');
+                }
+
+                c6AniCache.data('c6Panels',{ duration : val });
+            });
+
             $scope.$watch('show',function(newVal){
                 if (newVal){
-                    $log.log('Show panels now');
+                    $log.info('Show panels now');
                     $scope.panels.show();
                 } else {
-                    $log.log('Hide panels now');
+                    $log.info('Hide panels now');
                     $scope.panels.hide();
                 }
             });
@@ -56,10 +83,11 @@
         return aniCache({
             id : 'upper-panel-show',
             setup: function(element) {
-                $log.log('upper-panel-show setup');
-                var timeline = new TimelineLite({paused:true});
+                $log.info('upper-panel-show setup');
+                var timeline = new TimelineLite({paused:true}),
+                    duration = aniCache.data('c6Panels').duration;
                 element.css({ bottom : '100%', display : 'block', 'z-index' : 99999 });
-                timeline.to( element.get(0), 0.6, { bottom: '50%', ease:Power2.easeInOut} );
+                timeline.to( element.get(0), duration, { bottom: '50%', ease:Power2.easeInOut} );
                 return timeline;
             },
             start: function(element, done, timeline) {
@@ -76,10 +104,11 @@
         return aniCache({
             id : 'upper-panel-hide',
             setup: function(element) {
-                $log.log('upper-panel-hide setup');
-                var timeline = new TimelineLite({paused:true});
+                $log.info('upper-panel-hide setup');
+                var timeline = new TimelineLite({paused:true}),
+                    duration = aniCache.data('c6Panels').duration;
                 element.css({ bottom : '50%', display : 'block', 'z-index' : 99999 });
-                timeline.to( element.get(0), 0.6, { bottom: '100%', ease:Power2.easeInOut} );
+                timeline.to( element.get(0), duration, { bottom: '100%', ease:Power2.easeInOut} );
                 return timeline;
             },
             start: function(element, done, timeline) {
@@ -96,10 +125,11 @@
         return aniCache({
             id : 'lower-panel-show',
             setup: function(element) {
-                $log.log('lower-panel-show setup');
-                var timeline = new TimelineLite({paused:true});
+                $log.info('lower-panel-show setup');
+                var timeline = new TimelineLite({paused:true}),
+                    duration = aniCache.data('c6Panels').duration;
                 element.css({ top : '100%', display : 'block', 'z-index' : 99999 });
-                timeline.to( element.get(0), 0.6, { top: '50%', ease:Power2.easeInOut} );
+                timeline.to( element.get(0), duration, { top: '50%', ease:Power2.easeInOut} );
                 return timeline;
             },
             start: function(element, done, timeline) {
@@ -116,10 +146,11 @@
         return aniCache({
             id : 'lower-panel-hide',
             setup: function(element) {
-                $log.log('lower-panel-hide setup');
-                var timeline = new TimelineLite({paused:true});
+                $log.info('lower-panel-hide setup');
+                var timeline = new TimelineLite({paused:true}),
+                    duration = aniCache.data('c6Panels').duration;
                 element.css({ top : '50%', display : 'block', 'z-index' : 99999 });
-                timeline.to( element.get(0), 0.6, { top: '100%', ease:Power2.easeInOut} );
+                timeline.to( element.get(0), duration, { top: '100%', ease:Power2.easeInOut} );
                 return timeline;
             },
             start: function(element, done, timeline) {
