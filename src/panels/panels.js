@@ -11,7 +11,7 @@
             '<div class="panel__bottom" ng-show="panels.showLower" ng-animate="\'lower-panel\'">' +
             '&nbsp;</div>' ;
 
-        function fnLink($scope,$element,$attrs){
+        function fnLink($scope/*,$element,$attrs*/){
             $log.info('In c6Panels');
 
             $scope.panels = {
@@ -21,21 +21,12 @@
                 hide      : function() { this.showUpper = this.showLower = false; }
             };
 
-            var defaultDuration = Number($attrs.duration);
-            if (isNaN(defaultDuration)){
-                if ($attrs.duration){
-                    throw new TypeError('Invalid duration: ' + $attrs.duration +
-                        '. c6Panels duration must be a number.');
-                }
-                defaultDuration = 0.6;
-            }
+            c6AniCache.data('c6Panels',{ duration : 0.6 });
 
-            c6AniCache.data('c6Panels',{ duration : defaultDuration });
-
-            $attrs.$observe('duration',function(newVal){
+            $scope.$watch('duration',function(newVal){
                 $log.info('duration changed to: ' + newVal);
                 var val = Number(newVal);
-                if ((val === undefined) || (val === 0)){
+                if ((newVal === undefined) || (val === undefined) || (val === 0)){
                     c6AniCache.data('c6Panels',{ duration : 0.6 });
                     return;
                 }
@@ -74,6 +65,7 @@
             template : template,
             restrict: 'E,A',
             scope : {
+                duration : '=',
                 show : '='
             }
         };
