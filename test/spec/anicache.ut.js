@@ -27,6 +27,7 @@
                 expect(c6AniCache.uncache).toBeDefined('uncache');
                 expect(c6AniCache.cancelWithToken).toBeDefined('cancelWithToken');
                 expect(c6AniCache.cancelAll).toBeDefined('cancelAll');
+                expect(c6AniCache.data).toBeDefined('data');
             });
 
             describe('events',function(){
@@ -53,6 +54,25 @@
                     ani.start({},function(){});
 
                     expect(count).toEqual(4);
+                });
+            });
+
+            describe('data', function(){
+                var data3 = {
+                    'val_a' : 'a',
+                    'val_b' : 3
+                };
+                beforeEach(function(){
+                    c6AniCache
+                        .data('key1','value1')
+                        .data('key2', 2)
+                        .data('key3', data3);
+                });
+
+                it('should allow data to be retrieved by key', function(){
+                    expect(c6AniCache.data('key1')).toEqual('value1');
+                    expect(c6AniCache.data('key2')).toEqual(2);
+                    expect(c6AniCache.data('key3')).toBe(data3);
                 });
             });
         });
