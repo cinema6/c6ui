@@ -119,13 +119,13 @@
                         node: $scope.model.playListDict.n2
                     },
                     {
-                        node: null
+                        node: {}
                     },
                     {
-                        node: null
+                        node: {}
                     },
                     {
-                        node: null
+                        node: {}
                     }
                 ];
             });
