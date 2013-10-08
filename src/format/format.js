@@ -43,14 +43,13 @@
 
                     // If we got here then the char is not a number
                     if (pSt > -1){
-                        n = Number(numStr) - 1;
-                        v = args[n];
-
-                        if (v){
-                            interpolated += v;
+                        if (numStr.length > 0){
+                            n = Number(numStr) - 1;
+                            v = args[n];
                         } else {
-                            interpolated += '%' + numStr;
+                            v = '%';
                         }
+                        interpolated += v;
                         pSt = -1;
                         numStr = '';
                     }
@@ -58,14 +57,14 @@
                 }
 
                 if (pSt > -1){
-                    n = Number(numStr) - 1;
-                    v = args[n];
-
-                    if (v){
-                        interpolated += v;
+                    if (numStr.length > 0){
+                        n = Number(numStr) - 1;
+                        v = args[n];
                     } else {
-                        interpolated += '%' + numStr;
+                        v = '%';
                     }
+
+                    interpolated += v;
                 }
 
                 return interpolated;
