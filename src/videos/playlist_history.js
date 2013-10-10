@@ -40,7 +40,6 @@
                     });
                 }, recordToHistory = function(name, data) {
                     history.recordEvent(name, data);
-                    set('index', self.index + 1);
                     self.emit('historyModified', history.createSubscriber());
                 };
 
