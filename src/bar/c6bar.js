@@ -7,7 +7,11 @@
             restrict: 'E',
             templateUrl: appBaseUrl + '/lib/c6ui/bar/c6bar.html',
             replace: true,
-            scope: {}
+            scope: {
+                logoUrl: '@',
+                experienceName: '@',
+                close: '='
+            }
         };
     }]);
 
