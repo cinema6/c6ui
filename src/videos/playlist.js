@@ -10,36 +10,45 @@
                         video.showPlayer = (videoToShow === video);
                     });
                 },
+                myBuffers = scope.buffers,
+                myUrl     = scope.url,
                 activatePlayerTimeout;
 
                 $log.info('c6PlayList is linked, scope.id=' + scope.$id +
                     ', playList.id=' + attrs.id +
-                    ', url=' + scope.url +
-                    ', buffers='  + scope.buffers);
+                    ', url=' + myUrl +
+                    ', buffers='  + myBuffers);
 
                 if (!attrs.id){
                     throw new SyntaxError('c6PlayList requires an id attribute');
                 }
 
-                if (!scope.url) {
+                if (!myUrl) {
                     throw new SyntaxError('c6PlayList requires an x-url attribute');
                 }
 
-                if (!scope.buffers) {
-                    $log.warning('No x-buffers attribute found, default to 1');
+                if (!myBuffers) {
+                    $log.warn('No x-buffers attribute found, default to 1');
+                    myBuffers = 1;
                 }
+
+                if (isNaN(myBuffers)){
+                    throw new TypeError('buffers property must be passed a number');
+                }
+
+                myBuffers = parseInt(myBuffers,10);
 
                 scope.isPlaying = false;
 
                 scope.playerBuffers = [];
-                for (var i = 0; i < scope.buffers; i++){
+                for (var i = 0; i < myBuffers; i++){
                     scope.playerBuffers.push('buffer' + i.toString());
                 }
 
                 scope.loadPlayList(
                     {
                         id                   : attrs.id,
-                        rqsUrl               : scope.url,
+                        rqsUrl               : myUrl,
                         videoSrcUrlFormatter : scope.urlFormatter
                     },
                     function(err){
@@ -48,8 +57,7 @@
                             return;
                         }
 
-                        $log.log('PlayList is loaded.');
-                        if (scope.model.clients.length === scope.buffers){
+                        if (scope.model.clients.length === myBuffers){
                             scope.setReady();
                         }
                     }
@@ -73,10 +81,11 @@
                             ctlr.emit('endOfPlayList');
                             return;
                         }
-                        ctlr.emit('endOfPlayListItem');
+                        ctlr.emit('endOfPlayListItem',
+                            ctlr.getDataForNode(video.playListClient.node.id));
                     });
 
-                    if (scope.model.clients.length === scope.buffers){
+                    if (scope.model.clients.length === myBuffers){
                         if (scope.model.playList !== null){
                             scope.setReady();
                         }
@@ -222,7 +231,7 @@
 
                                 })(),
                 replace      : true,
-                scope        : { buffers : '=', url : '=', urlFormatter : '=' },
+                scope        : { buffers : '@', url : '@', urlFormatter : '=' },
                 link         : linker
             };
         }])
@@ -393,12 +402,10 @@
             this.getDataForNode = function(nodeId) {
                 var node = model.playListDict[nodeId],
                     data = model.playListData[node.name],
-                    record = {};
+                    record = angular.copy(data);
 
                 record.id       = node.id;
                 record.name     = node.name;
-                record.duration = data.duration;
-                record.label    = data.label;
                 record.siblings = [];
                 if (node.parent){
                     record.parentId = node.parent.id;
