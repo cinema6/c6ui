@@ -6,7 +6,7 @@
             var _private = {
                 ping: function(win, event, type, data) {
                     $timeout(function() {
-                        win.postMessage({ c6: { event: event, type: type, data: data } }, '*');
+                        win.postMessage({ __c6__: { event: event, type: type, data: data } }, '*');
                     });
                 },
                 sessionCount: 0,
@@ -24,14 +24,23 @@
                     return foundSession;
                 },
                 handleMessage: function(event) {
-                    var c6 = event.data.c6,
-                        eventName = c6.event,
-                        type = c6.type.split(':'),
-                        typeName = type[0],
-                        typeId = type[1],
-                        data = c6.data,
-                        session = _private.getSessionByWindow(event.source),
+                    var c6 = event.data && event.data.__c6__,
+                        eventName,
+                        type,
+                        typeName,
+                        typeId,
+                        data,
+                        session,
                         done;
+
+                    if (!c6) { return; }
+
+                    eventName = c6.event;
+                    type = c6.type.split(':');
+                    typeName = type[0];
+                    typeId = type[1];
+                    data = c6.data;
+                    session = _private.getSessionByWindow(event.source);
 
                     if (typeName === 'request') {
                         done = function(response) {
