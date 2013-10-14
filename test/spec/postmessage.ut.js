@@ -183,10 +183,10 @@
                         var args = win.postMessage.mostRecentCall.args,
                             message = args[0];
 
-                        expect(message.c6).toBeDefined();
-                        expect(message.c6.event).toBe('test');
-                        expect(message.c6.data).toBe(data);
-                        expect(message.c6.type).toBe('request');
+                        expect(message.__c6__).toBeDefined();
+                        expect(message.__c6__.event).toBe('test');
+                        expect(message.__c6__.data).toBe(data);
+                        expect(message.__c6__.type).toBe('request');
                     });
                 });
 
@@ -265,7 +265,7 @@
 
                         event = {
                             data: {
-                                c6: {
+                                __c6__: {
                                     event: 'test',
                                     data: {},
                                     type: null
@@ -277,9 +277,35 @@
                         spyOn(session, 'emit');
                     });
 
+                    it('should do nothing when a non-cinema6 event comes in', function() {
+                        function Event(data) {
+                            this.data = data;
+                        }
+
+                        expect(function() {
+                            _private.handleMessage.call($window, new Event({ facebook: 'hello' }));
+                        }).not.toThrow();
+
+                        expect(function() {
+                            _private.handleMessage.call($window, new Event('hello'));
+                        }).not.toThrow();
+
+                        expect(function() {
+                            _private.handleMessage.call($window, new Event(undefined));
+                        }).not.toThrow();
+
+                        expect(function() {
+                            _private.handleMessage.call($window, new Event(null));
+                        }).not.toThrow();
+
+                        expect(function() {
+                            _private.handleMessage.call($window, new Event(22));
+                        }).not.toThrow();
+                    });
+
                     describe('request', function() {
                         beforeEach(function() {
-                            event.data.c6.type = 'request:0';
+                            event.data.__c6__.type = 'request:0';
 
                             _private.handleMessage.call($window, event);
 
@@ -292,7 +318,7 @@
                         });
 
                         it('should pass along the data', function() {
-                            expect(args[1]).toBe(event.data.c6.data);
+                            expect(args[1]).toBe(event.data.__c6__.data);
                         });
 
                         it('should pass along a done() function', function() {
@@ -325,7 +351,7 @@
 
                     describe('response', function() {
                         beforeEach(function() {
-                            event.data.c6.type = 'response:0';
+                            event.data.__c6__.type = 'response:0';
 
                             session._pending[0] = {
                                 resolve: jasmine.createSpy('session pending resolve')
@@ -335,13 +361,13 @@
                         });
 
                         it('should resolve the promise for the pending request with the provided data', function() {
-                            expect(session._pending[0].resolve).toHaveBeenCalledWith(event.data.c6.data);
+                            expect(session._pending[0].resolve).toHaveBeenCalledWith(event.data.__c6__.data);
                         });
                     });
 
                     describe('ping', function() {
                         beforeEach(function() {
-                            event.data.c6.type = 'ping';
+                            event.data.__c6__.type = 'ping';
 
                             _private.handleMessage(event);
 
@@ -350,7 +376,7 @@
 
                         it('should emit the event with the data and the angular.noop function', function() {
                             expect(args[0]).toBe('test');
-                            expect(args[1]).toBe(event.data.c6.data);
+                            expect(args[1]).toBe(event.data.__c6__.data);
                             expect(args[2]).toBe(angular.noop);
                         });
                     });
