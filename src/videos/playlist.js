@@ -203,8 +203,7 @@
                 scope.$on('play', function(){
                     $log.log('Play the current video: ' + scope.model.currentClient.id);
                     var client = scope.model.currentClient,
-                        video = scope.videos[client.id];/*,
-                        transAt = (client.data && client.data.transAt);*/
+                        video = scope.videos[client.id];
                     $log.info('Player [' + client.id + '], buffered: ' +
                         (video.bufferedPercent() * 100) + '%');
                     scope.isPlaying = true;
@@ -212,14 +211,6 @@
                     //video.showPlayer = true;
                     $log.log('SHOW PLAYER [' + client.id + ']: ' +
                         scope.videos[ client.id].showPlayer);
-/*
-                    if (transAt){
-                        $log.log('Set transAt check for ' + client + ' at ' + transAt);
-                        video.on('timeupdate',function(){
-
-                        });
-                    }
-*/
                 });
 
             }
