@@ -1,4 +1,5 @@
 (function() {
+    /*jshint -W106 */
     'use strict';
 
     angular.module('c6.ui')
