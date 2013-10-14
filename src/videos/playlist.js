@@ -72,6 +72,14 @@
                     }
                     scope.videos[video.id] = video;
 
+                    video.on('loadedmetadata',function(){
+                        $log.info('loadedmetadata: ' +
+                            video.playListClient.node.name +
+                            ' duration=' + video.player.duration);
+
+                        video.playListClient.data.duration = video.player.duration;
+                    });
+
                     video.on('ended', function(){
                         $log.info('Ended: ' + video.playListClient.node.name);
                         scope.isPlaying = false;
@@ -81,6 +89,7 @@
                             ctlr.emit('endOfPlayList');
                             return;
                         }
+
                         ctlr.emit('endOfPlayListItem',
                             ctlr.getDataForNode(video.playListClient.node.id));
                     });
@@ -189,20 +198,28 @@
 
                 scope.$on('loadComplete', function(evt, playListClient){
                     $log.log('loadComplete ' + playListClient);
-
-
                 });
 
                 scope.$on('play', function(){
                     $log.log('Play the current video: ' + scope.model.currentClient.id);
-                    var video = scope.videos[scope.model.currentClient.id];
-                    $log.info('Player [' + scope.model.currentClient.id + '], buffered: ' +
+                    var client = scope.model.currentClient,
+                        video = scope.videos[client.id];/*,
+                        transAt = (client.data && client.data.transAt);*/
+                    $log.info('Player [' + client.id + '], buffered: ' +
                         (video.bufferedPercent() * 100) + '%');
                     scope.isPlaying = true;
                     video.player.play();
                     //video.showPlayer = true;
-                    $log.log('SHOW PLAYER [' + scope.model.currentClient.id + ']: ' +
-                        scope.videos[ scope.model.currentClient.id].showPlayer);
+                    $log.log('SHOW PLAYER [' + client.id + ']: ' +
+                        scope.videos[ client.id].showPlayer);
+/*
+                    if (transAt){
+                        $log.log('Set transAt check for ' + client + ' at ' + transAt);
+                        video.on('timeupdate',function(){
+
+                        });
+                    }
+*/
                 });
 
             }
