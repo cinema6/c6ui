@@ -77,6 +77,9 @@
             },
             "postmessage/postmessage": {
                 "deps": ["events/emitter"]
+            },
+            "site/site": {
+                "deps": ["postmessage/postmessage"]
             }
         },
 
