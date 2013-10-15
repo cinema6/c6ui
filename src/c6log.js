@@ -14,8 +14,12 @@
             window$.console.warn('Using formatted logging, disable by setting c6.kLogFormats = false');
         }
 
+        if ((c6Defines.kLogLevels === null) || (c6Defines.kLogLevels === undefined)){
+            window$.console.warn('No loglevels found, logging will be disabled.');
+        }
+
         $provide.decorator('$log', ['$delegate', function($delegate) {
-            var logLevels = c6Defines.kLogLevels,
+            var logLevels = (c6Defines.kLogLevels ? c6Defines.kLogLevels : []),
                 formatter = fmtProv.$get(),
                 fmt       = formatter();
 
