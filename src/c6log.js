@@ -16,7 +16,7 @@
 
         $provide.decorator('$log', ['$delegate', function($delegate) {
             var logLevels = c6Defines.kLogLevels,
-                formatter = fmtProv.$get[1]($delegate),
+                formatter = fmtProv.$get(),
                 fmt       = formatter();
 
             angular.forEach($delegate,function(value,key){
