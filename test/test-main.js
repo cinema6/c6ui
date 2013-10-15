@@ -74,6 +74,12 @@
             },
             "format/format": {
                 "deps": ["c6ui"]
+            },
+            "postmessage/postmessage": {
+                "deps": ["events/emitter"]
+            },
+            "site/site": {
+                "deps": ["postmessage/postmessage"]
             }
         },
 
