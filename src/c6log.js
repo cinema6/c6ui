@@ -1,0 +1,62 @@
+(function(window$){
+    'use strict';
+
+
+    angular.module('c6.log',['c6.ui'])
+    .constant('c6Defines', (window$.c6 || {}))
+    .config(['$provide', 'c6Defines','c6FormatterProvider',
+        function($provide, c6Defines, fmtProv ) {
+        if (c6Defines.kHasKarma){
+            return;
+        }
+
+        if (c6Defines.kLogFormats){
+            window$.console.warn('Using formatted logging, disable by setting c6.kLogFormats = false');
+        }
+
+        $provide.decorator('$log', ['$delegate', function($delegate) {
+            var logLevels = c6Defines.kLogLevels,
+                formatter = fmtProv.$get[1]($delegate),
+                fmt       = formatter();
+
+            angular.forEach($delegate,function(value,key){
+                if ((typeof value === 'function') && (logLevels.indexOf(key) === -1)) {
+                    $delegate[key] = function(){};
+                } else {
+                    if (c6Defines.kLogFormats){
+                        $delegate[key] = function(msg) {
+                            value(fmt('%1 [%2] %3',(new Date()).toISOString(), key, msg ));
+                        };
+                    }
+                }
+            });
+
+            if (!c6Defines.kLogFormats){
+                $delegate.context = function(){ return $delegate; };
+                return $delegate;
+            }
+
+            function C6Log(ctx){
+                var self = this,
+                    logLevels = c6Defines.kLogLevels,
+                    fmtCtx    = formatter(ctx);
+
+                angular.forEach($delegate,function(method,key){
+                    if ((typeof method === 'function') && (logLevels.indexOf(key) === -1)) {
+                        self[key] = method;
+                    } else {
+                        self[key] = function(){
+                            method(fmt('%1', fmtCtx.apply(null,arguments) ) );
+                        };
+                    }
+                });
+            }
+
+            $delegate.context = function(ctx){
+                return new C6Log(ctx);
+            };
+            return $delegate;
+        }]);
+    }]);
+
+}(window));
