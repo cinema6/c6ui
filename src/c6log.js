@@ -28,8 +28,9 @@
                     $delegate[key] = function(){};
                 } else {
                     if (c6Defines.kLogFormats){
-                        $delegate[key] = function(msg) {
-                            value(fmt('%1 [%2] %3',(new Date()).toISOString(), key, msg ));
+                        $delegate[key] = function() {
+                            value(fmt('%1 [%2] %3',
+                                (new Date()).toISOString(), key, fmt.apply(null,arguments) ));
                         };
                     }
                 }
