@@ -55,6 +55,10 @@
                         };
                     }
                 });
+
+                self.context  = function(ctx) {
+                    return new C6Log(ctx);
+                };
             }
 
             $delegate.context = function(ctx){
