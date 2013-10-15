@@ -102,8 +102,7 @@
             basicFormat = newFunc;
         };
 
-        this.$get = ['$log',function( log ){
-            log.info('Create c6Formatter service');
+        this.$get = function(){
             return function(ctxString){
                 return function(logLine){
                     if (!enabled){
@@ -118,7 +117,7 @@
                             Array.prototype.splice.call(arguments,1));
                 };
             };
-        }];
+        };
 
     });
 }());
