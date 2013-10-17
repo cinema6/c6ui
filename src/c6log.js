@@ -29,8 +29,22 @@
                 } else {
                     if (c6Defines.kLogFormats){
                         $delegate[key] = function() {
-                            value(fmt('%1 [%2] %3',
-                                (new Date()).toISOString(), key, fmt.apply(null,arguments) ));
+                            if ((arguments.length > 1 ) &&
+                                (angular.isString(arguments[0])) &&
+                                (arguments[0].search(/%\d/)  >= 0) ){
+                                value(fmt('%1 [%2] %3',
+                                    (new Date()).toISOString(), key, fmt.apply(null,arguments) ));
+
+                            } else {
+                                var args = Array.prototype.slice.call(arguments,0);
+                                args.unshift(fmt('%1 [%2]', (new Date()).toISOString(), key ));
+                                value.apply(null,args);
+                            }
+                        };
+
+                        $delegate[key].wrapped = function(args){
+                            args.unshift(fmt('%1 [%2]', (new Date()).toISOString(), key ));
+                            value.apply(null,args);
                         };
                     }
                 }
@@ -51,7 +65,15 @@
                         self[key] = method;
                     } else {
                         self[key] = function(){
-                            method(fmt('%1', fmtCtx.apply(null,arguments) ) );
+                            if ((arguments.length > 1 ) &&
+                                (angular.isString(arguments[0])) &&
+                                (arguments[0].search(/%\d/)  >= 0) ){
+                                method(fmt('%1', fmtCtx.apply(null,arguments) ) );
+                            } else {
+                                var args = Array.prototype.slice.call(arguments,0);
+                                args.unshift('{' + ctx + '}');
+                                method.wrapped(args) ;
+                            }
                         };
                     }
                 });
