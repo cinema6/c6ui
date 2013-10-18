@@ -88,6 +88,15 @@
                 });
 
                 describe('init(config)', function() {
+                    var handshakeData;
+
+                    beforeEach(function() {
+                        handshakeData = {
+                            success: true,
+                            appData: {}
+                        };
+                    });
+
                     it('should create a session for the site window', function() {
                         expect(postMessage.createSession).toHaveBeenCalledWith($window.parent);
                     });
@@ -100,32 +109,8 @@
                         expect(session.request).toHaveBeenCalledWith('handshake');
                     });
 
-                    it('should set ready to true when the site responds to the handshake', function() {
-                        requestPromiseSuccessHandler();
-
-                        expect(site.ready).toBe(true);
-                    });
-
-                    it('should emit the ready event when the site responds', function() {
-                        spyOn(site, 'emit');
-
-                        requestPromiseSuccessHandler();
-
-                        expect(site.emit).toHaveBeenCalledWith('ready', true);
-                    });
-
                     it('should return the session', function() {
                         expect(initResult).toBe(session);
-                    });
-
-                    it('should resolve any pending getSession() deferred objects when the site responds', function() {
-                        _private.pendingGetSession = {
-                            resolve: jasmine.createSpy('pending getSession() resolve')
-                        };
-
-                        requestPromiseSuccessHandler();
-
-                        expect(_private.pendingGetSession.resolve).toHaveBeenCalledWith(_private.session);
                     });
 
                     it('should keep a reference to the config', function() {
@@ -150,6 +135,48 @@
                         });
 
                         expect(_private.pingPathChanges).toHaveBeenCalled();
+                    });
+
+                    describe('when the site responds to the handshake', function() {
+                        it('should set ready to true', function() {
+                            requestPromiseSuccessHandler(handshakeData);
+
+                            expect(site.ready).toBe(true);
+                        });
+
+                        it('should emit the ready event', function() {
+                            spyOn(site, 'emit');
+
+                            requestPromiseSuccessHandler(handshakeData);
+
+                            expect(site.emit).toHaveBeenCalledWith('ready', true);
+                        });
+
+                        it('should resolve any pending getSession() deferred objects', function() {
+                            _private.pendingGetSession = {
+                                resolve: jasmine.createSpy('pending getSession() resolve')
+                            };
+
+                            requestPromiseSuccessHandler(handshakeData);
+
+                            expect(_private.pendingGetSession.resolve).toHaveBeenCalledWith(_private.session);
+                        });
+
+                        it('should keep a reference to the appData', function() {
+                            requestPromiseSuccessHandler(handshakeData);
+
+                            expect(_private.appData).toBe(handshakeData.appData);
+                        });
+
+                        it('should resolve any pending getAppData() deferred objects', function() {
+                            _private.pendingGetAppData = {
+                                resolve: jasmine.createSpy('pending getAppData() resolve')
+                            };
+
+                            requestPromiseSuccessHandler(handshakeData);
+
+                            expect(_private.pendingGetAppData.resolve).toHaveBeenCalledWith(handshakeData.appData);
+                        });
                     });
                 });
 
@@ -182,6 +209,38 @@
                         expect(spy).not.toHaveBeenCalled();
 
                         expect(typeof _private.pendingGetSession.resolve).toBe('function');
+                    });
+                });
+
+                describe('getAppData()', function() {
+                    var spy;
+
+                    beforeEach(function() {
+                        spy = jasmine.createSpy('getSession promise');
+                    });
+
+                    it('should return a promise', function() {
+                        expect(typeof site.getAppData().then).toBe('function');
+                    });
+
+                    it('should be resolved if the site already has the appData', function() {
+                        _private.appData = {};
+
+                        site.getAppData().then(spy);
+
+                        $rootScope.$digest();
+
+                        expect(spy).toHaveBeenCalledWith(_private.appData);
+                    });
+
+                    it('should save the deferred object if the appData isn\'t present', function() {
+                        site.getAppData().then(spy);
+
+                        $rootScope.$digest();
+
+                        expect(spy).not.toHaveBeenCalled();
+
+                        expect(typeof _private.pendingGetAppData.resolve).toBe('function');
                     });
                 });
 
