@@ -3,7 +3,7 @@
     'use strict';
     angular.module('c6.ui')
     .factory('c6EventEmitter',['$log',function($log){
-        var eventEmitter = (function(){
+        var eventEmitter = function(){
             var events       = {},
                 maxListeners = 10,
                 emitter      = {};
@@ -112,10 +112,10 @@
             };
 
             return emitter;
-        }());
+        };
 
         return function(dst){
-            return angular.extend(dst,eventEmitter);
+            return angular.extend(dst,eventEmitter());
         };
 
     }]);

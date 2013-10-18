@@ -181,6 +181,17 @@
                     expect(emitter.emit('testEvent',3,4,5)).toEqual(true);
                     expect(sum).toEqual(12);
                 });
+
+                it('should work independently of other emitters', function(){
+                    var emitter2 = c6EventEmitter({}),
+                        spy = jasmine.createSpy();
+
+                        emitter.on('isolatedEvent',spy);
+                        emitter2.on('isolatedEvent',spy);
+                        emitter.emit('isolatedEvent');
+
+                        expect(spy.callCount).toEqual(1);
+                });
             });
         });
 
