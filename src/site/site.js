@@ -81,12 +81,18 @@
 
                 _private.session = session;
 
-                session.request('handshake').then(function() {
+                session.request('handshake').then(function(handshakeData) {
                     self.ready = true;
                     self.emit('ready', true);
 
+                    _private.appData = handshakeData.appData;
+
                     if (_private.pendingGetSession) {
                         _private.pendingGetSession.resolve(session);
+                    }
+
+                    if (_private.pendingGetAppData) {
+                        _private.pendingGetAppData.resolve(handshakeData.appData);
                     }
                 });
 
@@ -108,6 +114,18 @@
                     deferred.resolve(_private.session);
                 } else {
                     _private.pendingGetSession = deferred;
+                }
+
+                return deferred.promise;
+            };
+
+            this.getAppData = function() {
+                var deferred = $q.defer();
+
+                if (_private.appData) {
+                    deferred.resolve(_private.appData);
+                } else {
+                    _private.pendingGetAppData = deferred;
                 }
 
                 return deferred.promise;
