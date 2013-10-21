@@ -294,7 +294,11 @@
 
                 req.success(function(data/*,status,headers,config*/){
                     $log.info('PlayList request succeeded');
-                    self._compilePlayList( data, model, urlFunc );
+                    if (data.version === '2.0'){
+                        self._compilePlayList2( data, model, urlFunc );
+                    } else{
+                        self._compilePlayList( data, model, urlFunc );
+                    }
                     callback(null);
                     return;
                 });
@@ -621,6 +625,56 @@
                 }
                 client.node = node;
                 client.data = (node.data) ? model.playListData[node.data] : {};
+            };
+
+            this._compilePlayList2 = function(playList, output, urlFunc){
+                if (!output){
+                    output = {};
+                }
+                output.maxBranches  = 0;
+                output.playListDict = {};
+                output.playListData = {};
+
+                var i = 0, j = 0, dataLength = playList.data.length,
+                    nodesLength = playList.nodes.length, copy;
+
+                for (i = 0; i < dataLength; i++){
+                    copy = angular.copy(playList.data[i]);
+                    if ((urlFunc) && (playList.data[i].src)){
+                        if (angular.isArray(playList.data[i].src)){
+                            copy.src = [];
+                            for (j = 0; j < playList.data[i].src.length; j++){
+                                var source = playList.data[i].src[j], src = {};
+                                if (source.type){
+                                    src.type = source.type;
+                                }
+                                src.src = urlFunc(source.src);
+                                copy.src.push(src);
+                            }
+                        } else {
+                            copy.src = urlFunc(playList.data[i].src);
+                        }
+                    }
+                    output.playListData[copy.id]=copy;
+                }
+
+                for (i = 0; i < nodesLength; i++){
+                    copy = angular.copy(playList.nodes[i]);
+                    if (copy.parents.length === 0){
+                        output.rootNode = copy;
+                    }
+
+                    copy.branches = copy.children;
+
+                    if (copy.branches.length > output.maxBranches){
+                        output.maxBranches = copy.branches.length;
+                    }
+                    output.playListDict[copy.id] = copy;
+                    delete copy.children;
+                    delete copy.parents;
+                }
+
+                return output;
             };
 
             this._compilePlayList = function(playList, output, urlFunc){

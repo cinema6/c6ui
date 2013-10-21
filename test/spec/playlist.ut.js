@@ -7,7 +7,8 @@
                 $log,
                 $scope,
                 $httpBackend,
-                playlistData;
+                playlistData,
+                playlistData2;
 
             beforeEach(function() {
                 var n0 = {
@@ -82,6 +83,60 @@
                             src: 'video3file'
                         }
                     }
+                };
+
+                playlistData2 = {
+                    version : '2.0',
+                    data: [
+                        {
+                            id      : 'd0',
+                            name    : 'video1',
+                            duration: 30,
+                            src     : 'video1file'
+                        },
+                        {
+                            id      : 'd1',
+                            name    : 'video2',
+                            duration: 14.2,
+                            src     : 'video2file'
+                        },
+                        {
+                            id      : 'd2',
+                            name    : 'video3',
+                            duration: 10,
+                            src     : 'video3file'
+                        }
+                    ],
+                    nodes : [
+                        {
+                            id      : 'n0',
+                            data    : 'd0',
+                            name    : 'video1',
+                            parents : [],
+                            children: ['n1','n3']
+                        },
+                        {
+                            id      : 'n1',
+                            data    : 'd1',
+                            name    : 'video2',
+                            parents : ['n0'],
+                            children: ['n2']
+                        },
+                        {
+                            id      : 'n2',
+                            data    : 'd2',
+                            name    : 'video3',
+                            parents : ['n1'],
+                            children: []
+                        },
+                        {
+                            id      : 'n3',
+                            data    : 'd2',
+                            name    : 'video3',
+                            parents : ['n0'],
+                            children: []
+                        }
+                    ]
                 };
 
                 $httpBackend.when('GET', 'playlist.json').respond(playlistData);
@@ -718,6 +773,8 @@
                             expect(result.playListData.d0.src).toEqual("video1file");
                         });
                     });
+                    
+
                     describe('_compilePlayList(playList, output, urlFunc)', function() {
                         var urlFunc = function(name){
                                 return 'http://cdn.example.com/' + name; 
@@ -736,6 +793,91 @@
 
                         it('should attach the playlist.data to the result', function() {
                             expect(result.playListData).not.toBe(playlistData.data);
+                            expect(result.playListData.d0.label).toEqual('awesome');
+                            expect(result.playListData.d0.foo).toEqual('bar');
+                            expect(result.playListData.d0.duration).toEqual(30);
+                            expect(result.playListData.d0.src[0].type).toEqual("video/webm");
+                            expect(result.playListData.d0.src[0].src).toEqual("http://cdn.example.com/video1file.webm");
+                            expect(result.playListData.d0.src[1].type).not.toBeDefined();
+                            expect(result.playListData.d0.src[1].src).toEqual("http://cdn.example.com/video1file.mp4");
+                            expect(result.playListData.d1.duration).toEqual(14.2);
+                            expect(result.playListData.d1.src).toEqual("http://cdn.example.com/video2file");
+                            expect(result.playListData.d2.duration).toEqual(10);
+                            expect(result.playListData.d2.src).toEqual("http://cdn.example.com/video3file");
+                        });
+                    });
+                    
+                    describe('_compilePlayList2(playList, output)', function() {
+                        var result = {},
+                            resultOfFunction;
+
+                        beforeEach(function() {
+                            resultOfFunction = C6PlaylistCtrl._compilePlayList2(playlistData2, result);
+                        });
+
+                        it('should return the provided object to decorate', function() {
+                            expect(result).toBe(resultOfFunction);
+                        });
+
+                        it('should setup the max number of branches', function() {
+                            expect(result.maxBranches).toBe(2);
+                        });
+
+                        it('should set the playList property to be the root node', function() {
+                            var playlist = result.rootNode;
+
+                            expect(playlist.id).toBe('n0');
+                            expect(playlist.name).toBe('video1');
+                            expect(playlist.branches.length).toBe(2);
+                        });
+
+                        it('should create nodes for the children of a branch', function() {
+                            var child = result.playListDict[result.rootNode.branches[0]],
+                                grandchild = result.playListDict[child.branches[0]];
+
+                            expect(child.id).toBe('n1');
+                            expect(child.name).toBe('video2');
+                            expect(child.branches.length).toBe(1);
+
+                            expect(grandchild.id).toBe('n2');
+                            expect(grandchild.name).toBe('video3');
+                            expect(grandchild.branches.length).toBe(0);
+                        });
+
+                        it('should create a playListDict property with a reference to every node by id', function() {
+                            var dict = result.playListDict;
+
+                            expect(dict.n0).toBeDefined();
+                            expect(dict.n1).toBeDefined();
+                            expect(dict.n2).toBeDefined();
+                            expect(dict.n3).toBeDefined();
+                        });
+
+                        it('should attach the playlist.data to the result', function() {
+                            expect(result.playListData.d0).toBeDefined();
+                            expect(result.playListData.d1).toBeDefined();
+                            expect(result.playListData.d2).toBeDefined();
+                            expect(result.playListData.d0.src).toEqual("video1file");
+                        });
+                    });
+
+                    describe('_compilePlayList2(playList, output, urlFunc)', function() {
+                        var urlFunc = function(name){
+                                return 'http://cdn.example.com/' + name; 
+                            },
+                            result = {},
+                            resultOfFunction;
+
+                        beforeEach(function() {
+                            playlistData2.data[0].label = 'awesome';
+                            playlistData2.data[0].foo = 'bar';
+                            playlistData2.data[0].src = 
+                                [ { "type": "video/webm", "src": "video1file.webm" },
+                                  { "src": "video1file.mp4"  } ];
+                            resultOfFunction = C6PlaylistCtrl._compilePlayList2(playlistData2, result,urlFunc);
+                        });
+
+                        it('should attach the playlist.data to the result', function() {
                             expect(result.playListData.d0.label).toEqual('awesome');
                             expect(result.playListData.d0.foo).toEqual('bar');
                             expect(result.playListData.d0.duration).toEqual(30);
