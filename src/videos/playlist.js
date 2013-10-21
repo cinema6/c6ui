@@ -95,7 +95,7 @@
                     });
 
                     if (scope.model.clients.length === myBuffers){
-                        if (scope.model.playList !== null){
+                        if (scope.model.rootNode !== null){
                             scope.setReady();
                         }
                     }
@@ -254,7 +254,7 @@
             // Our model
             var model = {
                 id               : null,
-                playList         : null,
+                rootNode         : null,
                 playListData     : null,
                 playListDict     : null,
                 currentNode      : null,
@@ -331,18 +331,6 @@
                         return true;
                     },
 
-                    getChildNodeByName : function(name){
-                        var result = null;
-                        if (this.node){
-                            angular.forEach(this.node.branches,function(nd){
-                                if ((result === null) && (nd.name === name)){
-                                    result = nd;
-                                }
-                            });
-                        }
-                        return result;
-                    },
-
                     toString : function(){
                         return 'NC [' + this.id + '][' +
                             ((this.node.name === undefined) ? 'null' : this.node.name) + ']';
@@ -381,27 +369,31 @@
             };
 
             this.getCurrentBranches= function(){
-                var currentBranches = model.currentNode.branches, result = [];
+                var currentBranches = model.currentNode.branches, result = [], nd;
                 for (var i = 0; i < currentBranches.length; i++){
-                    result.push({
-                        id   : currentBranches[i].id,
-                        name : currentBranches[i].name
-                    });
+                    nd = model.playListDict[currentBranches[i]];
+                    if (nd){
+                        result.push({
+                            id   : nd.id,
+                            name : nd.name
+                        });
+                    }
                 }
                 return result;
             };
 
             this.getBranchesForNode = function(nodeId){
-                var nd = model.playListDict[nodeId], branches, result;
+                var nd = model.playListDict[nodeId], branches, result, bnd;
                 if (!nd) {
                     throw new Error('Invalid nodeId [' + nodeId + ']');
                 }
                 result = [];
                 branches = nd.branches;
                 for (var i = 0; i < branches.length; i++){
+                    bnd = model.playListDict[branches[i]];
                     result.push({
-                        id   : branches[i].id,
-                        name : branches[i].name
+                        id   : bnd.id,
+                        name : bnd.name
                     });
                 }
                 return result;
@@ -409,23 +401,11 @@
 
             this.getDataForNode = function(nodeId) {
                 var node = model.playListDict[nodeId],
-                    data = model.playListData[node.name],
+                    data = model.playListData[node.data],
                     record = angular.copy(data);
 
                 record.id       = node.id;
                 record.name     = node.name;
-                record.siblings = [];
-                if (node.parent){
-                    record.parentId = node.parent.id;
-                    angular.forEach(node.parent.branches,function(branch){
-                        if (branch.id !== record.id){
-                            record.siblings.push({
-                                id   : branch.id,
-                                name : branch.name
-                            });
-                        }
-                    });
-                }
 
                 return record;
             };
@@ -547,7 +527,7 @@
             };
 
             this.start = function(){
-                if (model.playList === null){
+                if (model.rootNode === null){
                     $log.error('Must load a playList before starting');
                     return this;
                 }
@@ -556,9 +536,9 @@
                     return this;
                 }
 
-                model.currentNode   = model.playList;
+                model.currentNode   = model.rootNode;
                 model.currentClient = model.clients[0];
-                this.load(model.playList.id, 0, true);
+                this.load(model.rootNode.id, 0, true);
             };
 
             this.stop = function() {
@@ -573,7 +553,7 @@
                 var self         = this,
                     clients      = [],
                     nodes        = model.currentClient.node.branches.concat(),
-                    client;
+                    node, client;
 
                 angular.forEach(model.clients,function(v){
                     if (v !== model.currentClient) {
@@ -597,11 +577,12 @@
                     // node (and ie loaded its video) we can keep it there
                     var matched = false;
                     for (var j = 0; j < nodes.length; j++) {
-                        $log.info('eval node:' + nodes[j].name);
-                        if ((matched === false) && (clients[i].node.name === nodes[j].name)) {
-                            $log.info('Refresh: ' + clients[i] + ', with' + nodes[j]);
+                        node = model.playListDict[nodes[j]];
+                        $log.info('eval node:' + node.name);
+                        if ((matched === false) && (clients[i].node.name === node.name)) {
+                            $log.info('Refresh: ' + clients[i] + ', with' + node);
                             clients[i].active = false;
-                            clients[i].node = nodes[j];
+                            clients[i].node = node;
                             clients.splice(i--,1);
                             nodes.splice(j--,1);
                             matched = true;
@@ -614,7 +595,8 @@
                     return;
                 }
 
-                angular.forEach(nodes, function(node){
+                angular.forEach(nodes, function(nodeId){
+                    node = model.playListDict[nodeId];
                     client = clients.shift();
                     if (!client) {
                         $log.info('no more clients to map!');
@@ -638,7 +620,7 @@
                     node = {};
                 }
                 client.node = node;
-                client.data = (node.name) ? model.playListData[node.name] : {};
+                client.data = (node.data) ? model.playListData[node.data] : {};
             };
 
             this._compilePlayList = function(playList, output, urlFunc){
@@ -647,12 +629,42 @@
                 }
                 output.maxBranches     = 0;
                 output.playListDict    = {};
-                var id = 0;
-                output.playList = (function parseTree(currentNode,parentNode) {
+                var id = 0, tmpData  = {}, compiled ;
+
+                output.playListData = {};
+                angular.forEach(playList.data,function(data,key){
+                    var copy = {};
+                    angular.forEach(data,function(val,name){
+                        if ((name === 'src') && (urlFunc !== undefined)){
+                            if (angular.isArray(val)){
+                                copy.src = [];
+                                angular.forEach(val,function(source){
+                                    var src = {};
+                                    if (source.type){
+                                        src.type = source.type;
+                                    }
+                                    src.src = urlFunc(source.src);
+                                    copy.src.push(src);
+                                });
+                            } else {
+                                copy.src = urlFunc(val);
+                            }
+                        } else {
+                            copy[name] = val;
+                        }
+                    });
+                    copy.id   = 'd' + id++;
+                    copy.name = key;
+                    tmpData[key] = copy;
+                    output.playListData[copy.id]=copy;
+                });
+
+                id = 0;
+                compiled = (function parseTree(currentNode,parentNode) {
                     var newNode = {
                             'id'        :   'n' + id++,
                             'name'      :   currentNode.name,
-                            'parent'    :   parentNode,
+                            'data'      :   tmpData[currentNode.name].id,
                             'branches'  :   [],
                             'toString'  : function() { return this.id + ':' + this.name ; }
                         },
@@ -674,36 +686,19 @@
                     return newNode;
                 }(playList.tree,null));
 
-                if (!urlFunc){
-                    // No url transform function, go ahead and return
-                    output.playListData   = playList.data;
-                    return output;
-                }
-
-                output.playListData = {};
-                angular.forEach(playList.data,function(data,key){
-                    var copy = {};
-                    angular.forEach(data,function(val,name){
-                        if (name === 'src'){
-                            if (angular.isArray(val)){
-                                copy.src = [];
-                                angular.forEach(val,function(source){
-                                    var src = {};
-                                    if (source.type){
-                                        src.type = source.type;
-                                    }
-                                    src.src = urlFunc(source.src);
-                                    copy.src.push(src);
-                                });
-                            } else {
-                                copy.src = urlFunc(val);
-                            }
-                        } else {
-                            copy[name] = val;
-                        }
-                    });
-                    output.playListData[key]=copy;
+                // Convert storage of branches from objects to ids
+                angular.forEach(output.playListDict,function(node/*,nodeId*/){
+                    node.branchIds = [];
+                    for (var i = 0; i < node.branches.length; i++){
+                        node.branchIds.push(node.branches[i].id);
+                    }
+                    node.branches = node.branchIds;
+                    delete node.branchIds;
                 });
+
+                output.rootNode = compiled;
+
+                tmpData = undefined;
 
                 return output;
             };
