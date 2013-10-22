@@ -372,6 +372,10 @@
                 return model.currentNode && model.currentNode.id;
             };
 
+            this.rootNodeId = function(){
+                return model.rootNode && model.rootNode.id;
+            };
+
             this.getCurrentBranches= function(){
                 var currentBranches = model.currentNode.branches, result = [], nd;
                 for (var i = 0; i < currentBranches.length; i++){

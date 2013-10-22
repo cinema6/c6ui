@@ -383,6 +383,22 @@
                             expect(C6PlaylistCtrl.currentNodeName()).toBe('hello!');
                         });
                     });
+                    
+                    describe('rootNodeId()', function() {
+                        it('should be null if there is no current node', function() {
+                            expect(C6PlaylistCtrl.rootNodeId()).toBe(null);
+                        });
+
+                        it('should be the name of the model\'s currentNode', function() {
+                            $scope.model.rootNode = {
+                                name: 'hello!',
+                                id: 'n0'
+                            };
+
+                            expect(C6PlaylistCtrl.rootNodeId()).toBe('n0');
+                        });
+                    });
+
 
                     describe('currentNodeId()', function() {
                         it('should be null if there is no current node', function() {
