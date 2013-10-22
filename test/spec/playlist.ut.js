@@ -7,32 +7,35 @@
                 $log,
                 $scope,
                 $httpBackend,
-                playlistData;
+                playlistData,
+                playlistData2;
 
             beforeEach(function() {
                 var n0 = {
                         id: 'n0',
-                        name: 'howard'
+                        name: 'howard',
+                        data: 'd0'
                     },
                     n1 = {
                         id: 'n1',
                         name: 'jason',
+                        data: 'd1',
                         branches: []
                     },
                     n2 = {
                         id: 'n2',
                         name: 'josh',
-                        parent: n1
+                        data: 'd2'
                     },
                     n3 = {
                         id: 'n3',
                         name: 'evan',
-                        parent: n1
+                        data: 'd3'
                     },
                     n4 = {
                         id: 'n4',
                         name: 'steph',
-                        parent: n1
+                        data: 'd4'
                     };
 
                 module('c6.ui');
@@ -82,12 +85,66 @@
                     }
                 };
 
+                playlistData2 = {
+                    version : '2.0',
+                    data: [
+                        {
+                            id      : 'd0',
+                            name    : 'video1',
+                            duration: 30,
+                            src     : 'video1file'
+                        },
+                        {
+                            id      : 'd1',
+                            name    : 'video2',
+                            duration: 14.2,
+                            src     : 'video2file'
+                        },
+                        {
+                            id      : 'd2',
+                            name    : 'video3',
+                            duration: 10,
+                            src     : 'video3file'
+                        }
+                    ],
+                    nodes : [
+                        {
+                            id      : 'n0',
+                            data    : 'd0',
+                            name    : 'video1',
+                            parents : [],
+                            children: ['n1','n3']
+                        },
+                        {
+                            id      : 'n1',
+                            data    : 'd1',
+                            name    : 'video2',
+                            parents : ['n0'],
+                            children: ['n2']
+                        },
+                        {
+                            id      : 'n2',
+                            data    : 'd2',
+                            name    : 'video3',
+                            parents : ['n1'],
+                            children: []
+                        },
+                        {
+                            id      : 'n3',
+                            data    : 'd2',
+                            name    : 'video3',
+                            parents : ['n0'],
+                            children: []
+                        }
+                    ]
+                };
+
                 $httpBackend.when('GET', 'playlist.json').respond(playlistData);
                 $httpBackend.when('GET', 'playlist.jso').respond(function() {
                     return [404];
                 });
 
-                n1.branches.push(n2, n3, n4);
+                n1.branches.push('n2', 'n3', 'n4');
 
                 $scope.model.playListDict = {
                     n0: n0,
@@ -98,12 +155,16 @@
                 };
 
                 $scope.model.playListData = {
-                    howard: {
+                    d0: {
+                        id   : 'd0',
+                        name : 'howard',
                         duration: 100,
                         label: 'the boss man',
                         hitpoints: 'infinite'
                     },
-                    josh: {
+                    d2: {
+                        id : 'd2',
+                        name: 'josh',
                         duration: 20,
                         label: 'he loves JS...'
                     }
@@ -288,35 +349,6 @@
                                         expect(client.isTerminal()).toBe(false);
                                     });
                                 });
-
-                                describe('getChildNodeByName(name)', function() {
-                                    var node;
-
-                                    beforeEach(function() {
-                                        node = {
-                                            branches: [
-                                                {
-                                                    name: 'node1'
-                                                },
-                                                {
-                                                    name: 'node2'
-                                                },
-                                                {
-                                                    name: 'node3'
-                                                }
-                                            ]
-                                        };
-                                    });
-
-                                    it('should be null if the client has no node', function() {
-                                        expect(client.getChildNodeByName('node2')).toBe(null);
-                                    });
-
-                                    it('should get the node with the provided name from the branches array of the client\'s node', function() {
-                                        client.node = node;
-                                        expect(client.getChildNodeByName('node2')).toBe(node.branches[1]);
-                                    });
-                                });
                             });
                         });
                     });
@@ -372,20 +404,7 @@
 
                         beforeEach(function() {
                             $scope.model.currentNode = {
-                                branches: [
-                                    {
-                                        id: 'n1',
-                                        name: 'josh'
-                                    },
-                                    {
-                                        id: 'n2',
-                                        name: 'steph'
-                                    },
-                                    {
-                                        id: 'n3',
-                                        name: 'evan'
-                                    }
-                                ]
+                                branches: [ 'n1', 'n2', 'n3' ]
                             };
 
                             currentBranches = C6PlaylistCtrl.getCurrentBranches();
@@ -395,8 +414,7 @@
                             expect(currentBranches.length).toBe(3);
 
                             currentBranches.forEach(function(branch, index) {
-                                expect(branch.id).toBe($scope.model.currentNode.branches[index].id);
-                                expect(branch.name).toBe($scope.model.currentNode.branches[index].name);
+                                expect(branch.id).toBe($scope.model.currentNode.branches[index]);
                             });
                         });
                     });
@@ -414,8 +432,7 @@
                             expect(branches.length).toBe(3);
 
                             branches.forEach(function(branch, index) {
-                                expect(branch.id).toBe($scope.model.playListDict.n1.branches[index].id);
-                                expect(branch.name).toBe($scope.model.playListDict.n1.branches[index].name);
+                                expect(branch.id).toBe($scope.model.playListDict.n1.branches[index]);
                             });
                         });
                     });
@@ -432,23 +449,8 @@
                             expect(data.label).toBe('the boss man');
                             expect(data.hitpoints).toBe('infinite');
                             expect(data.duration).toBe(100);
-                            expect(data.siblings.length).toBe(0);
                         });
 
-                        it('should contain data about its siblings if it has them', function() {
-                            var data = C6PlaylistCtrl.getDataForNode('n2');
-
-                            expect(data.id).toBe('n2');
-                            expect(data.name).toBe('josh');
-                            expect(data.label).toBe('he loves JS...');
-                            expect(data.duration).toBe(20);
-                            expect(data.siblings.length).toBe(2);
-
-                            data.siblings.forEach(function(branch, index) {
-                                expect(branch.id).toBe($scope.model.playListDict['n' + (index + 3)].id);
-                                expect(branch.name).toBe($scope.model.playListDict['n' + (index + 3)].name);
-                            });
-                        });
                     });
 
                     describe('load(nextNodeId, startTime, andComplete)', function() {
@@ -601,7 +603,7 @@
                         });
 
                         it('should log an error if there are no clients', function() {
-                            $scope.model.playList = $scope.model.playListDict.n0;
+                            $scope.model.rootNode = $scope.model.playListDict.n0;
                             $scope.model.clients = [];
 
                             C6PlaylistCtrl.start();
@@ -612,13 +614,13 @@
 
                         describe('when it should succeed', function() {
                             beforeEach(function() {
-                                $scope.model.playList = $scope.model.playListDict.n0;
+                                $scope.model.rootNode = $scope.model.playListDict.n0;
 
                                 C6PlaylistCtrl.start();
                             });
 
                             it('should set the currentNode to the playList', function() {
-                                expect($scope.model.currentNode).toBe($scope.model.playList);
+                                expect($scope.model.currentNode).toBe($scope.model.rootNode);
                             });
 
                             it('should set the currentClient to the first client', function() {
@@ -707,12 +709,12 @@
                         it('should set the client\'s data to the corresponding data for the node if data is found', function() {
                             C6PlaylistCtrl._setClientWithNode(client, $scope.model.playListDict.n0);
 
-                            expect(client.data).toBe($scope.model.playListData.howard);
+                            expect(client.data).toBe($scope.model.playListData.d0);
                         });
 
                         it('should set the client\'s data to an object if the node has no name', function() {
-                            $scope.model.playListDict.n4.name = null;
-                            C6PlaylistCtrl._setClientWithNode(client, $scope.model.playListDict.n4);
+                            $scope.model.playListDict.n0.name = null;
+                            C6PlaylistCtrl._setClientWithNode(client, $scope.model.playListDict.n0);
 
                             expect(client.data).toBeDefined();
                         });
@@ -735,26 +737,23 @@
                         });
 
                         it('should set the playList property to be the root node', function() {
-                            var playlist = result.playList;
+                            var playlist = result.rootNode;
 
                             expect(playlist.id).toBe('n0');
                             expect(playlist.name).toBe('video1');
-                            expect(playlist.parent).toBe(null);
                             expect(playlist.branches.length).toBe(2);
                         });
 
                         it('should create nodes for the children of a branch', function() {
-                            var child = result.playList.branches[0],
-                                grandchild = child.branches[0];
+                            var child = result.playListDict[result.rootNode.branches[0]],
+                                grandchild = result.playListDict[child.branches[0]];
 
                             expect(child.id).toBe('n1');
                             expect(child.name).toBe('video2');
-                            expect(child.parent).toBe(result.playList);
                             expect(child.branches.length).toBe(1);
 
                             expect(grandchild.id).toBe('n2');
                             expect(grandchild.name).toBe('video3');
-                            expect(grandchild.parent).toBe(child);
                             expect(grandchild.branches.length).toBe(0);
                         });
 
@@ -768,10 +767,14 @@
                         });
 
                         it('should attach the playlist.data to the result', function() {
-                            expect(result.playListData).toBe(playlistData.data);
-                            expect(result.playListData.video1.src).toBe("video1file");
+                            expect(result.playListData.d0).toBeDefined();
+                            expect(result.playListData.d1).toBeDefined();
+                            expect(result.playListData.d2).toBeDefined();
+                            expect(result.playListData.d0.src).toEqual("video1file");
                         });
                     });
+                    
+
                     describe('_compilePlayList(playList, output, urlFunc)', function() {
                         var urlFunc = function(name){
                                 return 'http://cdn.example.com/' + name; 
@@ -790,17 +793,102 @@
 
                         it('should attach the playlist.data to the result', function() {
                             expect(result.playListData).not.toBe(playlistData.data);
-                            expect(result.playListData.video1.label).toEqual('awesome');
-                            expect(result.playListData.video1.foo).toEqual('bar');
-                            expect(result.playListData.video1.duration).toEqual(30);
-                            expect(result.playListData.video1.src[0].type).toEqual("video/webm");
-                            expect(result.playListData.video1.src[0].src).toEqual("http://cdn.example.com/video1file.webm");
-                            expect(result.playListData.video1.src[1].type).not.toBeDefined();
-                            expect(result.playListData.video1.src[1].src).toEqual("http://cdn.example.com/video1file.mp4");
-                            expect(result.playListData.video2.duration).toEqual(14.2);
-                            expect(result.playListData.video2.src).toEqual("http://cdn.example.com/video2file");
-                            expect(result.playListData.video3.duration).toEqual(10);
-                            expect(result.playListData.video3.src).toEqual("http://cdn.example.com/video3file");
+                            expect(result.playListData.d0.label).toEqual('awesome');
+                            expect(result.playListData.d0.foo).toEqual('bar');
+                            expect(result.playListData.d0.duration).toEqual(30);
+                            expect(result.playListData.d0.src[0].type).toEqual("video/webm");
+                            expect(result.playListData.d0.src[0].src).toEqual("http://cdn.example.com/video1file.webm");
+                            expect(result.playListData.d0.src[1].type).not.toBeDefined();
+                            expect(result.playListData.d0.src[1].src).toEqual("http://cdn.example.com/video1file.mp4");
+                            expect(result.playListData.d1.duration).toEqual(14.2);
+                            expect(result.playListData.d1.src).toEqual("http://cdn.example.com/video2file");
+                            expect(result.playListData.d2.duration).toEqual(10);
+                            expect(result.playListData.d2.src).toEqual("http://cdn.example.com/video3file");
+                        });
+                    });
+                    
+                    describe('_compilePlayList2(playList, output)', function() {
+                        var result = {},
+                            resultOfFunction;
+
+                        beforeEach(function() {
+                            resultOfFunction = C6PlaylistCtrl._compilePlayList2(playlistData2, result);
+                        });
+
+                        it('should return the provided object to decorate', function() {
+                            expect(result).toBe(resultOfFunction);
+                        });
+
+                        it('should setup the max number of branches', function() {
+                            expect(result.maxBranches).toBe(2);
+                        });
+
+                        it('should set the playList property to be the root node', function() {
+                            var playlist = result.rootNode;
+
+                            expect(playlist.id).toBe('n0');
+                            expect(playlist.name).toBe('video1');
+                            expect(playlist.branches.length).toBe(2);
+                        });
+
+                        it('should create nodes for the children of a branch', function() {
+                            var child = result.playListDict[result.rootNode.branches[0]],
+                                grandchild = result.playListDict[child.branches[0]];
+
+                            expect(child.id).toBe('n1');
+                            expect(child.name).toBe('video2');
+                            expect(child.branches.length).toBe(1);
+
+                            expect(grandchild.id).toBe('n2');
+                            expect(grandchild.name).toBe('video3');
+                            expect(grandchild.branches.length).toBe(0);
+                        });
+
+                        it('should create a playListDict property with a reference to every node by id', function() {
+                            var dict = result.playListDict;
+
+                            expect(dict.n0).toBeDefined();
+                            expect(dict.n1).toBeDefined();
+                            expect(dict.n2).toBeDefined();
+                            expect(dict.n3).toBeDefined();
+                        });
+
+                        it('should attach the playlist.data to the result', function() {
+                            expect(result.playListData.d0).toBeDefined();
+                            expect(result.playListData.d1).toBeDefined();
+                            expect(result.playListData.d2).toBeDefined();
+                            expect(result.playListData.d0.src).toEqual("video1file");
+                        });
+                    });
+
+                    describe('_compilePlayList2(playList, output, urlFunc)', function() {
+                        var urlFunc = function(name){
+                                return 'http://cdn.example.com/' + name; 
+                            },
+                            result = {},
+                            resultOfFunction;
+
+                        beforeEach(function() {
+                            playlistData2.data[0].label = 'awesome';
+                            playlistData2.data[0].foo = 'bar';
+                            playlistData2.data[0].src = 
+                                [ { "type": "video/webm", "src": "video1file.webm" },
+                                  { "src": "video1file.mp4"  } ];
+                            resultOfFunction = C6PlaylistCtrl._compilePlayList2(playlistData2, result,urlFunc);
+                        });
+
+                        it('should attach the playlist.data to the result', function() {
+                            expect(result.playListData.d0.label).toEqual('awesome');
+                            expect(result.playListData.d0.foo).toEqual('bar');
+                            expect(result.playListData.d0.duration).toEqual(30);
+                            expect(result.playListData.d0.src[0].type).toEqual("video/webm");
+                            expect(result.playListData.d0.src[0].src).toEqual("http://cdn.example.com/video1file.webm");
+                            expect(result.playListData.d0.src[1].type).not.toBeDefined();
+                            expect(result.playListData.d0.src[1].src).toEqual("http://cdn.example.com/video1file.mp4");
+                            expect(result.playListData.d1.duration).toEqual(14.2);
+                            expect(result.playListData.d1.src).toEqual("http://cdn.example.com/video2file");
+                            expect(result.playListData.d2.duration).toEqual(10);
+                            expect(result.playListData.d2.src).toEqual("http://cdn.example.com/video3file");
                         });
                     });
                 });
