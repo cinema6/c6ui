@@ -135,6 +135,10 @@
                 return _private.session.request('currentUrl');
             };
 
+            this.shareUrl = function(data) {
+                _private.session.ping('shareUrl', data);
+            };
+
             this.requestBar = function(show) {
                 _private.session.ping('requestBar', show);
             };
