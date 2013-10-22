@@ -243,11 +243,21 @@
                         expect(typeof _private.pendingGetAppData.resolve).toBe('function');
                     });
                 });
-                
+
                 describe('getSiteUrl()', function() {
                     it('should make a request to the site', function() {
                         site.getSiteUrl();
                         expect(session.request).toHaveBeenCalledWith('currentUrl');
+                    });
+                });
+
+                describe('shareUrl(data)', function() {
+                    it('should ping the site with any data passed in', function() {
+                        var data = {};
+
+                        site.shareUrl(data);
+
+                        expect(session.ping).toHaveBeenCalledWith('requestShareBox', data);
                     });
                 });
 
