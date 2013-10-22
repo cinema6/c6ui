@@ -136,7 +136,7 @@
             };
 
             this.shareUrl = function(data) {
-                _private.session.ping('requestShareBox', data);
+                _private.session.ping('shareUrl', data);
             };
 
             this.requestBar = function(show) {

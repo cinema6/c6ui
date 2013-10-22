@@ -257,7 +257,7 @@
 
                         site.shareUrl(data);
 
-                        expect(session.ping).toHaveBeenCalledWith('requestShareBox', data);
+                        expect(session.ping).toHaveBeenCalledWith('shareUrl', data);
                     });
                 });
 
