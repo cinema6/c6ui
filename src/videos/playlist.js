@@ -414,6 +414,7 @@
 
                 record.id       = node.id;
                 record.name     = node.name;
+                record.branches = node.branches;
 
                 return record;
             };

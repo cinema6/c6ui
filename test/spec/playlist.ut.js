@@ -162,6 +162,12 @@
                         label: 'the boss man',
                         hitpoints: 'infinite'
                     },
+                    d1: {
+                        id   : 'd1',
+                        name : 'jason',
+                        duration: 100,
+                        label: 'hockey fanatic'
+                    },
                     d2: {
                         id : 'd2',
                         name: 'josh',
@@ -458,13 +464,13 @@
                         });
 
                         it('should return an object with information from the video data and the node', function() {
-                            var data = C6PlaylistCtrl.getDataForNode('n0');
+                            var data = C6PlaylistCtrl.getDataForNode('n1');
 
-                            expect(data.id).toBe('n0');
-                            expect(data.name).toBe('howard');
-                            expect(data.label).toBe('the boss man');
-                            expect(data.hitpoints).toBe('infinite');
+                            expect(data.id).toBe('n1');
+                            expect(data.name).toBe('jason');
+                            expect(data.label).toBe('hockey fanatic');
                             expect(data.duration).toBe(100);
+                            expect(data.branches).toEqual(['n2','n3','n4']);
                         });
 
                     });
