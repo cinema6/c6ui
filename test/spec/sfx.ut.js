@@ -95,6 +95,7 @@
 
                         },
                         start: jasmine.createSpy(),
+                        stop: jasmine.createSpy('source stop'),
                         loop: false
                     };
 
@@ -204,12 +205,34 @@
                         expect(source.noteOn).toHaveBeenCalled();
                     });
                 });
+
+                describe('stopSound method', function() {
+                    it('should call stop if the browser supports it', function() {
+                        c6Sfx.loadSounds(sounds);
+                        c6Sfx.playSound('foo');
+                        c6Sfx.stopSound('foo');
+
+                        expect(source.stop).toHaveBeenCalledWith(0);
+                    });
+
+                    it('should call noteOff if the browser doesn\'t support the start method', function() {
+                        source.stop = undefined;
+                        source.noteOff = jasmine.createSpy('source noteOff');
+
+                        c6Sfx.loadSounds(sounds);
+                        c6Sfx.playSound('foo');
+                        c6Sfx.stopSound('foo');
+
+                        expect(source.noteOff).toHaveBeenCalledWith(0);
+                    });
+                });
             });
 
             describe('without web audio api', function() {
                 var c6Sfx,
                     audioElementCreationSpy,
                     audioElementPlaySpy,
+                    audioElementPauseSpy,
                     createdAudioPlayers = [],
                     AudioContructor = function(src) {
                         audioElementCreationSpy(src);
@@ -227,6 +250,11 @@
                         this.play = function() {
                             audioElementPlaySpy();
                             this.paused = false;
+                        };
+
+                        this.pause = function() {
+                            audioElementPauseSpy();
+                            this.paused = true;
                         };
 
                         createdAudioPlayers.push(this);
@@ -250,6 +278,7 @@
                     });
                     audioElementCreationSpy = jasmine.createSpy();
                     audioElementPlaySpy = jasmine.createSpy();
+                    audioElementPauseSpy = jasmine.createSpy();
                     createdAudioPlayers.length = 0;
                 });
 
@@ -274,6 +303,26 @@
 
                         expect(audioElementCreationSpy).toHaveBeenCalledWith('test/greetings.ogg');
                         expect(audioElementCreationSpy).toHaveBeenCalledWith('test/earthling.mp3');
+                    });
+                });
+
+                describe('stopSound method', function() {
+                    it('should call the pause() method on any players that are still playing', function() {
+                        c6Sfx.loadSounds([sounds[0]]);
+                        c6Sfx.playSound('foo');
+                        c6Sfx.playSound('foo');
+                        c6Sfx.playSound('foo');
+
+                        createdAudioPlayers.forEach(function(player) {
+                            expect(player.paused).toBe(false);
+                        });
+
+                        c6Sfx.stopSound('foo');
+
+                        createdAudioPlayers.forEach(function(player) {
+                            expect(audioElementPauseSpy).toHaveBeenCalled();
+                            expect(player.paused || player.ended).toBe(true);
+                        });
                     });
                 });
 

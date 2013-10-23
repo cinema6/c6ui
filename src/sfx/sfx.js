@@ -17,6 +17,7 @@
                     var self = this,
                         buffer,
                         players = [],
+                        activeSources = [],
                         createPlayerInstance = function() {
                             $log.log('creating instance');
                             var instance = new $window.Audio(self.src);
@@ -67,8 +68,12 @@
                         if (context) {
                             this.play = function(config) {
                                 var source = context.createBufferSource();
+
                                 source.buffer = buffer;
                                 source.loop = (config && config.loop) || false;
+                                source.onended = function() {
+                                    activeSources.splice(activeSources.indexOf(source), 1);
+                                };
 
                                 source.connect(context.destination);
 
@@ -77,6 +82,8 @@
                                 } else if (source.noteOn) {
                                     source.noteOn(0);
                                 }
+
+                                activeSources.push(source);
                             };
                             this.play(config);
                         } else {
@@ -97,6 +104,31 @@
                                 goodPlayer.play();
                             };
                             this.play(config);
+                        }
+                    };
+
+                    this.stop = function() {
+                        if (context) {
+                            this.stop = function() {
+                                activeSources.forEach(function(source) {
+                                    if (source.stop) {
+                                        source.stop(0);
+                                    } else if (source.noteOff) {
+                                        source.noteOff(0);
+                                    }
+                                });
+                                activeSources.length = 0;
+                            };
+                            this.stop();
+                        } else {
+                            this.stop = function() {
+                                players.forEach(function(player) {
+                                    if (!player.paused && !player.ended) {
+                                        player.pause();
+                                    }
+                                });
+                            };
+                            this.stop();
                         }
                     };
 
@@ -136,6 +168,10 @@
 
             this.playSound = function(name, config) {
                 this.getSoundByName(name).play(config);
+            };
+
+            this.stopSound = function(name) {
+                this.getSoundByName(name).stop();
             };
 
             this.bestFormat = function(formats) {
