@@ -6,7 +6,7 @@
             return $window.AudioContext || $window.webkitAudioContext || $window.msAudioContext || $window.mozAudioContext;
         }])
 
-        .service('c6Sfx', ['c6AudioContext', '$http', '$q', '$rootScope', '$window', '$log', function(AudioContext, $http, $q, $rootScope, $window, $log) {
+        .service('c6Sfx', ['c6AudioContext', '$http', '$q', '$rootScope', '$window', '$log', '$timeout', function(AudioContext, $http, $q, $rootScope, $window, $log, $timeout) {
             var context = AudioContext ? new AudioContext() : undefined,
                 sounds = [],
                 safeApply = function(func) {
@@ -142,6 +142,40 @@
                         }
                     };
 
+                    this.setVolumeToValueOverTime = function(volume, time) {
+                        var self = this,
+                            deferred = $q.defer(),
+                            startTime,
+                            endTime,
+                            startVolume = this.volume;
+
+                        function setVolume() {
+                            var currentTime = new $window.Date().getTime(),
+                                percentThrough;
+
+                            if (!startTime) {
+                                startTime = currentTime;
+                                endTime = startTime + time;
+                            }
+
+                            percentThrough = (currentTime - startTime) / time;
+
+                            self.volume = startVolume - (percentThrough * (startVolume - volume));
+
+                            if (currentTime <= endTime) {
+                                $timeout(setVolume, 1, false);
+                            } else {
+                                $rootScope.$apply(function() {
+                                    deferred.resolve(self);
+                                });
+                            }
+                        }
+
+                        setVolume();
+
+                        return deferred.promise;
+                    };
+
                     Object.defineProperty(this, 'volume', {
                         set: function(newVolume) {
                             if (context) {
@@ -209,8 +243,25 @@
                 this.getSoundByName(name).play(config);
             };
 
+            this.fadeInSound = function(name, time) {
+                var sfx = this.getSoundByName(name);
+
+                sfx.volume = 0;
+                sfx.play();
+                return sfx.setVolumeToValueOverTime(1, time);
+            };
+
             this.stopSound = function(name) {
                 this.getSoundByName(name).stop();
+            };
+
+            this.fadeOutSound = function(name, time) {
+                var sfx = this.getSoundByName(name);
+
+                return sfx.setVolumeToValueOverTime(0, time).then(function() {
+                    sfx.stop();
+                    return sfx;
+                });
             };
 
             this.bestFormat = function(formats) {

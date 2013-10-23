@@ -469,16 +469,41 @@
             });
 
             describe('shared functionality', function() {
-                var c6Sfx;
+                var c6Sfx,
+                    time = 159851,
+                    $window,
+                    $rootScope;
 
                 beforeEach(function() {
-                    inject(function(_c6Sfx_) {
+                    jasmine.Clock.useMock();
+
+                    $window = {
+                        Audio: angular.noop,
+                        Date: function() {
+                            this.getTime = function() {
+                                return time;
+                            };
+                        },
+                        navigator: window.navigator
+                    };
+
+                    module(function($provide) {
+                        $provide.value('$window', $window);
+                        // Using jasmine's mock clock instead of angular\'s
+                        $provide.value('$timeout', jasmine.createSpy('$timeout').andCallFake(function(callback, time, apply) {
+                            window.setTimeout(callback, time);
+                        }));
+                    });
+                    inject(function(_c6Sfx_, _$rootScope_) {
                         c6Sfx = _c6Sfx_;
+                        $rootScope = _$rootScope_;
                     });
                 });
 
                 describe('error prevention', function() {
                     it('should do nothing (including throw errors) if the browser does not support the web audio api or audio tag)', function() {
+                        $window.Audio = undefined;
+
                         expect(function() { c6Sfx.loadSounds(sounds); }).not.toThrow();
                         expect(function() { c6Sfx.playSound('foo'); }).not.toThrow();
                     });
@@ -525,6 +550,75 @@
                     });
                 });
 
+                describe('fadeInSound(name, time)/fadeSoundOut(name, time)', function() {
+                    var sfx;
+
+                    beforeEach(function() {
+                        c6Sfx.loadSounds([{
+                            name: 'foo',
+                            src: 'foo.mp3'
+                        }]);
+                        sfx = c6Sfx.getSoundByName('foo');
+                        spyOn(sfx, 'setVolumeToValueOverTime').andCallThrough();
+                        spyOn(sfx, 'play');
+                        spyOn(sfx, 'stop');
+                    });
+
+                    describe('fadeInSound(name, time)', function() {
+                        var result;
+
+                        beforeEach(function() {
+                            result = c6Sfx.fadeInSound('foo', 500);
+                        });
+
+                        it('should return a promise', function() {
+                            expect(typeof result.then).toBe('function');
+                        });
+
+                        it('should set the volume to 0', function() {
+                            expect(sfx.volume).toBe(0);
+                        });
+
+                        it('should play the sound', function() {
+                            expect(sfx.play).toHaveBeenCalled();
+                        });
+
+                        it('should fade in the volume', function() {
+                            expect(sfx.setVolumeToValueOverTime).toHaveBeenCalledWith(1, 500);
+                        });
+                    });
+
+                    describe('fadeOutSound(name, time)', function() {
+                        var result,
+                            promiseHandler,
+                            fakePromise = {
+                                then: function(handler) {
+                                    promiseHandler = handler;
+                                }
+                            };
+
+                        beforeEach(function() {
+                            result = c6Sfx.fadeOutSound('foo', 500);
+                        });
+
+                        it('should return a promise', function() {
+                            expect(typeof result.then).toBe('function');
+                        });
+
+                        it('should fade out the volume', function() {
+                            expect(sfx.setVolumeToValueOverTime).toHaveBeenCalledWith(0, 500);
+                        });
+
+                        it('should stop the sound when the sound has faded out', function() {
+                            sfx.setVolumeToValueOverTime.andReturn(fakePromise);
+                            c6Sfx.fadeOutSound('foo', 500);
+
+                            expect(promiseHandler()).toBe(sfx);
+                            expect(sfx.stop).toHaveBeenCalled();
+                        });
+                    });
+                });
+
                 describe('SFX Object Methods', function() {
                     var sfx;
 
@@ -542,6 +636,57 @@
 
                             sfx.volume = 0.25;
                             expect(sfx.volume).toBe(0.25);
+                        });
+                    });
+
+                    describe('setVolumeToValueOverTime(volume, time)', function() {
+                        it('should return a promise', function() {
+                            expect(typeof sfx.setVolumeToValueOverTime(0, 1000).then).toBe('function');
+                        });
+
+                        it('should ramp linearly to the given volume over the specified amount of ms and resolve the promise when done', function() {
+                            var elapsedTime = 0,
+                                promise,
+                                promiseSpy = jasmine.createSpy('promise');
+
+                            sfx.volume = 1;
+                            sfx.setVolumeToValueOverTime(0.5, 1000).then(promiseSpy);
+
+                            for (var total = 501, i = 0; i < total; i++) {
+                                time += 2;
+                                elapsedTime += 2;
+                                jasmine.Clock.tick(2);
+
+                                if (elapsedTime === 250) {
+                                    expect(sfx.volume).toBe(0.875);
+                                } else if (elapsedTime === 500) {
+                                    expect(sfx.volume).toBe(0.75);
+                                } else if (elapsedTime === 750) {
+                                    expect(sfx.volume).toBe(0.625);
+                                } else if (elapsedTime === 1000) {
+                                    expect(sfx.volume).toBe(0.5);
+                                }
+                            }
+
+                            sfx.setVolumeToValueOverTime(1, 1000).then(promiseSpy);
+
+                            for (total = 501, i = 0; i < total; i++) {
+                                time += 2;
+                                elapsedTime += 2;
+                                jasmine.Clock.tick(2);
+
+                                if (elapsedTime === 1253) {
+                                    expect(sfx.volume).toBe(0.625);
+                                } else if (elapsedTime === 1503) {
+                                    expect(sfx.volume).toBe(0.75);
+                                } else if (elapsedTime === 1753) {
+                                    expect(sfx.volume).toBe(0.875);
+                                } else if (elapsedTime === 2003) {
+                                    expect(sfx.volume).toBe(1);
+                                }
+                            }
+
+                            expect(promiseSpy.callCount).toBe(2);
                         });
                     });
                 });
