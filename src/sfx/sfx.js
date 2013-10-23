@@ -16,8 +16,9 @@
                 C6Sfx = function(config, context) {
                     var self = this,
                         buffer,
+                        volume = 1,
                         players = [],
-                        activeSources = [],
+                        activeSfx = [],
                         createPlayerInstance = function() {
                             $log.log('creating instance');
                             var instance = new $window.Audio(self.src);
@@ -67,15 +68,23 @@
                     this.play = function(config) {
                         if (context) {
                             this.play = function(config) {
-                                var source = context.createBufferSource();
+                                var source = context.createBufferSource(),
+                                    gainNode = context.createGain(),
+                                    sfx = {
+                                        source: source,
+                                        gainNode: gainNode
+                                    };
+
+                                gainNode.gain.value = volume;
 
                                 source.buffer = buffer;
                                 source.loop = (config && config.loop) || false;
                                 source.onended = function() {
-                                    activeSources.splice(activeSources.indexOf(source), 1);
+                                    activeSfx.splice(activeSfx.indexOf(sfx), 1);
                                 };
 
-                                source.connect(context.destination);
+                                source.connect(gainNode);
+                                gainNode.connect(context.destination);
 
                                 if (source.start) {
                                     source.start(0);
@@ -83,7 +92,7 @@
                                     source.noteOn(0);
                                 }
 
-                                activeSources.push(source);
+                                activeSfx.push(sfx);
                             };
                             this.play(config);
                         } else {
@@ -100,6 +109,7 @@
                                     }
                                 });
 
+                                goodPlayer.volume = volume;
                                 goodPlayer.loop = (config && config.loop) || false;
                                 goodPlayer.play();
                             };
@@ -110,14 +120,14 @@
                     this.stop = function() {
                         if (context) {
                             this.stop = function() {
-                                activeSources.forEach(function(source) {
-                                    if (source.stop) {
-                                        source.stop(0);
-                                    } else if (source.noteOff) {
-                                        source.noteOff(0);
+                                activeSfx.forEach(function(sfx) {
+                                    if (sfx.source.stop) {
+                                        sfx.source.stop(0);
+                                    } else if (sfx.source.noteOff) {
+                                        sfx.source.noteOff(0);
                                     }
                                 });
-                                activeSources.length = 0;
+                                activeSfx.length = 0;
                             };
                             this.stop();
                         } else {
@@ -131,6 +141,31 @@
                             this.stop();
                         }
                     };
+
+                    Object.defineProperty(this, 'volume', {
+                        set: function(newVolume) {
+                            if (context) {
+                                this.set = function(newVolume) {
+                                    activeSfx.forEach(function(sfx) {
+                                        sfx.gainNode.gain.value = newVolume;
+                                    });
+                                    volume = newVolume;
+                                    return volume;
+                                };
+                            } else {
+                                this.set = function(newVolume) {
+                                    players.forEach(function(player) {
+                                        player.volume = newVolume;
+                                    });
+                                    volume = newVolume;
+                                };
+                            }
+                            return this.set(newVolume);
+                        },
+                        get: function() {
+                            return volume;
+                        }
+                    });
 
                     // Disable if we don't have the required browser support
                     if ((!context && c6SfxSvc.isMobileSafari) || !$window.Audio) {
@@ -164,6 +199,10 @@
                     }
                 });
                 return toReturn;
+            };
+
+            this.getSounds = function() {
+                return sounds.slice(0);
             };
 
             this.playSound = function(name, config) {

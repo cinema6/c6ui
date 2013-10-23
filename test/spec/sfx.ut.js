@@ -89,15 +89,9 @@
                 var c6Sfx,
                     $httpBackend,
                     httpResponse = {},
-                    source = {
-                        buffer: null,
-                        connect: function(destination) {
-
-                        },
-                        start: jasmine.createSpy(),
-                        stop: jasmine.createSpy('source stop'),
-                        loop: false
-                    };
+                    context,
+                    source,
+                    gainNode;
 
                 beforeEach(function() {
                     module('ngMock');
@@ -114,7 +108,13 @@
                                     return source;
                                 };
 
+                                this.createGain = function() {
+                                    return gainNode;
+                                };
+
                                 this.destination = {};
+
+                                context = this;
                             },
                             Audio: function() {
                                 this.canPlayType = function(type) {
@@ -132,6 +132,23 @@
                             }
                         });
                     });
+
+                    source = {
+                        buffer: null,
+                        connect: jasmine.createSpy('source connect'),
+                        start: jasmine.createSpy(),
+                        stop: jasmine.createSpy('source stop'),
+                        loop: false
+                    };
+
+                    gainNode = {
+                        gain: {
+                            value: 1
+                        },
+                        connect: jasmine.createSpy('gainNode connect')
+                    };
+
+
                     inject(function(_$httpBackend_, _c6Sfx_) {
                         c6Sfx = _c6Sfx_;
                         $httpBackend = _$httpBackend_;
@@ -188,6 +205,29 @@
                         expect(source.loop).toBe(true);
                     });
 
+                    it('should create a gain node and connect it', function() {
+                        c6Sfx.loadSounds(sounds);
+                        c6Sfx.playSound('foo');
+                        expect(source.connect).toHaveBeenCalledWith(gainNode);
+                    });
+
+                    it('should connect the gainNode to the destination', function() {
+                        c6Sfx.loadSounds(sounds);
+                        c6Sfx.playSound('foo');
+                        expect(gainNode.connect).toHaveBeenCalledWith(context.destination);
+                    });
+
+                    it('should set the gainNode\'s gain vaule to the currentVolume', function() {
+                        var foo;
+
+                        c6Sfx.loadSounds(sounds);
+                        foo = c6Sfx.getSoundByName('foo');
+                        foo.volume = 0.5;
+                        foo.play();
+
+                        expect(gainNode.gain.value).toBe(0.5);
+                    });
+
                     it('should call start if the browser supports it', function() {
                         c6Sfx.loadSounds(sounds);
                         c6Sfx.playSound('foo');
@@ -226,6 +266,24 @@
                         expect(source.noteOff).toHaveBeenCalledWith(0);
                     });
                 });
+
+                describe('SFX Object Methods', function() {
+                    var sfx;
+
+                    beforeEach(function() {
+                        c6Sfx.loadSounds(sounds);
+                        sfx = c6Sfx.getSoundByName('foo');
+                    });
+
+                    describe('setting the volume', function() {
+                        it('should set the gain node\'s gain value to the volume', function() {
+                            sfx.play();
+                            sfx.volume = 0.5;
+
+                            expect(gainNode.gain.value).toBe(0.5);
+                        });
+                    });
+                });
             });
 
             describe('without web audio api', function() {
@@ -256,6 +314,8 @@
                             audioElementPauseSpy();
                             this.paused = true;
                         };
+
+                        this.volume = 1;
 
                         createdAudioPlayers.push(this);
                     };
@@ -337,6 +397,24 @@
                         expect(createdAudioPlayers[1].loop).toBe(true);
                     });
 
+                    it('should set the correct volume before playing', function() {
+                        var foo;
+
+                        c6Sfx.loadSounds([sounds[0]]);
+                        foo = c6Sfx.getSoundByName('foo');
+                        foo.volume = 0.25;
+
+                        foo.play();
+                        foo.play();
+                        foo.play();
+                        foo.play();
+                        foo.play();
+
+                        createdAudioPlayers.forEach(function(player) {
+                            expect(player.volume).toBe(0.25);
+                        });
+                    });
+
                     it('should reuse instances if they are available', function() {
                         function pausePlayer(player) {
                             player.paused = true;
@@ -363,6 +441,29 @@
                         }
                         expect(audioElementCreationSpy.callCount).toBe(18);
                         expect(audioElementPlaySpy.callCount).toBe(15);
+                    });
+                });
+
+                describe('SFX Object Methods', function() {
+                    var sfx;
+
+                    beforeEach(function() {
+                        c6Sfx.loadSounds([sounds[0]]);
+                        sfx = c6Sfx.getSoundByName('foo');
+                    });
+
+                    describe('setting the volume', function() {
+                        it('should set the volume on all of the audio players', function() {
+                            createdAudioPlayers.forEach(function(player) {
+                                expect(player.volume).toBe(1);
+                            });
+
+                            sfx.volume = 0.5;
+
+                            createdAudioPlayers.forEach(function(player) {
+                                expect(player.volume).toBe(0.5);
+                            });
+                        });
                     });
                 });
             });
@@ -399,6 +500,49 @@
 
                         expect(c6Sfx.getSoundByName('hello').name).toBe('hello');
                         expect(c6Sfx.getSoundByName('world').name).toBe('world');
+                    });
+                });
+
+                describe('getSounds method', function() {
+                    it('should return an array of sfx objects', function() {
+                        var sounds;
+
+                        c6Sfx.loadSounds([
+                            {
+                                name: 'foo',
+                                src: 'foo.mp3'
+                            },
+                            {
+                                name: 'test',
+                                src: 'test.mp3'
+                            }
+                        ]);
+
+                        sounds = c6Sfx.getSounds();
+
+                        expect(sounds[0]).toBe(c6Sfx.getSoundByName('foo'));
+                        expect(sounds[1]).toBe(c6Sfx.getSoundByName('test'));
+                    });
+                });
+
+                describe('SFX Object Methods', function() {
+                    var sfx;
+
+                    beforeEach(function() {
+                        c6Sfx.loadSounds([{
+                            name: 'foo',
+                            src: 'hello.mp3'
+                        }]);
+                        sfx = c6Sfx.getSoundByName('foo');
+                    });
+
+                    describe('getting the volume', function() {
+                        it('should remember the volume you set', function() {
+                            expect(sfx.volume).toBe(1);
+
+                            sfx.volume = 0.25;
+                            expect(sfx.volume).toBe(0.25);
+                        });
                     });
                 });
             });
