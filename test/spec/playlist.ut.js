@@ -8,7 +8,9 @@
                 $scope,
                 $httpBackend,
                 playlistData,
-                playlistData2;
+                playlistData2,
+                playlistData3,
+                clientClearSpy = jasmine.createSpy('client clear spy');
 
             beforeEach(function() {
                 var n0 = {
@@ -139,7 +141,63 @@
                     ]
                 };
 
+                playlistData3 = {
+                    version : '2.0',
+                    data: [
+                        {
+                            id      : 'pl3_d0',
+                            name    : 'pl3_video1',
+                            duration: 30,
+                            src     : 'video1file'
+                        },
+                        {
+                            id      : 'pl3_d1',
+                            name    : 'pl3_video2',
+                            duration: 14.2,
+                            src     : 'video2file'
+                        },
+                        {
+                            id      : 'pl3_d2',
+                            name    : 'pl3_video3',
+                            duration: 10,
+                            src     : 'video3file'
+                        }
+                    ],
+                    nodes : [
+                        {
+                            id      : 'pl3_n0',
+                            data    : 'pl3_d0',
+                            name    : 'pl3_video1',
+                            parents : [],
+                            children: ['pl3_n1','pl3_n3']
+                        },
+                        {
+                            id      : 'pl3_n1',
+                            data    : 'pl3_d1',
+                            name    : 'pl3_video2',
+                            parents : ['pl3_n0'],
+                            children: ['pl3_n2']
+                        },
+                        {
+                            id      : 'pl3_n2',
+                            data    : 'pl3_d2',
+                            name    : 'pl3_video3',
+                            parents : ['pl3_n1'],
+                            children: []
+                        },
+                        {
+                            id      : 'pl3_n3',
+                            data    : 'pl3_d2',
+                            name    : 'pl3_video3',
+                            parents : ['pl3_n0'],
+                            children: []
+                        }
+                    ]
+                };
+
                 $httpBackend.when('GET', 'playlist.json').respond(playlistData);
+                $httpBackend.when('GET', 'playlist2.json').respond(playlistData2);
+                $httpBackend.when('GET', 'playlist3.json').respond(playlistData3);
                 $httpBackend.when('GET', 'playlist.jso').respond(function() {
                     return [404];
                 });
@@ -178,22 +236,28 @@
 
                 $scope.model.clients = [
                     {
-                        node: $scope.model.playListDict.n0
+                        node: $scope.model.playListDict.n0,
+                        clear : jasmine.createSpy('client0 clear spy')
                     },
                     {
-                        node: $scope.model.playListDict.n1
+                        node: $scope.model.playListDict.n1,
+                        clear : clientClearSpy
                     },
                     {
-                        node: $scope.model.playListDict.n2
+                        node: $scope.model.playListDict.n2,
+                        clear : clientClearSpy
                     },
                     {
-                        node: {}
+                        node: {},
+                        clear : clientClearSpy
                     },
                     {
-                        node: {}
+                        node: {},
+                        clear : clientClearSpy
                     },
                     {
-                        node: {}
+                        node: {},
+                        clear : clientClearSpy
                     }
                 ];
             });
@@ -211,27 +275,6 @@
                     });
 
                     describe('methods', function() {
-                        describe('setReady()', function() {
-                            var spy;
-
-                            beforeEach(function() {
-                                spy = jasmine.createSpy('c6PlayListReady spy');
-
-                                $scope.$on('c6PlayListReady', spy);
-
-                                $scope.setReady();
-                            });
-
-                            it('should set the model\'s ready flag', function() {
-                                expect($scope.model.ready).toBe(true);
-                            });
-
-                            it('should emit the c6PlayListReady event and pass along itself', function() {
-                                expect(spy).toHaveBeenCalled();
-                                expect(spy.mostRecentCall.args[1]).toBe(C6PlaylistCtrl);
-                            });
-                        });
-
                         describe('loadPlayList(params, callback)', function() {
                             var spy;
 
@@ -912,6 +955,163 @@
                             expect(result.playListData.d2.duration).toEqual(10);
                             expect(result.playListData.d2.src).toEqual("http://cdn.example.com/video3file");
                         });
+                    });
+                });
+                describe('loadPlayList(integration)', function() {
+                    var loadPlaylistCallbackSpy, loadPlaylistStartSpy,loadPlaylistCompleteSpy,
+                        client1,client2,client3;
+
+                    beforeEach(function() {
+                        loadPlaylistCallbackSpy = jasmine.createSpy('loadPlayList callback');
+                        loadPlaylistStartSpy    = jasmine.createSpy('loadPlayList start');
+                        loadPlaylistCompleteSpy = jasmine.createSpy('loadPlayList complete');
+                        $scope.model.id               = null;
+                        $scope.model.rootNode         = null;
+                        $scope.model.playListData     = null;
+                        $scope.model.playListDict     = null;
+                        $scope.model.currentNode      = null;
+                        $scope.model.currentClient    = null;
+                        $scope.model.clients          = [];
+                        $scope.model.cli              = {};
+                        $scope.model.inTrans          = false;
+                        $scope.model.ready            = false;
+                    });
+
+                    describe('loadPlaylist2', function() {
+                        beforeEach(function() {
+                            C6PlaylistCtrl.on('beginListLoad',loadPlaylistStartSpy);
+                            C6PlaylistCtrl.on('completeListLoad',loadPlaylistCompleteSpy);
+                            client1 = $scope.addNodeClient('client1');
+                            client2 = $scope.addNodeClient('client2');
+                            client3 = $scope.addNodeClient('client3');
+                            C6PlaylistCtrl.loadPlayList({   id     : 'teamHappy',
+                                                    rqsUrl : 'playlist2.json'},
+                                                    loadPlaylistCallbackSpy);
+                            $httpBackend.flush();
+                        });
+
+                        it('should correctly setup the model', function() {
+                            expect(loadPlaylistCallbackSpy).toHaveBeenCalled();
+                            expect(loadPlaylistCallbackSpy.argsForCall[0][0]).toBeNull();
+                            expect(loadPlaylistStartSpy.callCount).toEqual(1);
+                            expect(loadPlaylistCompleteSpy.callCount).toEqual(1);
+                            expect(loadPlaylistCompleteSpy.argsForCall[0][0]).toBeNull();
+                            expect(loadPlaylistCompleteSpy.argsForCall[0][1]).toEqual('teamHappy');
+                            expect(loadPlaylistCompleteSpy.argsForCall[0][2]).toEqual('playlist2.json');
+                            expect($scope.model.id).toBe('teamHappy');
+                            expect($scope.model.rootNode.id).toEqual('n0');
+                            expect($scope.model.playListData).not.toBeNull();
+                            expect(Object.keys($scope.model.playListData).length)
+                                .toEqual(3);
+                            expect($scope.model.playListDict).not.toBeNull();
+                            expect(Object.keys($scope.model.playListDict).length)
+                                .toEqual(4);
+                            expect($scope.model.currentClient).toBeNull();
+                            expect($scope.model.currentNode).toBeNull();
+                            expect($scope.model.clients.length).toEqual(3);
+                            expect(Object.keys($scope.model.cli).length).toEqual(3);
+                            expect(client1.node).toEqual({});
+                            expect(client2.node).toEqual({});
+                            expect(client3.node).toEqual({});
+                            expect($scope.model.inTrans).toEqual(false);
+                        });
+
+                        it('should populated correctly when started',function(){
+                            C6PlaylistCtrl.start();
+                            expect($scope.model.currentNode).toBe($scope.model.rootNode);
+                            expect($scope.model.currentClient).toBe($scope.model.clients[0]);
+                            expect($scope.model.currentClient.node)
+                                .toBe($scope.model.rootNode);
+                            expect(client1.node.id).toEqual('n0');
+                            expect(client2.node.id).toEqual('n1');
+                            expect(client3.node.id).toEqual('n3');
+                        });
+
+                        describe('and then loadPlaylist3', function(){
+
+                            beforeEach(function(){
+                                C6PlaylistCtrl.start();
+                                C6PlaylistCtrl.loadPlayList({   id     : 'teamSad',
+                                                        rqsUrl : 'playlist3.json'},
+                                                        loadPlaylistCallbackSpy);
+                                $httpBackend.flush();
+                            });
+
+                            describe('emits',function(){
+                                it('loadPlayListCallback is called', function() {
+                                    expect(loadPlaylistCallbackSpy.callCount).toEqual(2);
+                                    expect(loadPlaylistCallbackSpy
+                                        .argsForCall[1][0]).toBeNull();
+                                } );
+                               
+                                it('loadPlaylistStart',function(){
+                                    expect(loadPlaylistStartSpy.callCount).toEqual(2);
+                                    expect(loadPlaylistStartSpy
+                                        .argsForCall[1][0]).toBeNull();
+                                    expect(loadPlaylistStartSpy
+                                        .argsForCall[1][1]).toEqual('teamSad');
+                                    expect(loadPlaylistStartSpy
+                                        .argsForCall[1][2]).toEqual('playlist3.json');
+                                });
+
+                                it('loadPlaylistComplete',function(){
+                                    expect(loadPlaylistCompleteSpy.callCount).toEqual(2);
+                                    expect(loadPlaylistCompleteSpy
+                                        .argsForCall[1][0]).toBeNull();
+                                    expect(loadPlaylistCompleteSpy
+                                        .argsForCall[1][1]).toEqual('teamSad');
+                                    expect(loadPlaylistCompleteSpy
+                                        .argsForCall[1][2]).toEqual('playlist3.json');
+                                });
+                            });
+
+                            describe('initialization',function(){
+                                it('should update the model id', function() {
+                                    expect($scope.model.id).toBe('teamSad');
+                                });
+
+                                it('should update the root node',function(){
+                                    expect($scope.model.rootNode.id).toEqual('pl3_n0');
+                                });
+
+                                it('should update the playListData',function(){
+                                    expect($scope.model.playListData).not.toBeNull();
+                                    expect(Object.keys($scope.model.playListData).length)
+                                        .toEqual(3);
+                                    expect($scope.model.playListData.pl3_d0).toBeDefined();
+                                    expect($scope.model.playListData.d0).not.toBeDefined();
+                                });
+
+                                it('should update the playListDict',function(){
+                                    expect($scope.model.playListDict).not.toBeNull();
+                                    expect(Object.keys($scope.model.playListDict).length)
+                                        .toEqual(4);
+                                    expect($scope.model.playListDict.pl3_n0).toBeDefined();
+                                    expect($scope.model.playListDict.n0).not.toBeDefined();
+                                });
+
+                                it('should set currentClient to null', function(){
+                                    expect($scope.model.currentClient).toBeNull();
+                                });
+
+                                it('should set the current node back to null', function(){
+                                    expect($scope.model.currentNode).toBeNull();
+                                });
+
+                                it('should have the same clients', function(){
+                                    expect($scope.model.clients.length).toEqual(3);
+                                    expect($scope.model.clients.length).toEqual(3);
+                                    expect(Object.keys($scope.model.cli).length).toEqual(3);
+                                });
+
+                                it('should set he client nodes to {}', function(){
+                                    expect(client1.node).toEqual({});
+                                    expect(client2.node).toEqual({});
+                                    expect(client3.node).toEqual({});
+                                });
+                            });
+                        });
+
                     });
                 });
             });

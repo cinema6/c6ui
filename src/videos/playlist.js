@@ -12,6 +12,10 @@
                 },
                 myBuffers = scope.buffers,
                 myUrl     = scope.url,
+                setReady = function(){
+                    scope.model.ready = true;
+                    scope.$emit('c6PlayListReady',ctlr);
+                },
                 activatePlayerTimeout;
 
                 $log.info('c6PlayList is linked, scope.id=' + scope.$id +
@@ -23,9 +27,9 @@
                     throw new SyntaxError('c6PlayList requires an id attribute');
                 }
 
-                if (!myUrl) {
-                    throw new SyntaxError('c6PlayList requires an x-url attribute');
-                }
+//                if (!myUrl) {
+//                    throw new SyntaxError('c6PlayList requires an x-url attribute');
+//                }
 
                 if (!myBuffers) {
                     $log.warn('No x-buffers attribute found, default to 1');
@@ -45,23 +49,25 @@
                     scope.playerBuffers.push('buffer' + i.toString());
                 }
 
-                scope.loadPlayList(
-                    {
-                        id                   : attrs.id,
-                        rqsUrl               : myUrl,
-                        videoSrcUrlFormatter : scope.urlFormatter
-                    },
-                    function(err){
-                        if (err){
-                            $log.error('loadPlayList Failed: ' + err.message);
-                            return;
-                        }
+                if (myUrl){
+                    scope.loadPlayList(
+                        {
+                            id                   : attrs.id,
+                            rqsUrl               : myUrl,
+                            videoSrcUrlFormatter : scope.urlFormatter
+                        },
+                        function(err){
+                            if (err){
+                                $log.error('loadPlayList Failed: ' + err.message);
+                                return;
+                            }
 
-                        if (scope.model.clients.length === myBuffers){
-                            scope.setReady();
+                            if (scope.model.clients.length === myBuffers){
+                                setReady();
+                            }
                         }
-                    }
-                );
+                    );
+                }
 
                 scope.$on('c6video-ready',function(evt,video){
                     $log.info('New video: ' + video.id);
@@ -95,8 +101,8 @@
                     });
 
                     if (scope.model.clients.length === myBuffers){
-                        if (scope.model.rootNode !== null){
-                            scope.setReady();
+                        if ((!myUrl) || (scope.model.rootNode !== null)){
+                            setReady();
                         }
                     }
                 });
@@ -267,26 +273,26 @@
 
             /*****************************************************
              *
-             * Scope Decoration
+             * Public Interface
              *
-             * Data and methods for the PlayList Directive
-             * which creates a private scope when instantiating
-             * the PlayList Controller.
              */
 
-            $scope.model = model;
-
-            $scope.setReady = function(){
-                model.ready = true;
-                $scope.$emit('c6PlayListReady',self);
-            };
-
-            $scope.loadPlayList = function(params, callback){
+            this.loadPlayList = function(params, callback){
                 var id      = params.id,
                     rqsUrl  = params.rqsUrl,
                     urlFunc = params.videoSrcUrlFormatter,
                     req;
+
                 $log.log('Loading playlist: ' + id);
+                self.emit('beginListLoad',null,id,rqsUrl);
+                model.rootNode         = null;
+                model.playListData     = null;
+                model.playListDict     = null;
+                model.currentNode      = null;
+                model.currentClient    = null;
+                model.clients.forEach(function(client){
+                    self._setClientWithNode(client,null);
+                });
                 model.id = id;
                 req = $http({method: 'GET', url: (rqsUrl)});
 
@@ -300,64 +306,20 @@
                         self._compilePlayList( data, model, urlFunc );
                     }
                     callback(null);
+                    self.emit('completeListLoad',null,id,rqsUrl);
                     return;
                 });
 
                 req.error(function(data,status/*,headers,config*/){
                     $log.error('PlayList request fails: ' + status);
-                    callback( {
+                    var err = {
                         message : 'Failed with: ' + status,
                         statusCode : status
-                    });
+                    };
+                    callback(err );
+                    self.emit('completeListLoad',err,id,rqsUrl);
                 });
             };
-
-
-            $scope.addNodeClient = function(clientId){
-                var result = {
-                    id  : clientId,
-                    active : false,
-                    startTime : 0,
-                    node : {},
-                    data : {},
-
-                    clear : function(){
-                        this.active = false;
-                        this.startTime = 0;
-                        this.node = {};
-                        this.data = {};
-                    },
-
-                    isTerminal : function() {
-                        if ((this.node.branches) && (this.node.branches.length > 0)){
-                            return false;
-                        }
-                        return true;
-                    },
-
-                    toString : function(){
-                        return 'NC [' + this.id + '][' +
-                            ((this.node.name === undefined) ? 'null' : this.node.name) + ']';
-                    }
-                };
-                $log.info('Add client: ' + result);
-                model.clients.push(result);
-
-                model.cli[clientId] = result;
-
-                return result;
-            };
-
-            /*
-             * Scope Decoration  -- End
-             *****************************************************/
-
-
-            /*****************************************************
-             *
-             * Public interace
-             *
-             */
 
             this.id            = function() { return model.id;            };
 
@@ -557,6 +519,65 @@
             /*
              * Public Interface -- End
              *****************************************************/
+
+            /*****************************************************
+             *
+             * Scope Decoration
+             *
+             * Data and methods for the PlayList Directive
+             * which creates a private scope when instantiating
+             * the PlayList Controller.
+             */
+
+            $scope.model = model;
+
+            $scope.loadPlayList = this.loadPlayList;
+
+            $scope.addNodeClient = function(clientId){
+                var result = {
+                    id  : clientId,
+                    active : false,
+                    startTime : 0,
+                    node : {},
+                    data : {},
+
+                    clear : function(){
+                        this.active = false;
+                        this.startTime = 0;
+                        this.node = {};
+                        this.data = {};
+                    },
+
+                    isTerminal : function() {
+                        if ((this.node.branches) && (this.node.branches.length > 0)){
+                            return false;
+                        }
+                        return true;
+                    },
+
+                    toString : function(){
+                        return 'NC [' + this.id + '][' +
+                            ((this.node.name === undefined) ? 'null' : this.node.name) + ']';
+                    }
+                };
+                $log.info('Add client: ' + result);
+                model.clients.push(result);
+
+                model.cli[clientId] = result;
+
+                return result;
+            };
+
+            /*
+             * Scope Decoration  -- End
+             *****************************************************/
+
+
+            /*****************************************************
+             *
+             * Private Methods
+             *
+             */
 
             this._mapNodesToClients = function(){
                 var self         = this,
@@ -761,6 +782,11 @@
 
                 return output;
             };
+
+            /*
+             * Private Methods  -- End
+             *****************************************************/
+
 
         }]);
 })();
