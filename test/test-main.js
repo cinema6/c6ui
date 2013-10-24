@@ -24,7 +24,7 @@
             "c6ui" : {
                 "deps" : [ "angularMocks" ]
             },
-            "browser/browser" : {
+            "browser/user_agent" : {
                 "deps" : [ "c6ui" ]
             },
             "events/emitter" : {
