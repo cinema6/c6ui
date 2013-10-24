@@ -195,6 +195,37 @@
                         ]);
                         $httpBackend.flush();
                     });
+
+                    it('should return a promise', function() {
+                        expect(typeof c6Sfx.loadSounds([{
+                            name: 'moo',
+                            src: 'test/moo'
+                        }]).then).toBe('function');
+                    });
+
+                    it('should resolve its promise when all the sfx have loaded', function() {
+                        var successSpy = jasmine.createSpy('promise success'),
+                            promise = c6Sfx.loadSounds([{
+                                name: 'moo',
+                                src: 'test/moo'
+                            },
+                            {
+                                name: 'jason',
+                                src: 'test/jason'
+                            }]).then(successSpy),
+                            moo = c6Sfx.getSoundByName('moo'),
+                            jason = c6Sfx.getSoundByName('jason'),
+                            resolvedValues;
+
+                        expect(successSpy).not.toHaveBeenCalled();
+
+                        $httpBackend.flush();
+                        resolvedValues = successSpy.mostRecentCall.args[0];
+
+                        expect(successSpy).toHaveBeenCalled();
+                        expect(resolvedValues[0]).toBe(moo);
+                        expect(resolvedValues[1]).toBe(jason);
+                    });
                 });
 
                 describe('playSound method', function() {
@@ -292,6 +323,7 @@
                     audioElementPlaySpy,
                     audioElementPauseSpy,
                     createdAudioPlayers = [],
+                    audioEventListeners = {},
                     AudioContructor = function(src) {
                         audioElementCreationSpy(src);
 
@@ -313,6 +345,20 @@
                         this.pause = function() {
                             audioElementPauseSpy();
                             this.paused = true;
+                        };
+
+                        this.addEventListener = function(event, handler) {
+                            if (!audioEventListeners[event]) {
+                                audioEventListeners[event] = [];
+                            }
+
+                            audioEventListeners[event].push(handler);
+                        };
+
+                        this.removeEventListener = function(event, handler) {
+                            var handlersArray = audioEventListeners[event];
+
+                            handlersArray.splice(handlersArray.indexOf(handler), 1);
                         };
 
                         this.volume = 1;
@@ -340,6 +386,7 @@
                     audioElementPlaySpy = jasmine.createSpy();
                     audioElementPauseSpy = jasmine.createSpy();
                     createdAudioPlayers.length = 0;
+                    audioEventListeners = {};
                 });
 
                 describe('loadSounds method', function() {
@@ -363,6 +410,19 @@
 
                         expect(audioElementCreationSpy).toHaveBeenCalledWith('test/greetings.ogg');
                         expect(audioElementCreationSpy).toHaveBeenCalledWith('test/earthling.mp3');
+                    });
+
+                    it('should return a promise', function() {
+                        var promise = c6Sfx.loadSounds([{
+                            name: 'moo',
+                            src: 'test/moo'
+                        },
+                        {
+                            name: 'jason',
+                            src: 'test/jason'
+                        }]);
+
+                        expect(typeof promise.then).toBe('function');
                     });
                 });
 
@@ -465,6 +525,36 @@
                             });
                         });
                     });
+
+                    describe('load()', function() {
+                        it('should return a promise', function() {
+                            expect(typeof sfx.load().then).toBe('function');
+                        });
+
+                        it('should resolve the promise when the first audio element canPlayThrough', function() {
+                            var promise,
+                                promiseSpy = jasmine.createSpy('promise'),
+                                handler;
+
+                            audioEventListeners = {}; // Reset this and load again.
+                            createdAudioPlayers.length = 0;
+
+                            sfx.load().then(promiseSpy);
+
+                            spyOn(createdAudioPlayers[0], 'removeEventListener').andCallThrough();
+
+                            expect(audioEventListeners.canplaythrough.length).toBe(1);
+                            handler = audioEventListeners.canplaythrough[0];
+                            expect(promiseSpy).not.toHaveBeenCalled();
+
+                            handler.call(createdAudioPlayers[0], { target: createdAudioPlayers[0] });
+
+                            expect(promiseSpy).toHaveBeenCalledWith(sfx);
+                            expect(sfx.isLoaded).toBe(true);
+                            expect(createdAudioPlayers[0].removeEventListener).toHaveBeenCalledWith('canplaythrough', handler, false);
+                            expect(audioEventListeners.canplaythrough.length).toBe(0);
+                        });
+                    });
                 });
             });
 
@@ -478,7 +568,9 @@
                     jasmine.Clock.useMock();
 
                     $window = {
-                        Audio: angular.noop,
+                        Audio: function() {
+                            this.addEventListener = angular.noop;
+                        },
                         Date: function() {
                             this.getTime = function() {
                                 return time;

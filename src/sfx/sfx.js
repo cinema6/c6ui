@@ -37,10 +37,19 @@
                     this.isLoaded = false;
 
                     this.load = function () {
-                        if (context) {
-                            var me = this,
-                                waitForIt = $q.defer();
+                        var deferred = $q.defer(),
+                            me = this;
 
+                        function resolvePromise(event) {
+                            $rootScope.$apply(function() {
+                                deferred.resolve(me);
+                                me.isLoaded = true;
+                            });
+
+                            event.target.removeEventListener('canplaythrough', resolvePromise, false);
+                        }
+
+                        if (context) {
                             $http({
                                 method: 'GET',
                                 url: this.src,
@@ -49,20 +58,22 @@
                                 context.decodeAudioData(response.data, function(buff) {
                                     buffer = buff;
                                     safeApply(function() {
-                                        waitForIt.resolve(me);
+                                        deferred.resolve(me);
                                         me.isLoaded = true;
                                     });
                                 });
                             });
-
-                            return waitForIt.promise;
                         } else {
                             players.length = 0;
 
                             for (var i = 0; i < 3; i++) {
                                 createPlayerInstance();
                             }
+
+                            players[0].addEventListener('canplaythrough', resolvePromise, false);
                         }
+
+                        return deferred.promise;
                     };
 
                     this.play = function(config) {
@@ -217,11 +228,15 @@
                 };
 
             this.loadSounds = function(configs) {
+                var promises = [];
+
                 configs.forEach(function(config) {
                     var sfx = new C6Sfx(config, context);
                     sounds.push(sfx);
-                    sfx.load();
+                    promises.push(sfx.load());
                 });
+
+                return $q.all(promises);
             };
 
             this.getSoundByName = function(name) {
