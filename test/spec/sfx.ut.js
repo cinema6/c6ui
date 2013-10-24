@@ -760,6 +760,8 @@
                                 }
                             }
 
+                            expect(sfx.volume).toBe(0.5);
+
                             sfx.setVolumeToValueOverTime(1, 1000).then(promiseSpy);
 
                             for (total = 501, i = 0; i < total; i++) {
@@ -777,6 +779,8 @@
                                     expect(sfx.volume).toBe(1);
                                 }
                             }
+
+                            expect(sfx.volume).toBe(1);
 
                             expect(promiseSpy.callCount).toBe(2);
                         });

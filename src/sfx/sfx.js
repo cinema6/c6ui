@@ -171,7 +171,9 @@
 
                             percentThrough = (currentTime - startTime) / time;
 
-                            self.volume = startVolume - (percentThrough * (startVolume - volume));
+                            if (self.volume !== volume) {
+                                self.volume = startVolume - (percentThrough * (startVolume - volume));
+                            }
 
                             if (currentTime <= endTime) {
                                 $timeout(setVolume, 1, false);
