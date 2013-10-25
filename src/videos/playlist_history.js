@@ -72,7 +72,7 @@
                     set('playing', false);
                 }
             };
-            this.push = function(nodeId) {
+            this.push = function(nodeId, skipMoveTo) {
                 var index = this.index,
                     historyLength = history.size(),
                     isMostRecent = (index === historyLength - 1),
@@ -83,12 +83,16 @@
 
                 if (isMostRecent) {
                     recordToHistory(data.id, data);
-                    this.moveTo(nodeId);
+                    if (!skipMoveTo){
+                        this.moveTo(nodeId);
+                    }
                 } else if (nodeId === history.getAt(index + 1).name) {
-                    this.moveTo(nodeId);
+                    if (!skipMoveTo){
+                        this.moveTo(nodeId);
+                    }
                 } else {
                     history.removeAt(index + 1, historyLength - (index + 1));
-                    this.push(nodeId);
+                    this.push(nodeId,skipMoveTo);
                 }
 
             };
@@ -114,10 +118,10 @@
 
                 if (startNode === undefined){
                     playlist.start();
-                    this.push(playlist.currentNodeId());
+                    this.push(playlist.currentNodeId(),false);
                 } else {
                     playlist.load(startNode,startTime,true);
-                    this.push(startNode);
+                    this.push(startNode,false);
                 }
 
                 if (!this.ready) {
