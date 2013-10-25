@@ -72,7 +72,7 @@
                     set('playing', false);
                 }
             };
-            this.push = function(nodeId, skipMoveTo) {
+            this.push = function(nodeId ) {
                 var index = this.index,
                     historyLength = history.size(),
                     isMostRecent = (index === historyLength - 1),
@@ -83,16 +83,12 @@
 
                 if (isMostRecent) {
                     recordToHistory(data.id, data);
-                    if (!skipMoveTo){
-                        this.moveTo(nodeId);
-                    }
+                    this.moveTo(nodeId);
                 } else if (nodeId === history.getAt(index + 1).name) {
-                    if (!skipMoveTo){
-                        this.moveTo(nodeId);
-                    }
+                    this.moveTo(nodeId);
                 } else {
                     history.removeAt(index + 1, historyLength - (index + 1));
-                    this.push(nodeId,skipMoveTo);
+                    this.push(nodeId);
                 }
 
             };
@@ -114,15 +110,25 @@
                 set('currentNode.name', data.name);
             };
             this.init = function(playlist,startNode,startTime) {
+                var data;
                 playListCtrl = playlist;
 
                 if (startNode === undefined){
                     playlist.start();
-                    this.push(playlist.currentNodeId(),false);
                 } else {
                     playlist.load(startNode,startTime,true);
-                    this.push(startNode,false);
                 }
+
+                data = playlist.getDataForNode(playlist.currentNodeId());
+                if (!data){
+                    $log.error('Invalid startNode');
+                    return;
+                }
+
+                set('currentNode.id', data.id);
+                set('currentNode.name', data.name);
+                recordToHistory(data.id, data);
+                set('index', history.index());
 
                 if (!this.ready) {
                     // We're going to re-emit some events from the playListCtrl

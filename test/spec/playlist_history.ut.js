@@ -97,11 +97,9 @@
 
             describe('methods', function() {
                 describe('init(playlist)', function() {
-                    var pushSpy,
-                        readySpy;
+                    var readySpy;
 
                     beforeEach(function() {
-                        pushSpy = spyOn(c6PlaylistHistorySvc, 'push');
                         readySpy = jasmine.createSpy('ready');
 
                         c6PlaylistHistorySvc.on('ready', readySpy);
@@ -111,11 +109,6 @@
 
                     it('should start the playlistCtrl', function() {
                         expect(playlistCtrl.start).toHaveBeenCalled();
-                    });
-
-                    it('should call push() with the playlistCtrl\'s currentNodeId()', function() {
-                        expect(pushSpy).toHaveBeenCalled();
-                        expect(pushSpy.mostRecentCall.args[0]).toBe('n0');
                     });
 
                     it('should listen for the playlistCtrl\'s endOfPlayListItem and endOfPlayList events', function() {
@@ -130,11 +123,9 @@
                 });
                 
                 describe('init(playlist,nodeId,startAt)', function() {
-                    var pushSpy,
-                        readySpy;
+                    var readySpy;
 
                     beforeEach(function() {
-                        pushSpy = spyOn(c6PlaylistHistorySvc, 'push');
                         readySpy = jasmine.createSpy('ready');
 
                         c6PlaylistHistorySvc.on('ready', readySpy);
@@ -151,11 +142,6 @@
                         expect(playlistCtrl.load.argsForCall[0][0]).toBe('n0');
                         expect(playlistCtrl.load.argsForCall[0][1]).toBe(5);
                         expect(playlistCtrl.load.argsForCall[0][2]).toBe(true);
-                    });
-
-                    it('should call push() with the playlistCtrl\'s currentNodeId()', function() {
-                        expect(pushSpy).toHaveBeenCalled();
-                        expect(pushSpy.mostRecentCall.args[0]).toBe('n0');
                     });
 
                     it('should listen for the playlistCtrl\'s endOfPlayListItem and endOfPlayList events', function() {
@@ -237,27 +223,31 @@
 
                     describe('push(nodeId)', function() {
                         describe('pushing when at the most recent entry', function() {
-                            it('should call load() on the playlistCtrl with the nodeId', function() {
-                                expect(playlistCtrl.load).toHaveBeenCalledWith('n0', 0, true);
+                            beforeEach(function() {
+                                c6PlaylistHistorySvc.push('n1');
+                            });
+                            it('should call load() on the playlistCtrl with the nodeId',
+                                function() {
+                                expect(playlistCtrl.load).toHaveBeenCalledWith('n1', 0, true);
                             });
 
                             it('should set the currentNode.id and currentNode.name and emit the proper kvo events', function() {
-                                expect(c6PlaylistHistorySvc.currentNode.id).toBe('n0');
-                                expect(c6PlaylistHistorySvc.currentNode.name).toBe('n0Name');
+                                expect(c6PlaylistHistorySvc.currentNode.id).toBe('n1');
+                                expect(c6PlaylistHistorySvc.currentNode.name).toBe('n1Name');
 
-                                expect(currentNodeIdSpy).toHaveBeenCalledWith('n0');
-                                expect(currentNodeNameSpy).toHaveBeenCalledWith('n0Name');
+                                expect(currentNodeIdSpy).toHaveBeenCalledWith('n1');
+                                expect(currentNodeNameSpy).toHaveBeenCalledWith('n1Name');
                                 expect(currentNodeSpy).toHaveBeenCalledWith(c6PlaylistHistorySvc.currentNode);
                             });
 
                             it('should increment the index and emit the kvo event', function() {
-                                expect(c6PlaylistHistorySvc.index).toBe(0);
-                                expect(indexSpy).toHaveBeenCalledWith(0);
+                                expect(c6PlaylistHistorySvc.index).toBe(1);
+                                expect(indexSpy).toHaveBeenCalledWith(1);
                             });
 
                             it('should emit the historyModified event', function() {
                                 expect(historyModifiedSpy).toHaveBeenCalled();
-                                expect(historyModifiedSpy.mostRecentCall.args[0].size()).toBe(1);
+                                expect(historyModifiedSpy.mostRecentCall.args[0].size()).toBe(2);
                             });
 
                             it('should update the currentBranches and emit the kvo event', function() {
