@@ -2,8 +2,7 @@
     'use strict';
 
     angular.module('c6.ui')
-        .directive('c6Playlist', ['$timeout', '$log',
-            function($timeout, $log){
+        .directive('c6Playlist', ['$timeout', '$log', function($timeout, $log){
             function linker(scope,element,attrs,ctlr){
                 var showPlayer = function(videoToShow) {
                     angular.forEach(scope.videos, function(video) {
@@ -55,15 +54,17 @@
                             id                   : attrs.id,
                             rqsUrl               : myUrl,
                             videoSrcUrlFormatter : scope.urlFormatter
+                        })
+                    .then(function(){
+                            $log.info('loadPlayList succeeded.');
+                            if (scope.model.clients.length === myBuffers){
+                                setReady();
+                            }
                         },
                         function(err){
                             if (err){
                                 $log.error('loadPlayList Failed: ' + err.message);
                                 return;
-                            }
-
-                            if (scope.model.clients.length === myBuffers){
-                                setReady();
                             }
                         }
                     );
@@ -250,8 +251,9 @@
             };
         }])
 
-        .controller('C6PlaylistController',['$scope','$log','$http','c6EventEmitter',
-                                            function($scope,$log,$http,c6EventEmitter){
+        .controller('C6PlaylistController',['$scope','$log','$http','$q',
+            'c6EventEmitter',
+            function($scope,$log,$http,$q,c6EventEmitter){
             $log.log('Create c6PlayListCtlr: scope.id=' + $scope.$id);
 
             // Turn me into an emitter
@@ -277,11 +279,12 @@
              *
              */
 
-            this.loadPlayList = function(params, callback){
+            this.loadPlayList = function(params ){
                 var id      = params.id,
                     rqsUrl  = params.rqsUrl,
                     urlFunc = params.videoSrcUrlFormatter,
-                    req;
+                    req,
+                    deferred = $q.defer();
 
                 $log.log('Loading playlist: ' + id);
                 self.emit('beginListLoad',null,id,rqsUrl);
@@ -305,9 +308,7 @@
                     } else{
                         self._compilePlayList( data, model, urlFunc );
                     }
-                    callback(null);
-                    self.emit('completeListLoad',null,id,rqsUrl);
-                    return;
+                    deferred.resolve(id);
                 });
 
                 req.error(function(data,status/*,headers,config*/){
@@ -316,9 +317,10 @@
                         message : 'Failed with: ' + status,
                         statusCode : status
                     };
-                    callback(err );
-                    self.emit('completeListLoad',err,id,rqsUrl);
+                    deferred.reject(err);
                 });
+
+                return deferred.promise;
             };
 
             this.id            = function() { return model.id;            };

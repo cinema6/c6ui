@@ -276,21 +276,22 @@
 
                     describe('methods', function() {
                         describe('loadPlayList(params, callback)', function() {
-                            var spy;
+                            var spySuccess,spyError ;
 
                             beforeEach(function() {
-                                spy = jasmine.createSpy('loadPlayList callback');
+                                spyError   = jasmine.createSpy('loadPlayList error');
+                                spySuccess = jasmine.createSpy('loadPlayList success');
                             });
 
                             describe('failure', function() {
                                 beforeEach(function() {
-                                    $scope.loadPlayList({ id : 'teamHappy', rqsUrl : 'playlist.jso'}, spy);
+                                    $scope.loadPlayList({ id : 'teamHappy', rqsUrl : 'playlist.jso'}).then(spySuccess,spyError);
 
                                     $httpBackend.flush();
                                 });
 
                                 it('should respond with an error object with error info', function() {
-                                    var error = spy.mostRecentCall.args[0];
+                                    var error = spyError.mostRecentCall.args[0];
 
                                     expect(error.message).toBe('Failed with: 404');
                                     expect(error.statusCode).toBe(404);
@@ -300,7 +301,7 @@
                             describe('success', function() {
                                 beforeEach(function() {
                                     spyOn(C6PlaylistCtrl, '_compilePlayList');
-                                    $scope.loadPlayList({ id : 'teamHappy', rqsUrl : 'playlist.json'}, spy);
+                                    $scope.loadPlayList({ id : 'teamHappy', rqsUrl : 'playlist.json'}).then(spySuccess,spyError);
 
                                     $httpBackend.flush();
                                 });
@@ -958,13 +959,11 @@
                     });
                 });
                 describe('loadPlayList(integration)', function() {
-                    var loadPlaylistCallbackSpy, loadPlaylistStartSpy,loadPlaylistCompleteSpy,
-                        client1,client2,client3;
+                    var loadSuccessSpy, loadErrorSpy, client1,client2,client3;
 
                     beforeEach(function() {
-                        loadPlaylistCallbackSpy = jasmine.createSpy('loadPlayList callback');
-                        loadPlaylistStartSpy    = jasmine.createSpy('loadPlayList start');
-                        loadPlaylistCompleteSpy = jasmine.createSpy('loadPlayList complete');
+                        loadSuccessSpy = jasmine.createSpy('loadPlayList success');
+                        loadErrorSpy = jasmine.createSpy('loadPlayList error');
                         $scope.model.id               = null;
                         $scope.model.rootNode         = null;
                         $scope.model.playListData     = null;
@@ -979,25 +978,19 @@
 
                     describe('loadPlaylist2', function() {
                         beforeEach(function() {
-                            C6PlaylistCtrl.on('beginListLoad',loadPlaylistStartSpy);
-                            C6PlaylistCtrl.on('completeListLoad',loadPlaylistCompleteSpy);
                             client1 = $scope.addNodeClient('client1');
                             client2 = $scope.addNodeClient('client2');
                             client3 = $scope.addNodeClient('client3');
                             C6PlaylistCtrl.loadPlayList({   id     : 'teamHappy',
-                                                    rqsUrl : 'playlist2.json'},
-                                                    loadPlaylistCallbackSpy);
+                                                            rqsUrl : 'playlist2.json'})
+                                .then(loadSuccessSpy,loadErrorSpy);
                             $httpBackend.flush();
                         });
 
                         it('should correctly setup the model', function() {
-                            expect(loadPlaylistCallbackSpy).toHaveBeenCalled();
-                            expect(loadPlaylistCallbackSpy.argsForCall[0][0]).toBeNull();
-                            expect(loadPlaylistStartSpy.callCount).toEqual(1);
-                            expect(loadPlaylistCompleteSpy.callCount).toEqual(1);
-                            expect(loadPlaylistCompleteSpy.argsForCall[0][0]).toBeNull();
-                            expect(loadPlaylistCompleteSpy.argsForCall[0][1]).toEqual('teamHappy');
-                            expect(loadPlaylistCompleteSpy.argsForCall[0][2]).toEqual('playlist2.json');
+                            expect(loadSuccessSpy.callCount).toEqual(1);
+                            expect(loadSuccessSpy.argsForCall[0][0]).toEqual('teamHappy');
+                            expect(loadErrorSpy.callCount).toEqual(0);
                             expect($scope.model.id).toBe('teamHappy');
                             expect($scope.model.rootNode.id).toEqual('n0');
                             expect($scope.model.playListData).not.toBeNull();
@@ -1032,37 +1025,17 @@
                             beforeEach(function(){
                                 C6PlaylistCtrl.start();
                                 C6PlaylistCtrl.loadPlayList({   id     : 'teamSad',
-                                                        rqsUrl : 'playlist3.json'},
-                                                        loadPlaylistCallbackSpy);
+                                                        rqsUrl : 'playlist3.json'}).then(
+                                                        loadSuccessSpy,loadErrorSpy);
                                 $httpBackend.flush();
                             });
 
                             describe('emits',function(){
-                                it('loadPlayListCallback is called', function() {
-                                    expect(loadPlaylistCallbackSpy.callCount).toEqual(2);
-                                    expect(loadPlaylistCallbackSpy
-                                        .argsForCall[1][0]).toBeNull();
+                                it('loadPlayListPromise is resolved', function() {
+                                    expect(loadSuccessSpy.callCount).toEqual(2);
+                                    expect(loadSuccessSpy
+                                        .argsForCall[1][0]).toEqual('teamSad');
                                 } );
-                               
-                                it('loadPlaylistStart',function(){
-                                    expect(loadPlaylistStartSpy.callCount).toEqual(2);
-                                    expect(loadPlaylistStartSpy
-                                        .argsForCall[1][0]).toBeNull();
-                                    expect(loadPlaylistStartSpy
-                                        .argsForCall[1][1]).toEqual('teamSad');
-                                    expect(loadPlaylistStartSpy
-                                        .argsForCall[1][2]).toEqual('playlist3.json');
-                                });
-
-                                it('loadPlaylistComplete',function(){
-                                    expect(loadPlaylistCompleteSpy.callCount).toEqual(2);
-                                    expect(loadPlaylistCompleteSpy
-                                        .argsForCall[1][0]).toBeNull();
-                                    expect(loadPlaylistCompleteSpy
-                                        .argsForCall[1][1]).toEqual('teamSad');
-                                    expect(loadPlaylistCompleteSpy
-                                        .argsForCall[1][2]).toEqual('playlist3.json');
-                                });
                             });
 
                             describe('initialization',function(){
