@@ -745,8 +745,13 @@
                             sfx.setVolumeToValueOverTime(0.5, 1000).then(promiseSpy);
 
                             for (var total = 501, i = 0; i < total; i++) {
-                                time += 2;
-                                elapsedTime += 2;
+                                if (i === 499) { // Simulate the clock jumping ahead the last time setVolume() is called.
+                                    time += 10;
+                                    elapsedTime += 2;
+                                } else {
+                                    time += 2;
+                                    elapsedTime += 2;
+                                }
                                 jasmine.Clock.tick(2);
 
                                 if (elapsedTime === 250) {
@@ -762,6 +767,8 @@
 
                             expect(sfx.volume).toBe(0.5);
 
+                            elapsedTime = 0;
+
                             sfx.setVolumeToValueOverTime(1, 1000).then(promiseSpy);
 
                             for (total = 501, i = 0; i < total; i++) {
@@ -769,13 +776,13 @@
                                 elapsedTime += 2;
                                 jasmine.Clock.tick(2);
 
-                                if (elapsedTime === 1253) {
+                                if (elapsedTime === 250) {
                                     expect(sfx.volume).toBe(0.625);
-                                } else if (elapsedTime === 1503) {
+                                } else if (elapsedTime === 500) {
                                     expect(sfx.volume).toBe(0.75);
-                                } else if (elapsedTime === 1753) {
+                                } else if (elapsedTime === 750) {
                                     expect(sfx.volume).toBe(0.875);
-                                } else if (elapsedTime === 2003) {
+                                } else if (elapsedTime === 1000) {
                                     expect(sfx.volume).toBe(1);
                                 }
                             }

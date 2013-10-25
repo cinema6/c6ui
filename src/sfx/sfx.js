@@ -171,13 +171,11 @@
 
                             percentThrough = (currentTime - startTime) / time;
 
-                            if (self.volume !== volume) {
-                                self.volume = startVolume - (percentThrough * (startVolume - volume));
-                            }
-
                             if (currentTime <= endTime) {
+                                self.volume = startVolume - (percentThrough * (startVolume - volume));
                                 $timeout(setVolume, 1, false);
                             } else {
+                                self.volume = volume;
                                 $rootScope.$apply(function() {
                                     deferred.resolve(self);
                                 });
