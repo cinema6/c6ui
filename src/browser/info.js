@@ -37,7 +37,22 @@
     'use strict';
 
     angular.module('c6.ui')
-        /*.service('c6BrowserInfo', [function() {
+        .service('c6BrowserInfo', ['c6UserAgent',
+                        function  ( c6UserAgent ) {
+            this.generateProfile = function() {
+                var profile = {};
 
-        }]);*/
+                profile.inlineVid = (function() {
+                    return !(c6UserAgent.device.isIPhone() || c6UserAgent.device.isIPod() || c6UserAgent.app.name === 'silk');
+                })();
+
+                profile.multiPlayer = (function() {
+                    return !(c6UserAgent.device.isIOS() || c6UserAgent.app.name === 'silk');
+                })();
+
+                profile.canvasVideo = false;
+
+                return profile;
+            };
+        }]);
 })();
