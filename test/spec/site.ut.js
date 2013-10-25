@@ -288,6 +288,21 @@
                         expect(session.ping).toHaveBeenCalledWith('requestBar', false);
                     });
                 });
+
+                describe('openExternalLink(url, target)', function() {
+                    it('should ping the site with the url and target', function() {
+                        var pingArgs;
+
+                        site.openExternalLink('http://www.apple.com', '_blank');
+                        pingArgs = session.ping.mostRecentCall.args;
+
+                        expect(session.ping).toHaveBeenCalled();
+
+                        expect(pingArgs[0]).toBe('openExternalLink');
+                        expect(pingArgs[1].url).toBe('http://www.apple.com');
+                        expect(pingArgs[1].target).toBe('_blank');
+                    });
+                });
             });
 
             describe('@private methods', function() {
