@@ -109,11 +109,16 @@
                 set('currentNode.id', data.id);
                 set('currentNode.name', data.name);
             };
-            this.init = function(playlist) {
+            this.init = function(playlist,startNode,startTime) {
                 playListCtrl = playlist;
 
-                playlist.start();
-                this.push(playlist.currentNodeId());
+                if (startNode === undefined){
+                    playlist.start();
+                    this.push(playlist.currentNodeId());
+                } else {
+                    playlist.load(startNode,startTime,true);
+                    this.push(startNode);
+                }
 
                 if (!this.ready) {
                     // We're going to re-emit some events from the playListCtrl
@@ -127,7 +132,7 @@
                     set('ready', true);
                 }
             };
-            this.reset = function(playlist) {
+            this.reset = function(playlist,startNode,startTime) {
                 // Stop!
                 this.stop();
                 // Reset the index
@@ -135,7 +140,7 @@
                 // Erase the history
                 history.clear();
                 // Re-initialize
-                this.init(playlist || playListCtrl);
+                this.init(playlist || playListCtrl,startNode,startTime);
             };
             this.getHistory = function() {
                 return history.createSubscriber();

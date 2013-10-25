@@ -128,6 +128,46 @@
                         expect(readySpy).toHaveBeenCalledWith(true);
                     });
                 });
+                
+                describe('init(playlist,nodeId,startAt)', function() {
+                    var pushSpy,
+                        readySpy;
+
+                    beforeEach(function() {
+                        pushSpy = spyOn(c6PlaylistHistorySvc, 'push');
+                        readySpy = jasmine.createSpy('ready');
+
+                        c6PlaylistHistorySvc.on('ready', readySpy);
+
+                        c6PlaylistHistorySvc.init(playlistCtrl,'n0',5);
+                    });
+
+                    it('should not start the playlistCtrl', function() {
+                        expect(playlistCtrl.start).not.toHaveBeenCalled();
+                    });
+
+                    it('should load the playlistCtrl',function(){
+                        expect(playlistCtrl.load).toHaveBeenCalled();
+                        expect(playlistCtrl.load.argsForCall[0][0]).toBe('n0');
+                        expect(playlistCtrl.load.argsForCall[0][1]).toBe(5);
+                        expect(playlistCtrl.load.argsForCall[0][2]).toBe(true);
+                    });
+
+                    it('should call push() with the playlistCtrl\'s currentNodeId()', function() {
+                        expect(pushSpy).toHaveBeenCalled();
+                        expect(pushSpy.mostRecentCall.args[0]).toBe('n0');
+                    });
+
+                    it('should listen for the playlistCtrl\'s endOfPlayListItem and endOfPlayList events', function() {
+                        expect(playlistCtrl.on.argsForCall[0][0]).toBe('endOfPlayListItem');
+                        expect(playlistCtrl.on.argsForCall[1][0]).toBe('endOfPlayList');
+                    });
+
+                    it('should set ready to true and emit the kvo event', function() {
+                        expect(c6PlaylistHistorySvc.ready).toBe(true);
+                        expect(readySpy).toHaveBeenCalledWith(true);
+                    });
+                });
 
                 describe('post-init methods', function() {
                     var currentNodeIdSpy,
@@ -426,7 +466,7 @@
                         it('should call init() with the same playlistCtrl if none is supplied', function() {
                             c6PlaylistHistorySvc.reset();
 
-                            expect(c6PlaylistHistorySvc.init).toHaveBeenCalledWith(playlistCtrl);
+                            expect(c6PlaylistHistorySvc.init).toHaveBeenCalledWith(playlistCtrl,undefined,undefined);
                         });
 
                         it('should call init() with a new playlistCtrl if you supply one', function() {
@@ -434,7 +474,7 @@
 
                             c6PlaylistHistorySvc.reset(newPlaylistCtrl);
 
-                            expect(c6PlaylistHistorySvc.init).toHaveBeenCalledWith(newPlaylistCtrl);
+                            expect(c6PlaylistHistorySvc.init).toHaveBeenCalledWith(newPlaylistCtrl,undefined,undefined);
                         });
                     });
                 });
