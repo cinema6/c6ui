@@ -881,6 +881,10 @@
                             resultOfFunction = C6PlaylistCtrl._compilePlayList2(playlistData2, result);
                         });
 
+                        afterEach(function(){
+                            result = {};
+                        });
+
                         it('should return the provided object to decorate', function() {
                             expect(result).toBe(resultOfFunction);
                         });
@@ -957,6 +961,83 @@
                             expect(result.playListData.d2.src).toEqual("http://cdn.example.com/video3file");
                         });
                     });
+                    
+                    describe('_compilePlayList2 with no rootNode', function() {
+                        var copyList,
+                            result = {},
+                            resultOfFunction;
+
+                        beforeEach(function() {
+                            copyList = angular.copy(playlistData2);
+                            copyList.nodes[0].parents.push('n3');
+                            copyList.nodes[3].children.push('n0');
+                        });
+
+                        it('should raise an error',function(){
+                            expect(function(){
+                                C6PlaylistCtrl._compilePlayList2(copyList, result);
+                            }).toThrow('Unable to locate rootNode in playList');
+                        });
+
+                    });
+
+                    describe('_compilePlayList2 with node with rootNode attribute',
+                            function() {
+                        var copyList,
+                            result = {},
+                            resultOfFunction;
+
+                        beforeEach(function() {
+                            copyList = angular.copy(playlistData2);
+                            copyList.nodes[0].parents.push('n3');
+                            copyList.nodes[0].root = true;
+                            copyList.nodes[3].children.push('n0');
+                            C6PlaylistCtrl._compilePlayList2(copyList, result);
+                        });
+
+                        it('should use that as the rootNode',function(){
+                            result.rootNode.id = 'n0';
+                        });
+
+                    });
+
+                    describe('_compilePlayList2 with multiple rootNodes', function() {
+                        var copyList,
+                            result = {},
+                            resultOfFunction;
+
+                        beforeEach(function() {
+                            copyList = angular.copy(playlistData2);
+                        });
+
+                        afterEach(function(){
+                            result = {};
+                        });
+
+                        it('should not raise error for two nodes with no parents',function(){
+                            copyList.nodes[3].parents = [];
+                            expect(function(){
+                                C6PlaylistCtrl._compilePlayList2(copyList, result);
+                            }).not.toThrow();
+                        });
+
+                        it('should raise an error for two nodes with root attr',function(){
+                            copyList.nodes[0].parents.push('n3');
+                            copyList.nodes[0].root =  true;
+                            copyList.nodes[3].root =  true;
+                            expect(function(){
+                                C6PlaylistCtrl._compilePlayList2(copyList, result);
+                            }).toThrow('Nodes [n0,n3] cannot both be rootNodes!');
+                        });
+
+                        it('should not raise an error for mix of no parents, root attr',function(){
+                            copyList.nodes[3].root =  true;
+                            expect(function(){
+                                C6PlaylistCtrl._compilePlayList2(copyList, result);
+                            }).not.toThrow();
+                        });
+                    });
+
                 });
                 describe('loadPlayList(integration)', function() {
                     var loadSuccessSpy, loadErrorSpy, client1,client2,client3;

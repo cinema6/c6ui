@@ -688,7 +688,12 @@
 
                 for (i = 0; i < nodesLength; i++){
                     copy = angular.copy(playList.nodes[i]);
-                    if (copy.parents.length === 0){
+                    if ((copy.parents.length === 0) || (copy.root === true)){
+                        if ((output.rootNode && (output.rootNode.root === true)) &&
+                                (copy.root === true)){
+                            throw new Error('Nodes [' + output.rootNode.id + ',' + copy.id +
+                                    '] cannot both be rootNodes!');
+                        }
                         output.rootNode = copy;
                     }
 
@@ -700,6 +705,10 @@
                     output.playListDict[copy.id] = copy;
                     delete copy.children;
                     delete copy.parents;
+                }
+
+                if (output.rootNode === undefined){
+                    throw new Error('Unable to locate rootNode in playList');
                 }
 
                 return output;
