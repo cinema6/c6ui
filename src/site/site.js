@@ -147,6 +147,10 @@
                 return _private.session.request('transitionState', state);
             };
 
+            this.openExternalLink = function(url, target) {
+                _private.session.ping('openExternalLink', { url: url, target: target });
+            };
+
             /* @private */
 
             this._private = function() {
