@@ -4,9 +4,26 @@
     define(['browser/info'], function() {
         describe('c6BrowserInfo', function() {
             var c6BrowserInfo,
-                c6UserAgent;
+                c6BrowserInfoProvider,
+                c6UserAgent,
+                Modernizr,
+                $log,
+                $window,
+                $injector,
+                providerPrivate,
+                _private;
 
             beforeEach(function() {
+                Modernizr = {
+                    touch: 'touch',
+                    canvas: 'canvas',
+                    localstorage: 'localstorage'
+                };
+
+                $window = {
+                    Modernizr: Modernizr
+                };
+
                 c6UserAgent = {
                     app: {
                         name: null,
@@ -17,15 +34,25 @@
                         isIPod: function() { return false; },
                         isIPad: function() { return false; },
                         isIOS: function() { return this.isIPhone() || this.isIPod() || this.isIPad(); }
+                    },
+                    os: {
+                        name: null,
+                        version: null
                     }
                 };
 
-                module('c6.ui', function($provide) {
+                module('c6.ui', function($provide, _c6BrowserInfoProvider_) {
+                    $provide.value('$window', $window);
                     $provide.value('c6UserAgent', c6UserAgent);
+                    c6BrowserInfoProvider = _c6BrowserInfoProvider_;
+                    providerPrivate = _c6BrowserInfoProvider_._private();
                 });
 
-                inject(function(_c6BrowserInfo_) {
+                inject(function(_c6BrowserInfo_, _$log_, _$injector_) {
                     c6BrowserInfo = _c6BrowserInfo_;
+                    _private = _c6BrowserInfo_._private();
+                    $log = _$log_;
+                    $injector = _$injector_;
                 });
             });
 
@@ -33,137 +60,281 @@
                 expect(c6BrowserInfo).toBeDefined();
             });
 
+            describe('provider', function() {
+                describe('methods', function() {
+                    describe('@public', function() {
+                        describe('setModernizr(modernizr)', function() {
+                            var Modernizr;
+
+                            beforeEach(function() {
+                                Modernizr = {};
+                            });
+
+                            it('should set the private Modernizr property', function() {
+                                c6BrowserInfoProvider.setModernizr(Modernizr);
+
+                                expect(providerPrivate.Modernizr).toBe(Modernizr);
+                            });
+                        });
+                    });
+
+                    describe('@private', function() {
+                        describe('_private()', function() {
+                            it('should return the private variable', function() {
+                                expect(_private).toBeDefined();
+                            });
+                        });
+                    });
+                });
+
+                describe('getting modernizr', function() {
+                    beforeEach(function() {
+                        spyOn($log, 'error');
+                    });
+
+                    it('should log an error if modernizr cannot be found', function() {
+                        $window.Modernizr = undefined;
+
+                        c6BrowserInfo = $injector.invoke(c6BrowserInfoProvider.$get);
+
+                        expect($log.error).toHaveBeenCalledWith('Modernizr could not be found. Please make sure it is included or register it with c6BrowserInfoProvider.setModernizr()');
+                    });
+
+                    it('should not log an error if Modernizr can be found', function() {
+                        expect($log.error).not.toHaveBeenCalled();
+                    });
+                });
+            });
+
+            describe('properties', function() {
+                describe('profile', function() {
+                    it('should be set to the result of the generateProfile() method', function() {
+                        expect(angular.equals(c6BrowserInfo.profile, c6BrowserInfo.generateProfile())).toBe(true);
+                    });
+                });
+            });
+
             describe('methods', function() {
-                describe('generateProfile()', function() {
-                    var profile;
+                describe('_private', function() {
+                    describe('modernizr', function() {
+                        it('should return an explicitly set Modernizr first', function() {
+                            $window.Modernizr = {};
+                            providerPrivate.Modernizr = {};
 
-                    describe('on an iphone', function() {
-                        beforeEach(function() {
-                            c6UserAgent.app.name = 'safari';
-                            c6UserAgent.app.version = '6';
-                            c6UserAgent.device.isIPhone = function() { return true; };
-
-                            profile = c6BrowserInfo.generateProfile();
+                            expect(_private.modernizr()).toBe(providerPrivate.Modernizr);
                         });
 
-                        describe('inlineVid', function() {
-                            it('should be false', function() {
-                                expect(profile.inlineVid).toBe(false);
-                            });
-                        });
+                        it('should fallback to the window\'s modernizr', function() {
+                            $window.Modernizr = {};
 
-                        describe('multiPlayer', function() {
-                            it('should be false', function() {
-                                expect(profile.multiPlayer).toBe(false);
-                            });
-                        });
-
-                        describe('canvasVideo', function() {
-                            it('should be false', function() {
-                                expect(profile.canvasVideo).toBe(false);
-                            });
+                            expect(_private.modernizr()).toBe($window.Modernizr);
                         });
                     });
+                });
 
-                    describe('on an ipod', function() {
-                        beforeEach(function() {
-                            c6UserAgent.app.name = 'safari';
-                            c6UserAgent.app.version = '6';
-                            c6UserAgent.device.isIPod = function() { return true; };
-
-                            profile = c6BrowserInfo.generateProfile();
-                        });
-
-                        describe('inlineVid', function() {
-                            it('should be false', function() {
-                                expect(profile.inlineVid).toBe(false);
-                            });
-                        });
-
-                        describe('multiPlayer', function() {
-                            it('should be false', function() {
-                                expect(profile.multiPlayer).toBe(false);
-                            });
-                        });
-
-                        describe('canvasVideo', function() {
-                            it('should be false', function() {
-                                expect(profile.canvasVideo).toBe(false);
-                            });
+                describe('@private', function() {
+                    describe('_private()', function() {
+                        it('should return the _private object', function() {
+                            expect(_private).toBeDefined();
                         });
                     });
+                });
 
-                    describe('on an iPad', function() {
-                        beforeEach(function() {
-                            c6UserAgent.app.name = 'safari';
-                            c6UserAgent.app.version = '6';
-                            c6UserAgent.device.isIPad = function() { return true; };
+                describe('@public', function() {
+                    describe('generateProfile()', function() {
+                        var profile;
 
-                            profile = c6BrowserInfo.generateProfile();
-                        });
+                        describe('on an iphone', function() {
+                            beforeEach(function() {
+                                c6UserAgent.app.name = 'safari';
+                                c6UserAgent.app.version = '6';
+                                c6UserAgent.device.isIPhone = function() { return true; };
 
-                        describe('inlineVid', function() {
-                            it('should be true', function() {
-                                expect(profile.inlineVid).toBe(true);
+                                profile = c6BrowserInfo.generateProfile();
+                            });
+
+                            describe('inlineVideo', function() {
+                                it('should be false', function() {
+                                    expect(profile.inlineVideo).toBe(false);
+                                });
+                            });
+
+                            describe('multiPlayer', function() {
+                                it('should be false', function() {
+                                    expect(profile.multiPlayer).toBe(false);
+                                });
+                            });
+
+                            describe('canvasVideo', function() {
+                                it('should be false', function() {
+                                    expect(profile.canvasVideo).toBe(false);
+                                });
                             });
                         });
 
-                        describe('multiPlayer', function() {
-                            it('should be false', function() {
-                                expect(profile.multiPlayer).toBe(false);
+                        describe('on an ipod', function() {
+                            beforeEach(function() {
+                                c6UserAgent.app.name = 'safari';
+                                c6UserAgent.app.version = '6';
+                                c6UserAgent.device.isIPod = function() { return true; };
+
+                                profile = c6BrowserInfo.generateProfile();
+                            });
+
+                            describe('inlineVideo', function() {
+                                it('should be false', function() {
+                                    expect(profile.inlineVideo).toBe(false);
+                                });
+                            });
+
+                            describe('multiPlayer', function() {
+                                it('should be false', function() {
+                                    expect(profile.multiPlayer).toBe(false);
+                                });
+                            });
+
+                            describe('canvasVideo', function() {
+                                it('should be false', function() {
+                                    expect(profile.canvasVideo).toBe(false);
+                                });
                             });
                         });
 
-                        describe('canvasVideo', function() {
-                            it('should be false', function() {
-                                expect(profile.canvasVideo).toBe(false);
+                        describe('on an iPad', function() {
+                            beforeEach(function() {
+                                c6UserAgent.app.name = 'safari';
+                                c6UserAgent.app.version = '6';
+                                c6UserAgent.device.isIPad = function() { return true; };
+
+                                profile = c6BrowserInfo.generateProfile();
                             });
-                        });
-                    });
 
-                    describe('on a Kindle Fire', function() {
-                        beforeEach(function() {
-                            c6UserAgent.app.name = 'silk';
-
-                            profile = c6BrowserInfo.generateProfile();
-                        });
-
-                        describe('inlineVid', function() {
-                            it('should be false', function() {
-                                expect(profile.inlineVid).toBe(false);
+                            describe('inlineVideo', function() {
+                                it('should be true', function() {
+                                    expect(profile.inlineVideo).toBe(true);
+                                });
                             });
-                        });
 
-                        describe('multiPlayer', function() {
-                            it('should be false', function() {
-                                expect(profile.multiPlayer).toBe(false);
+                            describe('multiPlayer', function() {
+                                it('should be false', function() {
+                                    expect(profile.multiPlayer).toBe(false);
+                                });
                             });
-                        });
 
-                        describe('canvasVideo', function() {
-                            it('should be false', function() {
-                                expect(profile.canvasVideo).toBe(false);
-                            });
-                        });
-                    });
-
-                    describe('on desktop safari', function() {
-                        beforeEach(function() {
-                            c6UserAgent.app.name = 'safari';
-                            c6UserAgent.app.version = '7';
-
-                            profile = c6BrowserInfo.generateProfile();
-                        });
-
-                        describe('inlineVid', function() {
-                            it('should be true', function() {
-                                expect(profile.inlineVid).toBe(true);
+                            describe('canvasVideo', function() {
+                                it('should be false', function() {
+                                    expect(profile.canvasVideo).toBe(false);
+                                });
                             });
                         });
 
-                        describe('multiPlayer', function() {
-                            it('should be true', function() {
-                                expect(profile.multiPlayer).toBe(true);
+                        describe('on a Kindle Fire', function() {
+                            beforeEach(function() {
+                                c6UserAgent.app.name = 'silk';
+
+                                profile = c6BrowserInfo.generateProfile();
+                            });
+
+                            describe('inlineVideo', function() {
+                                it('should be false', function() {
+                                    expect(profile.inlineVideo).toBe(false);
+                                });
+                            });
+
+                            describe('multiPlayer', function() {
+                                it('should be false', function() {
+                                    expect(profile.multiPlayer).toBe(false);
+                                });
+                            });
+
+                            describe('canvasVideo', function() {
+                                it('should be false', function() {
+                                    expect(profile.canvasVideo).toBe(false);
+                                });
+                            });
+                        });
+
+                        describe('on desktop safari', function() {
+                            beforeEach(function() {
+                                c6UserAgent.app.name = 'safari';
+                                c6UserAgent.app.version = '7';
+                                c6UserAgent.os.name = 'mac';
+
+                                profile = c6BrowserInfo.generateProfile();
+                            });
+
+                            describe('inlineVideo', function() {
+                                it('should be true', function() {
+                                    expect(profile.inlineVideo).toBe(true);
+                                });
+                            });
+
+                            describe('multiPlayer', function() {
+                                it('should be true', function() {
+                                    expect(profile.multiPlayer).toBe(true);
+                                });
+                            });
+
+                            describe('canvasVideo', function() {
+                                describe('mac os 10.6 or less', function() {
+                                    beforeEach(function() {
+                                        c6UserAgent.os.version = '10.6.0';
+
+                                        profile = c6BrowserInfo.generateProfile();
+                                    });
+
+                                    it('should be true', function() {
+                                        expect(profile.canvasVideo).toBe(true);
+                                    });
+                                });
+
+                                describe('mac os 10.7 or 10.8', function() {
+                                    it('should be false', function() {
+                                        c6UserAgent.os.version = '10.7.2';
+                                        profile = c6BrowserInfo.generateProfile();
+
+                                        expect(profile.canvasVideo).toBe(false);
+
+                                        c6UserAgent.os.version = '10.8.7';
+                                        profile = c6BrowserInfo.generateProfile();
+
+                                        expect(profile.canvasVideo).toBe(false);
+                                    });
+                                });
+
+                                describe('mac os 10.9 or greater', function() {
+                                    it('should be true', function() {
+                                        c6UserAgent.os.version = '10.9.0';
+                                        profile = c6BrowserInfo.generateProfile();
+
+                                        expect(profile.canvasVideo).toBe(true);
+
+                                        c6UserAgent.os.version = '10.10.2';
+                                        profile = c6BrowserInfo.generateProfile();
+
+                                        expect(profile.canvasVideo).toBe(true);
+                                    });
+                                });
+                            });
+                        });
+
+                        describe('on everything', function() {
+                            describe('touch', function() {
+                                it('should use the Modernizr touch test', function() {
+                                    expect(profile.touch).toBe(Modernizr.touch);
+                                });
+                            });
+
+                            describe('canvas', function() {
+                                it('should use the Modernizr canvas test', function() {
+                                    expect(profile.canvas).toBe(Modernizr.canvas);
+                                });
+                            });
+
+                            describe('localstorage', function() {
+                                it('should use the Modernizr localstorage test', function() {
+                                    expect(profile.localstorage).toBe(Modernizr.localstorage);
+                                });
                             });
                         });
                     });
