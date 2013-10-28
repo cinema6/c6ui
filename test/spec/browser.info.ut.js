@@ -322,31 +322,23 @@
                                     });
                                 });
 
-                                describe('mac os 10.7 or 10.8', function() {
+                                describe('mac os 10.7 or greater', function() {
                                     it('should be false', function() {
                                         c6UserAgent.os.version = '10.7.2';
                                         profile = c6BrowserInfo.generateProfile();
-
                                         expect(profile.canvasVideo).toBe(false);
 
                                         c6UserAgent.os.version = '10.8.7';
                                         profile = c6BrowserInfo.generateProfile();
-
                                         expect(profile.canvasVideo).toBe(false);
-                                    });
-                                });
-
-                                describe('mac os 10.9 or greater', function() {
-                                    it('should be true', function() {
+                                        
                                         c6UserAgent.os.version = '10.9.0';
                                         profile = c6BrowserInfo.generateProfile();
-
-                                        expect(profile.canvasVideo).toBe(true);
+                                        expect(profile.canvasVideo).toBe(false);
 
                                         c6UserAgent.os.version = '10.10.2';
                                         profile = c6BrowserInfo.generateProfile();
-
-                                        expect(profile.canvasVideo).toBe(true);
+                                        expect(profile.canvasVideo).toBe(false);
                                     });
                                 });
                             });
