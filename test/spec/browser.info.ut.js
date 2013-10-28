@@ -17,7 +17,8 @@
                 Modernizr = {
                     touch: 'touch',
                     canvas: 'canvas',
-                    localstorage: 'localstorage'
+                    localstorage: 'localstorage',
+                    prefixed: jasmine.createSpy('modernizr prefixed').andReturn(function() {})
                 };
 
                 $window = {
@@ -144,10 +145,41 @@
                     describe('generateProfile()', function() {
                         var profile;
 
+                        describe('on an iOS device running < iOS 7', function() {
+                            beforeEach(function() {
+                                c6UserAgent.app.name = 'safari';
+                                c6UserAgent.os.name = 'ios';
+                                c6UserAgent.os.version = '6.1.4';
+                                c6UserAgent.device.isIOS = function() { return true; };
+
+                                profile = c6BrowserInfo.generateProfile();
+                            });
+
+                            it('should be false', function() {
+                                expect(profile.raf).toBe(false);
+                            });
+                        });
+
+                        describe('on an iOS device running greater than iOS 7', function() {
+                            beforeEach(function() {
+                                c6UserAgent.app.name = 'safari';
+                                c6UserAgent.os.name = 'ios';
+                                c6UserAgent.os.version = '8.1.2';
+                                c6UserAgent.device.isIOS = function() { return true; };
+
+                                profile = c6BrowserInfo.generateProfile();
+                            });
+
+                            it('should be true', function() {
+                                expect(profile.raf).toBe(true);
+                            });
+                        });
+
                         describe('on an iphone', function() {
                             beforeEach(function() {
                                 c6UserAgent.app.name = 'safari';
                                 c6UserAgent.app.version = '6';
+                                c6UserAgent.os.version = '6.1.2';
                                 c6UserAgent.device.isIPhone = function() { return true; };
 
                                 profile = c6BrowserInfo.generateProfile();
@@ -176,6 +208,7 @@
                             beforeEach(function() {
                                 c6UserAgent.app.name = 'safari';
                                 c6UserAgent.app.version = '6';
+                                c6UserAgent.os.version = '6.1.2';
                                 c6UserAgent.device.isIPod = function() { return true; };
 
                                 profile = c6BrowserInfo.generateProfile();
@@ -204,6 +237,7 @@
                             beforeEach(function() {
                                 c6UserAgent.app.name = 'safari';
                                 c6UserAgent.app.version = '6';
+                                c6UserAgent.os.version = '6.1.2';
                                 c6UserAgent.device.isIPad = function() { return true; };
 
                                 profile = c6BrowserInfo.generateProfile();
@@ -334,6 +368,16 @@
                             describe('localstorage', function() {
                                 it('should use the Modernizr localstorage test', function() {
                                     expect(profile.localstorage).toBe(Modernizr.localstorage);
+                                });
+                            });
+
+                            describe('raf', function() {
+                                it('should use the Modernizr prefixed test', function() {
+                                    expect(Modernizr.prefixed).toHaveBeenCalledWith('requestAnimationFrame', $window);
+                                });
+
+                                it('should cast the result to a bool', function() {
+                                    expect(profile.raf).toBe(true);
                                 });
                             });
                         });

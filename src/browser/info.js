@@ -60,6 +60,20 @@
 
                         profile.localstorage = Modernizr && Modernizr.localstorage;
 
+                        profile.raf = (function() {
+                            var majorIOSVersion;
+
+                            if (c6UserAgent.device.isIOS()) {
+                                majorIOSVersion = c6UserAgent.os.version.split('.')[0];
+
+                                if (majorIOSVersion < 7) {
+                                    return false;
+                                }
+                            }
+
+                            return Modernizr && !!Modernizr.prefixed('requestAnimationFrame', $window);
+                        })();
+
                         return profile;
                     };
 
