@@ -2,8 +2,7 @@
     'use strict';
 
     angular.module('c6.ui')
-        .directive('c6Playlist', ['$timeout', '$log',
-            function($timeout, $log){
+        .directive('c6Playlist', ['$timeout', '$log', function($timeout, $log){
             function linker(scope,element,attrs,ctlr){
                 var showPlayer = function(videoToShow) {
                     angular.forEach(scope.videos, function(video) {
@@ -12,6 +11,10 @@
                 },
                 myBuffers = scope.buffers,
                 myUrl     = scope.url,
+                setReady = function(){
+                    scope.model.ready = true;
+                    scope.$emit('c6PlayListReady',ctlr);
+                },
                 activatePlayerTimeout;
 
                 $log.info('c6PlayList is linked, scope.id=' + scope.$id +
@@ -23,9 +26,9 @@
                     throw new SyntaxError('c6PlayList requires an id attribute');
                 }
 
-                if (!myUrl) {
-                    throw new SyntaxError('c6PlayList requires an x-url attribute');
-                }
+//                if (!myUrl) {
+//                    throw new SyntaxError('c6PlayList requires an x-url attribute');
+//                }
 
                 if (!myBuffers) {
                     $log.warn('No x-buffers attribute found, default to 1');
@@ -45,23 +48,27 @@
                     scope.playerBuffers.push('buffer' + i.toString());
                 }
 
-                scope.loadPlayList(
-                    {
-                        id                   : attrs.id,
-                        rqsUrl               : myUrl,
-                        videoSrcUrlFormatter : scope.urlFormatter
-                    },
-                    function(err){
-                        if (err){
-                            $log.error('loadPlayList Failed: ' + err.message);
-                            return;
+                if (myUrl){
+                    scope.loadPlayList(
+                        {
+                            id                   : attrs.id,
+                            rqsUrl               : myUrl,
+                            videoSrcUrlFormatter : scope.urlFormatter
+                        })
+                    .then(function(){
+                            $log.info('loadPlayList succeeded.');
+                            if (scope.model.clients.length === myBuffers){
+                                setReady();
+                            }
+                        },
+                        function(err){
+                            if (err){
+                                $log.error('loadPlayList Failed: ' + err.message);
+                                return;
+                            }
                         }
-
-                        if (scope.model.clients.length === myBuffers){
-                            scope.setReady();
-                        }
-                    }
-                );
+                    );
+                }
 
                 scope.$on('c6video-ready',function(evt,video){
                     $log.info('New video: ' + video.id);
@@ -95,8 +102,8 @@
                     });
 
                     if (scope.model.clients.length === myBuffers){
-                        if (scope.model.playList !== null){
-                            scope.setReady();
+                        if ((!myUrl) || (scope.model.rootNode !== null)){
+                            setReady();
                         }
                     }
                 });
@@ -244,8 +251,9 @@
             };
         }])
 
-        .controller('C6PlaylistController',['$scope','$log','$http','c6EventEmitter',
-                                            function($scope,$log,$http,c6EventEmitter){
+        .controller('C6PlaylistController',['$scope','$log','$http','$q',
+            'c6EventEmitter',
+            function($scope,$log,$http,$q,c6EventEmitter){
             $log.log('Create c6PlayListCtlr: scope.id=' + $scope.$id);
 
             // Turn me into an emitter
@@ -254,7 +262,7 @@
             // Our model
             var model = {
                 id               : null,
-                playList         : null,
+                rootNode         : null,
                 playListData     : null,
                 playListDict     : null,
                 currentNode      : null,
@@ -267,26 +275,27 @@
 
             /*****************************************************
              *
-             * Scope Decoration
+             * Public Interface
              *
-             * Data and methods for the PlayList Directive
-             * which creates a private scope when instantiating
-             * the PlayList Controller.
              */
 
-            $scope.model = model;
-
-            $scope.setReady = function(){
-                model.ready = true;
-                $scope.$emit('c6PlayListReady',self);
-            };
-
-            $scope.loadPlayList = function(params, callback){
+            this.loadPlayList = function(params ){
                 var id      = params.id,
                     rqsUrl  = params.rqsUrl,
                     urlFunc = params.videoSrcUrlFormatter,
-                    req;
+                    req,
+                    deferred = $q.defer();
+
                 $log.log('Loading playlist: ' + id);
+                self.emit('beginListLoad',null,id,rqsUrl);
+                model.rootNode         = null;
+                model.playListData     = null;
+                model.playListDict     = null;
+                model.currentNode      = null;
+                model.currentClient    = null;
+                model.clients.forEach(function(client){
+                    self._setClientWithNode(client,null);
+                });
                 model.id = id;
                 req = $http({method: 'GET', url: (rqsUrl)});
 
@@ -294,78 +303,25 @@
 
                 req.success(function(data/*,status,headers,config*/){
                     $log.info('PlayList request succeeded');
-                    self._compilePlayList( data, model, urlFunc );
-                    callback(null);
-                    return;
+                    if (data.version === '2.0'){
+                        self._compilePlayList2( data, model, urlFunc );
+                    } else{
+                        self._compilePlayList( data, model, urlFunc );
+                    }
+                    deferred.resolve(id);
                 });
 
                 req.error(function(data,status/*,headers,config*/){
                     $log.error('PlayList request fails: ' + status);
-                    callback( {
+                    var err = {
                         message : 'Failed with: ' + status,
                         statusCode : status
-                    });
+                    };
+                    deferred.reject(err);
                 });
+
+                return deferred.promise;
             };
-
-
-            $scope.addNodeClient = function(clientId){
-                var result = {
-                    id  : clientId,
-                    active : false,
-                    startTime : 0,
-                    node : {},
-                    data : {},
-
-                    clear : function(){
-                        this.active = false;
-                        this.startTime = 0;
-                        this.node = {};
-                        this.data = {};
-                    },
-
-                    isTerminal : function() {
-                        if ((this.node.branches) && (this.node.branches.length > 0)){
-                            return false;
-                        }
-                        return true;
-                    },
-
-                    getChildNodeByName : function(name){
-                        var result = null;
-                        if (this.node){
-                            angular.forEach(this.node.branches,function(nd){
-                                if ((result === null) && (nd.name === name)){
-                                    result = nd;
-                                }
-                            });
-                        }
-                        return result;
-                    },
-
-                    toString : function(){
-                        return 'NC [' + this.id + '][' +
-                            ((this.node.name === undefined) ? 'null' : this.node.name) + ']';
-                    }
-                };
-                $log.info('Add client: ' + result);
-                model.clients.push(result);
-
-                model.cli[clientId] = result;
-
-                return result;
-            };
-
-            /*
-             * Scope Decoration  -- End
-             *****************************************************/
-
-
-            /*****************************************************
-             *
-             * Public interace
-             *
-             */
 
             this.id            = function() { return model.id;            };
 
@@ -380,28 +336,36 @@
                 return model.currentNode && model.currentNode.id;
             };
 
+            this.rootNodeId = function(){
+                return model.rootNode && model.rootNode.id;
+            };
+
             this.getCurrentBranches= function(){
-                var currentBranches = model.currentNode.branches, result = [];
+                var currentBranches = model.currentNode.branches, result = [], nd;
                 for (var i = 0; i < currentBranches.length; i++){
-                    result.push({
-                        id   : currentBranches[i].id,
-                        name : currentBranches[i].name
-                    });
+                    nd = model.playListDict[currentBranches[i]];
+                    if (nd){
+                        result.push({
+                            id   : nd.id,
+                            name : nd.name
+                        });
+                    }
                 }
                 return result;
             };
 
             this.getBranchesForNode = function(nodeId){
-                var nd = model.playListDict[nodeId], branches, result;
+                var nd = model.playListDict[nodeId], branches, result, bnd;
                 if (!nd) {
                     throw new Error('Invalid nodeId [' + nodeId + ']');
                 }
                 result = [];
                 branches = nd.branches;
                 for (var i = 0; i < branches.length; i++){
+                    bnd = model.playListDict[branches[i]];
                     result.push({
-                        id   : branches[i].id,
-                        name : branches[i].name
+                        id   : bnd.id,
+                        name : bnd.name
                     });
                 }
                 return result;
@@ -409,23 +373,12 @@
 
             this.getDataForNode = function(nodeId) {
                 var node = model.playListDict[nodeId],
-                    data = model.playListData[node.name],
+                    data = model.playListData[node.data],
                     record = angular.copy(data);
 
                 record.id       = node.id;
                 record.name     = node.name;
-                record.siblings = [];
-                if (node.parent){
-                    record.parentId = node.parent.id;
-                    angular.forEach(node.parent.branches,function(branch){
-                        if (branch.id !== record.id){
-                            record.siblings.push({
-                                id   : branch.id,
-                                name : branch.name
-                            });
-                        }
-                    });
-                }
+                record.branches = node.branches;
 
                 return record;
             };
@@ -547,7 +500,7 @@
             };
 
             this.start = function(){
-                if (model.playList === null){
+                if (model.rootNode === null){
                     $log.error('Must load a playList before starting');
                     return this;
                 }
@@ -556,9 +509,9 @@
                     return this;
                 }
 
-                model.currentNode   = model.playList;
+                model.currentNode   = model.rootNode;
                 model.currentClient = model.clients[0];
-                this.load(model.playList.id, 0, true);
+                this.load(model.rootNode.id, 0, true);
             };
 
             this.stop = function() {
@@ -569,11 +522,70 @@
              * Public Interface -- End
              *****************************************************/
 
+            /*****************************************************
+             *
+             * Scope Decoration
+             *
+             * Data and methods for the PlayList Directive
+             * which creates a private scope when instantiating
+             * the PlayList Controller.
+             */
+
+            $scope.model = model;
+
+            $scope.loadPlayList = this.loadPlayList;
+
+            $scope.addNodeClient = function(clientId){
+                var result = {
+                    id  : clientId,
+                    active : false,
+                    startTime : 0,
+                    node : {},
+                    data : {},
+
+                    clear : function(){
+                        this.active = false;
+                        this.startTime = 0;
+                        this.node = {};
+                        this.data = {};
+                    },
+
+                    isTerminal : function() {
+                        if ((this.node.branches) && (this.node.branches.length > 0)){
+                            return false;
+                        }
+                        return true;
+                    },
+
+                    toString : function(){
+                        return 'NC [' + this.id + '][' +
+                            ((this.node.name === undefined) ? 'null' : this.node.name) + ']';
+                    }
+                };
+                $log.info('Add client: ' + result);
+                model.clients.push(result);
+
+                model.cli[clientId] = result;
+
+                return result;
+            };
+
+            /*
+             * Scope Decoration  -- End
+             *****************************************************/
+
+
+            /*****************************************************
+             *
+             * Private Methods
+             *
+             */
+
             this._mapNodesToClients = function(){
                 var self         = this,
                     clients      = [],
                     nodes        = model.currentClient.node.branches.concat(),
-                    client;
+                    node, client;
 
                 angular.forEach(model.clients,function(v){
                     if (v !== model.currentClient) {
@@ -597,11 +609,12 @@
                     // node (and ie loaded its video) we can keep it there
                     var matched = false;
                     for (var j = 0; j < nodes.length; j++) {
-                        $log.info('eval node:' + nodes[j].name);
-                        if ((matched === false) && (clients[i].node.name === nodes[j].name)) {
-                            $log.info('Refresh: ' + clients[i] + ', with' + nodes[j]);
+                        node = model.playListDict[nodes[j]];
+                        $log.info('eval node:' + node.name);
+                        if ((matched === false) && (clients[i].node.name === node.name)) {
+                            $log.info('Refresh: ' + clients[i] + ', with' + node);
                             clients[i].active = false;
-                            clients[i].node = nodes[j];
+                            clients[i].node = node;
                             clients.splice(i--,1);
                             nodes.splice(j--,1);
                             matched = true;
@@ -614,7 +627,8 @@
                     return;
                 }
 
-                angular.forEach(nodes, function(node){
+                angular.forEach(nodes, function(nodeId){
+                    node = model.playListDict[nodeId];
                     client = clients.shift();
                     if (!client) {
                         $log.info('no more clients to map!');
@@ -638,7 +652,66 @@
                     node = {};
                 }
                 client.node = node;
-                client.data = (node.name) ? model.playListData[node.name] : {};
+                client.data = (node.data) ? model.playListData[node.data] : {};
+            };
+
+            this._compilePlayList2 = function(playList, output, urlFunc){
+                if (!output){
+                    output = {};
+                }
+                output.maxBranches  = 0;
+                output.playListDict = {};
+                output.playListData = {};
+
+                var i = 0, j = 0, dataLength = playList.data.length,
+                    nodesLength = playList.nodes.length, copy;
+
+                for (i = 0; i < dataLength; i++){
+                    copy = angular.copy(playList.data[i]);
+                    if ((urlFunc) && (playList.data[i].src)){
+                        if (angular.isArray(playList.data[i].src)){
+                            copy.src = [];
+                            for (j = 0; j < playList.data[i].src.length; j++){
+                                var source = playList.data[i].src[j], src = {};
+                                if (source.type){
+                                    src.type = source.type;
+                                }
+                                src.src = urlFunc(source.src);
+                                copy.src.push(src);
+                            }
+                        } else {
+                            copy.src = urlFunc(playList.data[i].src);
+                        }
+                    }
+                    output.playListData[copy.id]=copy;
+                }
+
+                for (i = 0; i < nodesLength; i++){
+                    copy = angular.copy(playList.nodes[i]);
+                    if ((copy.parents.length === 0) || (copy.root === true)){
+                        if ((output.rootNode && (output.rootNode.root === true)) &&
+                                (copy.root === true)){
+                            throw new Error('Nodes [' + output.rootNode.id + ',' + copy.id +
+                                    '] cannot both be rootNodes!');
+                        }
+                        output.rootNode = copy;
+                    }
+
+                    copy.branches = copy.children;
+
+                    if (copy.branches.length > output.maxBranches){
+                        output.maxBranches = copy.branches.length;
+                    }
+                    output.playListDict[copy.id] = copy;
+                    delete copy.children;
+                    delete copy.parents;
+                }
+
+                if (output.rootNode === undefined){
+                    throw new Error('Unable to locate rootNode in playList');
+                }
+
+                return output;
             };
 
             this._compilePlayList = function(playList, output, urlFunc){
@@ -647,12 +720,42 @@
                 }
                 output.maxBranches     = 0;
                 output.playListDict    = {};
-                var id = 0;
-                output.playList = (function parseTree(currentNode,parentNode) {
+                var id = 0, tmpData  = {}, compiled ;
+
+                output.playListData = {};
+                angular.forEach(playList.data,function(data,key){
+                    var copy = {};
+                    angular.forEach(data,function(val,name){
+                        if ((name === 'src') && (urlFunc !== undefined)){
+                            if (angular.isArray(val)){
+                                copy.src = [];
+                                angular.forEach(val,function(source){
+                                    var src = {};
+                                    if (source.type){
+                                        src.type = source.type;
+                                    }
+                                    src.src = urlFunc(source.src);
+                                    copy.src.push(src);
+                                });
+                            } else {
+                                copy.src = urlFunc(val);
+                            }
+                        } else {
+                            copy[name] = val;
+                        }
+                    });
+                    copy.id   = 'd' + id++;
+                    copy.name = key;
+                    tmpData[key] = copy;
+                    output.playListData[copy.id]=copy;
+                });
+
+                id = 0;
+                compiled = (function parseTree(currentNode,parentNode) {
                     var newNode = {
                             'id'        :   'n' + id++,
                             'name'      :   currentNode.name,
-                            'parent'    :   parentNode,
+                            'data'      :   tmpData[currentNode.name].id,
                             'branches'  :   [],
                             'toString'  : function() { return this.id + ':' + this.name ; }
                         },
@@ -674,39 +777,27 @@
                     return newNode;
                 }(playList.tree,null));
 
-                if (!urlFunc){
-                    // No url transform function, go ahead and return
-                    output.playListData   = playList.data;
-                    return output;
-                }
-
-                output.playListData = {};
-                angular.forEach(playList.data,function(data,key){
-                    var copy = {};
-                    angular.forEach(data,function(val,name){
-                        if (name === 'src'){
-                            if (angular.isArray(val)){
-                                copy.src = [];
-                                angular.forEach(val,function(source){
-                                    var src = {};
-                                    if (source.type){
-                                        src.type = source.type;
-                                    }
-                                    src.src = urlFunc(source.src);
-                                    copy.src.push(src);
-                                });
-                            } else {
-                                copy.src = urlFunc(val);
-                            }
-                        } else {
-                            copy[name] = val;
-                        }
-                    });
-                    output.playListData[key]=copy;
+                // Convert storage of branches from objects to ids
+                angular.forEach(output.playListDict,function(node/*,nodeId*/){
+                    node.branchIds = [];
+                    for (var i = 0; i < node.branches.length; i++){
+                        node.branchIds.push(node.branches[i].id);
+                    }
+                    node.branches = node.branchIds;
+                    delete node.branchIds;
                 });
+
+                output.rootNode = compiled;
+
+                tmpData = undefined;
 
                 return output;
             };
+
+            /*
+             * Private Methods  -- End
+             *****************************************************/
+
 
         }]);
 })();

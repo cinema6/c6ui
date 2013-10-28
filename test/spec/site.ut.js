@@ -244,6 +244,23 @@
                     });
                 });
 
+                describe('getSiteUrl()', function() {
+                    it('should make a request to the site', function() {
+                        site.getSiteUrl();
+                        expect(session.request).toHaveBeenCalledWith('currentUrl');
+                    });
+                });
+
+                describe('shareUrl(data)', function() {
+                    it('should ping the site with any data passed in', function() {
+                        var data = {};
+
+                        site.shareUrl(data);
+
+                        expect(session.ping).toHaveBeenCalledWith('shareUrl', data);
+                    });
+                });
+
                 describe('requestTransitionState(toState)', function() {
                     var result;
 
@@ -269,6 +286,21 @@
                         site.requestBar(false);
 
                         expect(session.ping).toHaveBeenCalledWith('requestBar', false);
+                    });
+                });
+
+                describe('openExternalLink(url, target)', function() {
+                    it('should ping the site with the url and target', function() {
+                        var pingArgs;
+
+                        site.openExternalLink('http://www.apple.com', '_blank');
+                        pingArgs = session.ping.mostRecentCall.args;
+
+                        expect(session.ping).toHaveBeenCalled();
+
+                        expect(pingArgs[0]).toBe('openExternalLink');
+                        expect(pingArgs[1].url).toBe('http://www.apple.com');
+                        expect(pingArgs[1].target).toBe('_blank');
                     });
                 });
             });

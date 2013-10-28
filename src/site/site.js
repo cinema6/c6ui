@@ -131,12 +131,24 @@
                 return deferred.promise;
             };
 
+            this.getSiteUrl = function() {
+                return _private.session.request('currentUrl');
+            };
+
+            this.shareUrl = function(data) {
+                _private.session.ping('shareUrl', data);
+            };
+
             this.requestBar = function(show) {
                 _private.session.ping('requestBar', show);
             };
 
             this.requestTransitionState = function(state) {
                 return _private.session.request('transitionState', state);
+            };
+
+            this.openExternalLink = function(url, target) {
+                _private.session.ping('openExternalLink', { url: url, target: target });
             };
 
             /* @private */

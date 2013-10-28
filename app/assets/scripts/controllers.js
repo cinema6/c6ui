@@ -197,6 +197,10 @@
 					videos[key].player.volume = percent / 100;
 				}
 
+                c6Sfx.getSounds().forEach(function(sfx) {
+                    sfx.volume = (percent / 100);
+                });
+
 				$timeout(function() { self.ControlsController.volumeChange(percent); }, 0);
 			};
 
