@@ -297,10 +297,7 @@
     };
     
     define(['browser/user_agent'], function(){
-        var $window = {}, c6UserAgent,
-            modernizr = {
-                touch: {}
-            };
+        var $window = {}, c6UserAgent;
 
         Object.keys(userAgent).forEach(function($os){
             Object.keys(userAgent[$os]).forEach(function($browser){
@@ -308,7 +305,6 @@
                     $window.navigator = {};
                     beforeEach(module('c6.ui',['$provide',function($provide){
                         $provide.value('$window',$window);
-                        $provide.value('modernizr',modernizr);
                     }]));
 
                     describe('with userAgent ' + $os + '.' + $browser,function(){

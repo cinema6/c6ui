@@ -2,8 +2,7 @@
     'use strict';
 
     angular.module('c6.ui')
-        .provider('c6BrowserInfo', ['$injector',
-                            function($injector) {
+        .provider('c6BrowserInfo', [function() {
             var providerPrivate = {
                     Modernizr: undefined
                 };
