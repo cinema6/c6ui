@@ -12,220 +12,227 @@
                 safeApply = function(func) {
                     return $rootScope.$$phase ? func() : $rootScope.$apply(func);
                 },
-                c6SfxSvc = this,
-                C6Sfx = function(config, context) {
-                    var self = this,
-                        buffer,
-                        volume = 1,
-                        players = [],
-                        activeSfx = [],
-                        createPlayerInstance = function() {
-                            $log.log('creating instance');
-                            var instance = new $window.Audio(self.src);
-                            players.push(instance);
-                            return instance;
+                c6SfxSvc = this, C6Sfx;
+
+            if (context) {
+                if (context.createGain === undefined){
+                    context.createGain = context.createGainNode;
+                }
+            }
+
+            C6Sfx = function(config, context) {
+                var self = this,
+                    buffer,
+                    volume = 1,
+                    players = [],
+                    activeSfx = [],
+                    createPlayerInstance = function() {
+                        $log.log('creating instance');
+                        var instance = new $window.Audio(self.src);
+                        players.push(instance);
+                        return instance;
+                    };
+
+                this.name = config.name;
+                this.src = (function(src) {
+                    var srcArray = src.split('.'),
+                        potentialExtension = srcArray[srcArray.length - 1],
+                        hasValidExtension = (c6SfxSvc.validFormats.indexOf(c6SfxSvc.formatForExtension(potentialExtension)) !== -1);
+
+                    return hasValidExtension ? src : src + '.' + c6SfxSvc.extensionForFormat(c6SfxSvc.bestFormat());
+                })(config.src);
+                this.isLoaded = false;
+
+                this.load = function () {
+                    var deferred = $q.defer(),
+                        me = this;
+
+                    function resolvePromise(event) {
+                        $rootScope.$apply(function() {
+                            deferred.resolve(me);
+                            me.isLoaded = true;
+                        });
+
+                        event.target.removeEventListener('canplaythrough', resolvePromise, false);
+                    }
+
+                    if (context) {
+                        $http({
+                            method: 'GET',
+                            url: this.src,
+                            responseType: 'arraybuffer'
+                        }).then(function(response) {
+                            context.decodeAudioData(response.data, function(buff) {
+                                buffer = buff;
+                                safeApply(function() {
+                                    deferred.resolve(me);
+                                    me.isLoaded = true;
+                                });
+                            });
+                        });
+                    } else {
+                        players.length = 0;
+
+                        for (var i = 0; i < 3; i++) {
+                            createPlayerInstance();
+                        }
+
+                        players[0].addEventListener('canplaythrough', resolvePromise, false);
+                    }
+
+                    return deferred.promise;
+                };
+
+                this.play = function(config) {
+                    if (context) {
+                        this.play = function(config) {
+                            var source = context.createBufferSource(),
+                                gainNode = context.createGain(),
+                                sfx = {
+                                    source: source,
+                                    gainNode: gainNode
+                                };
+
+                            gainNode.gain.value = volume;
+
+                            source.buffer = buffer;
+                            source.loop = (config && config.loop) || false;
+                            source.onended = function() {
+                                activeSfx.splice(activeSfx.indexOf(sfx), 1);
+                            };
+
+                            source.connect(gainNode);
+                            gainNode.connect(context.destination);
+
+                            if (source.start) {
+                                source.start(0);
+                            } else if (source.noteOn) {
+                                source.noteOn(0);
+                            }
+
+                            activeSfx.push(sfx);
                         };
+                        this.play(config);
+                    } else {
+                        this.play = function(config) {
+                            var goodPlayer;
 
-                    this.name = config.name;
-                    this.src = (function(src) {
-                        var srcArray = src.split('.'),
-                            potentialExtension = srcArray[srcArray.length - 1],
-                            hasValidExtension = (c6SfxSvc.validFormats.indexOf(c6SfxSvc.formatForExtension(potentialExtension)) !== -1);
-
-                        return hasValidExtension ? src : src + '.' + c6SfxSvc.extensionForFormat(c6SfxSvc.bestFormat());
-                    })(config.src);
-                    this.isLoaded = false;
-
-                    this.load = function () {
-                        var deferred = $q.defer(),
-                            me = this;
-
-                        function resolvePromise(event) {
-                            $rootScope.$apply(function() {
-                                deferred.resolve(me);
-                                me.isLoaded = true;
-                            });
-
-                            event.target.removeEventListener('canplaythrough', resolvePromise, false);
-                        }
-
-                        if (context) {
-                            $http({
-                                method: 'GET',
-                                url: this.src,
-                                responseType: 'arraybuffer'
-                            }).then(function(response) {
-                                context.decodeAudioData(response.data, function(buff) {
-                                    buffer = buff;
-                                    safeApply(function() {
-                                        deferred.resolve(me);
-                                        me.isLoaded = true;
-                                    });
-                                });
-                            });
-                        } else {
-                            players.length = 0;
-
-                            for (var i = 0; i < 3; i++) {
-                                createPlayerInstance();
-                            }
-
-                            players[0].addEventListener('canplaythrough', resolvePromise, false);
-                        }
-
-                        return deferred.promise;
-                    };
-
-                    this.play = function(config) {
-                        if (context) {
-                            this.play = function(config) {
-                                var source = context.createBufferSource(),
-                                    gainNode = context.createGain(),
-                                    sfx = {
-                                        source: source,
-                                        gainNode: gainNode
-                                    };
-
-                                gainNode.gain.value = volume;
-
-                                source.buffer = buffer;
-                                source.loop = (config && config.loop) || false;
-                                source.onended = function() {
-                                    activeSfx.splice(activeSfx.indexOf(sfx), 1);
-                                };
-
-                                source.connect(gainNode);
-                                gainNode.connect(context.destination);
-
-                                if (source.start) {
-                                    source.start(0);
-                                } else if (source.noteOn) {
-                                    source.noteOn(0);
+                            players.some(function(player, index) {
+                                if (player.paused || player.ended) {
+                                    player.currentTime = 0;
+                                    goodPlayer = player;
+                                    return true;
+                                } else if (index === players.length - 1) {
+                                    goodPlayer = createPlayerInstance();
                                 }
+                            });
 
-                                activeSfx.push(sfx);
-                            };
-                            this.play(config);
-                        } else {
-                            this.play = function(config) {
-                                var goodPlayer;
+                            goodPlayer.volume = volume;
+                            goodPlayer.loop = (config && config.loop) || false;
+                            goodPlayer.play();
+                        };
+                        this.play(config);
+                    }
+                };
 
-                                players.some(function(player, index) {
-                                    if (player.paused || player.ended) {
-                                        player.currentTime = 0;
-                                        goodPlayer = player;
-                                        return true;
-                                    } else if (index === players.length - 1) {
-                                        goodPlayer = createPlayerInstance();
-                                    }
-                                });
+                this.stop = function() {
+                    if (context) {
+                        this.stop = function() {
+                            activeSfx.forEach(function(sfx) {
+                                if (sfx.source.stop) {
+                                    sfx.source.stop(0);
+                                } else if (sfx.source.noteOff) {
+                                    sfx.source.noteOff(0);
+                                }
+                            });
+                            activeSfx.length = 0;
+                        };
+                        this.stop();
+                    } else {
+                        this.stop = function() {
+                            players.forEach(function(player) {
+                                if (!player.paused && !player.ended) {
+                                    player.pause();
+                                }
+                            });
+                        };
+                        this.stop();
+                    }
+                };
 
-                                goodPlayer.volume = volume;
-                                goodPlayer.loop = (config && config.loop) || false;
-                                goodPlayer.play();
-                            };
-                            this.play(config);
+                this.setVolumeToValueOverTime = function(volume, time) {
+                    var self = this,
+                        deferred = $q.defer(),
+                        startTime,
+                        endTime,
+                        startVolume = this.volume;
+
+                    function setVolume() {
+                        var currentTime = new $window.Date().getTime(),
+                            percentThrough;
+
+                        if (!startTime) {
+                            startTime = currentTime;
+                            endTime = startTime + time;
                         }
-                    };
 
-                    this.stop = function() {
-                        if (context) {
-                            this.stop = function() {
-                                activeSfx.forEach(function(sfx) {
-                                    if (sfx.source.stop) {
-                                        sfx.source.stop(0);
-                                    } else if (sfx.source.noteOff) {
-                                        sfx.source.noteOff(0);
-                                    }
-                                });
-                                activeSfx.length = 0;
-                            };
-                            this.stop();
-                        } else {
-                            this.stop = function() {
-                                players.forEach(function(player) {
-                                    if (!player.paused && !player.ended) {
-                                        player.pause();
-                                    }
-                                });
-                            };
-                            this.stop();
-                        }
-                    };
+                        percentThrough = (currentTime - startTime) / time;
 
-                    this.setVolumeToValueOverTime = function(volume, time) {
-                        var self = this,
-                            deferred = $q.defer(),
-                            startTime,
-                            endTime,
-                            startVolume = this.volume;
-
-                        function setVolume() {
-                            var currentTime = new $window.Date().getTime(),
-                                percentThrough;
-
-                            if (!startTime) {
-                                startTime = currentTime;
-                                endTime = startTime + time;
-                            }
-
-                            percentThrough = (currentTime - startTime) / time;
-
+                        if (currentTime <= endTime) {
                             self.volume = startVolume - (percentThrough * (startVolume - volume));
+                            $timeout(setVolume, 1, false);
+                        } else {
+                            self.volume = volume;
+                            $rootScope.$apply(function() {
+                                deferred.resolve(self);
+                            });
+                        }
+                    }
 
-                            if (currentTime <= endTime) {
-                                $timeout(setVolume, 1, false);
-                            } else {
-                                $rootScope.$apply(function() {
-                                    deferred.resolve(self);
+                    setVolume();
+
+                    return deferred.promise;
+                };
+
+                Object.defineProperty(this, 'volume', {
+                    set: function(newVolume) {
+                        if (context) {
+                            this.set = function(newVolume) {
+                                activeSfx.forEach(function(sfx) {
+                                    sfx.gainNode.gain.value = newVolume;
                                 });
-                            }
+                                volume = newVolume;
+                                return volume;
+                            };
+                        } else {
+                            this.set = function(newVolume) {
+                                players.forEach(function(player) {
+                                    player.volume = newVolume;
+                                });
+                                volume = newVolume;
+                            };
                         }
+                        return this.set(newVolume);
+                    },
+                    get: function() {
+                        return volume;
+                    }
+                });
 
-                        setVolume();
+                // Disable if we don't have the required browser support
+                if ((!context && c6SfxSvc.isMobileSafari) || !$window.Audio) {
+                    var noop = angular.noop,
+                        isFunction = angular.isFunction;
 
-                        return deferred.promise;
-                    };
-
-                    Object.defineProperty(this, 'volume', {
-                        set: function(newVolume) {
-                            if (context) {
-                                this.set = function(newVolume) {
-                                    activeSfx.forEach(function(sfx) {
-                                        sfx.gainNode.gain.value = newVolume;
-                                    });
-                                    volume = newVolume;
-                                    return volume;
-                                };
-                            } else {
-                                this.set = function(newVolume) {
-                                    players.forEach(function(player) {
-                                        player.volume = newVolume;
-                                    });
-                                    volume = newVolume;
-                                };
-                            }
-                            return this.set(newVolume);
-                        },
-                        get: function() {
-                            return volume;
-                        }
-                    });
-
-                    // Disable if we don't have the required browser support
-                    if ((!context && c6SfxSvc.isMobileSafari) || !$window.Audio) {
-                        var noop = angular.noop,
-                            isFunction = angular.isFunction;
-
-                        for (var key in this) {
-                            if (this.hasOwnProperty(key)) {
-                                if (isFunction(this[key])) {
-                                    this[key] = noop;
-                                }
+                    for (var key in this) {
+                        if (this.hasOwnProperty(key)) {
+                            if (isFunction(this[key])) {
+                                this[key] = noop;
                             }
                         }
                     }
-                };
+                }
+            };
 
             this.loadSounds = function(configs) {
                 var promises = [];
