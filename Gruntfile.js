@@ -10,8 +10,28 @@ module.exports = function (grunt) {
     var initProps = {
             src         : path.join(__dirname,'src'),
             dist        : path.join(__dirname,'dist'),
-            app         : path.join(__dirname,'app')
+            app         : path.join(__dirname,'app'),
+            buildDate   : new Date()
         };
+    initProps.version     = function(){
+        return this.gitLastCommit.commit;
+    };
+
+    initProps.versionFull     = function(){
+        return this.gitLastCommit.commit + ', ' + this.gitLastCommit.date;
+    };
+
+    initProps.copyNotice = function(){
+        return '/*\n' +
+            ' * Copyright © Cinema6 2013 All Rights Reserved. No part of this library\n' +
+            ' * may be reproduced without Cinema6\'s express consent.\n' +
+            ' *\n' +
+            ' * Build Version: ' +  this.gitLastCommit.commit + ', ' +
+                                    this.gitLastCommit.date + '\n' +
+            ' * Build Date: ' +  this.buildDate.toString() + '\n' +
+            ' */\n' ;
+    };
+
 
     grunt.initConfig({
         settings : initProps,
@@ -74,6 +94,14 @@ module.exports = function (grunt) {
                 }
             }
         },
+        sed: {
+            copyright: {
+                pattern: '//%COPY_RIGHT%',
+                replacement: '<%= settings.copyNotice() %>',
+                path: '<%= settings.dist %>',
+                recursive: true
+            }
+        },
         jshint: {
             options: {
                 jshintrc: 'jshint.json'
@@ -106,8 +134,10 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build',function(){
         grunt.task.run('test');
+        grunt.task.run('gitLastCommit');
         grunt.task.run('clean');
         grunt.task.run('copy:dist');
+        grunt.task.run('sed');
     });
 
     grunt.registerTask('server', function() {
@@ -117,4 +147,40 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('default', ['build']);
+
+    grunt.registerTask('gitLastCommit','Get a version number using git commit', function(){
+        var settings = grunt.config.get('settings'),
+            done = this.async(),
+            handleVersionData = function(data){
+                if ((data.commit === undefined) || (data.date === undefined)){
+                    grunt.log.errorlns('Failed to parse version.');
+                    return done(false);
+                }
+                data.date = new Date(data.date * 1000);
+                settings.gitLastCommit = data;
+                grunt.log.writelns('Last git Commit: ' +
+                    JSON.stringify(settings.gitLastCommit,null,3));
+                grunt.config.set('settings',settings);
+                return done(true);
+            };
+
+        if (settings.gitLastCommit){
+            return done(true);
+        }
+
+        if (grunt.file.isFile('version.json')){
+            return handleVersionData(grunt.file.readJSON('version.json'));
+        }
+
+        grunt.util.spawn({
+            cmd     : 'git',
+            args    : ['log','-n1','--format={ "commit" : "%h", "date" : "%ct" , "subject" : "%s" }']
+        },function(err,result){
+            if (err) {
+                grunt.log.errorlns('Failed to get gitLastCommit: ' + err);
+                return done(false);
+            }
+            handleVersionData(JSON.parse(result.stdout));
+        });
+    });
 };
