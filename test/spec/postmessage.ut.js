@@ -183,9 +183,13 @@
                         var args = win.postMessage.mostRecentCall.args,
                             message = args[0];
 
+                        expect(typeof message).toBe('string');
+
+                        message = JSON.parse(message);
+
                         expect(message.__c6__).toBeDefined();
                         expect(message.__c6__.event).toBe('test');
-                        expect(message.__c6__.data).toBe(data);
+                        expect(angular.equals(message.__c6__.data, data)).toBe(true);
                         expect(message.__c6__.type).toBe('request');
                     });
                 });
@@ -253,35 +257,39 @@
                 });
 
                 describe('handleMessage(event)', function() {
-                    var event,
+                    var data,
                         session,
                         args,
-                        win;
+                        win,
+                        C6Event;
+
+                    function Event(data) {
+                        this.data = JSON.stringify(data);
+                    }
 
                     beforeEach(function() {
                         win = {};
 
                         session = postMessage.createSession(win);
 
-                        event = {
-                            data: {
-                                __c6__: {
-                                    event: 'test',
-                                    data: {},
-                                    type: null
-                                }
-                            },
-                            source: win
+                        data = {
+                            __c6__: {
+                                event: 'test',
+                                data: {},
+                                type: null
+                            }
+                        };
+
+                        C6Event = function(data) {
+                            this.source = win;
+
+                            this.data = JSON.stringify(data);
                         };
 
                         spyOn(session, 'emit');
                     });
 
                     it('should do nothing when a non-cinema6 event comes in', function() {
-                        function Event(data) {
-                            this.data = data;
-                        }
-
                         expect(function() {
                             _private.handleMessage.call($window, new Event({ facebook: 'hello' }));
                         }).not.toThrow();
@@ -305,9 +313,9 @@
 
                     describe('request', function() {
                         beforeEach(function() {
-                            event.data.__c6__.type = 'request:0';
+                            data.__c6__.type = 'request:0';
 
-                            _private.handleMessage.call($window, event);
+                            _private.handleMessage.call($window, new C6Event(data));
 
                             args = session.emit.mostRecentCall.args;
                         });
@@ -318,7 +326,7 @@
                         });
 
                         it('should pass along the data', function() {
-                            expect(args[1]).toBe(event.data.__c6__.data);
+                            expect(angular.equals(args[1], {})).toBe(true);
                         });
 
                         it('should pass along a done() function', function() {
@@ -351,32 +359,33 @@
 
                     describe('response', function() {
                         beforeEach(function() {
-                            event.data.__c6__.type = 'response:0';
+                            data.__c6__.type = 'response:0';
 
                             session._pending[0] = {
                                 resolve: jasmine.createSpy('session pending resolve')
                             };
 
-                            _private.handleMessage(event);
+                            _private.handleMessage(new C6Event(data));
                         });
 
                         it('should resolve the promise for the pending request with the provided data', function() {
-                            expect(session._pending[0].resolve).toHaveBeenCalledWith(event.data.__c6__.data);
+                            expect(session._pending[0].resolve).toHaveBeenCalled();
+                            expect(angular.equals(session._pending[0].resolve.mostRecentCall.args[0], {})).toBe(true);
                         });
                     });
 
                     describe('ping', function() {
                         beforeEach(function() {
-                            event.data.__c6__.type = 'ping';
+                            data.__c6__.type = 'ping';
 
-                            _private.handleMessage(event);
+                            _private.handleMessage(new C6Event(data));
 
                             args = session.emit.mostRecentCall.args;
                         });
 
                         it('should emit the event with the data and the angular.noop function', function() {
                             expect(args[0]).toBe('test');
-                            expect(args[1]).toBe(event.data.__c6__.data);
+                            expect(angular.equals(args[1], data.__c6__.data)).toBe(true);
                             expect(args[2]).toBe(angular.noop);
                         });
                     });
