@@ -90,8 +90,6 @@
 						image._triggerEvent('load');
 					});
 
-					$rootScope.$digest();
-
 					expect(promiseSpy).toHaveBeenCalled();
 				});
 			});
