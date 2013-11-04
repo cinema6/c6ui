@@ -10,10 +10,10 @@
                     handleImageLoad = function(image) {
                         var ready = true;
 
-                        imageStatuses[image] = true;
+                        imageStatuses[image.src] = true;
 
-                        angular.forEach(imageStatuses, function(ready) {
-                            if (!ready) { ready = false; }
+                        angular.forEach(imageStatuses, function(imageReady) {
+                            if (!imageReady) { ready = false; }
                         });
 
                         if (ready) {
@@ -31,12 +31,12 @@
                     image = new $window.Image();
                     image.src = imageUrl;
 
-                    imageStatuses[image] = false;
+                    imageStatuses[imageUrl] = false;
 
                     if (!image.complete) {
                         image.addEventListener('load', handleImageLoadEvent, false);
                     } else {
-                        handleImageLoad({ target: image });
+                        handleImageLoad(image);
                     }
                 });
 
