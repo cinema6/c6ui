@@ -31,7 +31,7 @@
                     image = new $window.Image();
                     image.src = imageUrl;
 
-                    imageStatuses[imageUrl] = false;
+                    imageStatuses[image.src] = false;
 
                     if (!image.complete) {
                         image.addEventListener('load', handleImageLoadEvent, false);
