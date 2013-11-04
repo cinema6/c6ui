@@ -89,8 +89,6 @@
                         self.emit('ready', true);
                         session.ping('ready', true);
 
-                        _private.appData = handshakeData.appData;
-
                         if (_private.pendingGetSession) {
                             _private.pendingGetSession.resolve(session);
                         }
@@ -99,6 +97,8 @@
                             _private.pendingGetAppData.resolve(handshakeData.appData);
                         }
                     }
+
+                    _private.appData = handshakeData.appData;
 
                     if (config.setup) {
                         setupResult = config.setup(handshakeData.appData);
