@@ -138,6 +138,57 @@
                     });
 
                     describe('when the site responds to the handshake', function() {
+                        var initConfig,
+                            setupHandler;
+
+                        describe('if a setup method is configured', function() {
+                            describe('if the setup method doesn\'t return a promise', function() {
+                                beforeEach(function() {
+                                    initConfig = {
+                                        setup: jasmine.createSpy('site setup (no promise)').andReturn(true)
+                                    };
+
+                                    site.init(initConfig);
+                                    requestPromiseSuccessHandler(handshakeData);
+                                });
+
+                                it('should call the setup method with the appData', function() {
+                                    expect(initConfig.setup).toHaveBeenCalledWith(handshakeData.appData);
+                                });
+                            });
+
+                            describe('if the setup method returns a promise', function() {
+                                beforeEach(function() {
+                                    spyOn(site, 'emit');
+
+                                    initConfig = {
+                                        setup: jasmine.createSpy('site setup (promise)').andReturn({
+                                            then: function(handler) {
+                                                setupHandler = handler;
+                                            }
+                                        })
+                                    };
+
+                                    site.init(initConfig);
+                                    requestPromiseSuccessHandler(handshakeData);
+                                });
+
+                                it('should not complete the setup', function() {
+                                    expect(site.ready).toBe(false);
+                                    expect(site.emit).not.toHaveBeenCalledWith('ready', true);
+                                    expect(session.ping).not.toHaveBeenCalledWith('ready', true);
+                                });
+
+                                it('should complete the setup when the promise resolves', function() {
+                                    setupHandler();
+
+                                    expect(site.ready).toBe(true);
+                                    expect(site.emit).toHaveBeenCalledWith('ready', true);
+                                    expect(session.ping).toHaveBeenCalledWith('ready', true);
+                                });
+                            });
+                        });
+
                         it('should set ready to true', function() {
                             requestPromiseSuccessHandler(handshakeData);
 
@@ -150,6 +201,12 @@
                             requestPromiseSuccessHandler(handshakeData);
 
                             expect(site.emit).toHaveBeenCalledWith('ready', true);
+                        });
+
+                        it('should send a ping to tell the site it is ready', function() {
+                            requestPromiseSuccessHandler(handshakeData);
+
+                            expect(session.ping).toHaveBeenCalledWith('ready', true);
                         });
 
                         it('should resolve any pending getSession() deferred objects', function() {
