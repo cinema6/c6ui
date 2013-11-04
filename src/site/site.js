@@ -82,17 +82,32 @@
                 _private.session = session;
 
                 session.request('handshake').then(function(handshakeData) {
-                    self.ready = true;
-                    self.emit('ready', true);
+                    var setupResult;
+
+                    function completeHandshake() {
+                        self.ready = true;
+                        self.emit('ready', true);
+                        session.ping('ready', true);
+
+                        if (_private.pendingGetSession) {
+                            _private.pendingGetSession.resolve(session);
+                        }
+
+                        if (_private.pendingGetAppData) {
+                            _private.pendingGetAppData.resolve(handshakeData.appData);
+                        }
+                    }
 
                     _private.appData = handshakeData.appData;
 
-                    if (_private.pendingGetSession) {
-                        _private.pendingGetSession.resolve(session);
+                    if (config.setup) {
+                        setupResult = config.setup(handshakeData.appData);
                     }
 
-                    if (_private.pendingGetAppData) {
-                        _private.pendingGetAppData.resolve(handshakeData.appData);
+                    if (setupResult && (typeof setupResult.then === 'function')) {
+                        setupResult.then(completeHandshake);
+                    } else {
+                        completeHandshake();
                     }
                 });
 
