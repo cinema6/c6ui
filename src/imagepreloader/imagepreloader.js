@@ -7,18 +7,23 @@
             this.load = function(imageUrls) {
                 var image,
                     imageStatuses = {},
-                    handleImageLoad = function(event) {
+                    handleImageLoad = function(image) {
                         var ready = true;
 
-                        imageStatuses[event.target] = true;
+                        imageStatuses[image.src] = true;
 
-                        angular.forEach(imageStatuses, function(ready) {
-                            if (!ready) { ready = false; }
+                        angular.forEach(imageStatuses, function(imageReady) {
+                            if (!imageReady) { ready = false; }
                         });
 
                         if (ready) {
-                            $rootScope.$apply(function() { deferred.resolve(); });
+                            deferred.resolve();
                         }
+                    },
+                    handleImageLoadEvent = function(event) {
+                        $rootScope.$apply(function() {
+                            handleImageLoad(event.target);
+                        });
                     },
                     deferred = $q.defer();
 
@@ -26,9 +31,13 @@
                     image = new $window.Image();
                     image.src = imageUrl;
 
-                    imageStatuses[image] = false;
+                    imageStatuses[imageUrl] = false;
 
-                    image.addEventListener('load', handleImageLoad, false);
+                    if (!image.complete) {
+                        image.addEventListener('load', handleImageLoadEvent, false);
+                    } else {
+                        handleImageLoad(image);
+                    }
                 });
 
                 return deferred.promise;

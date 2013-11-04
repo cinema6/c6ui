@@ -4,6 +4,7 @@
 	define(['imagepreloader/imagepreloader'], function() {
 		describe('c6ImagePreloader', function() {
 			var c6ImagePreloader,
+                loadImagesAsync = true,
 				$rootScope,
 				images = [],
 				imageCreateSpy,
@@ -36,6 +37,8 @@
 							});
 						};
 
+                        this.complete = !loadImagesAsync;
+
 						images.push(this);
 					}
 				};
@@ -52,6 +55,7 @@
 
 				imageCreateSpy = jasmine.createSpy();
 				images.length = 0;
+                loadImagesAsync = true;
 			});
 
 			it('should exist', function() {
@@ -82,16 +86,31 @@
 				it('should return a promise that resolves when the images finish loading', function() {
 					var promiseSpy = jasmine.createSpy();
 
-					c6ImagePreloader.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy);
+                    $rootScope.$apply(function() {
+                        c6ImagePreloader.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy);
+                    });
 
 					expect(promiseSpy).not.toHaveBeenCalled();
 
-					images.forEach(function(image) {
-						image._triggerEvent('load');
-					});
+                    images[0]._triggerEvent('load');
 
-					expect(promiseSpy).toHaveBeenCalled();
+					expect(promiseSpy).not.toHaveBeenCalled();
+
+                    images[1]._triggerEvent('load');
+
+                    expect(promiseSpy).toHaveBeenCalled();
 				});
+
+                it('should resolve the returned promise if "load" never fires but complete is true', function() {
+                    var promiseSpy = jasmine.createSpy('load promise');
+                    loadImagesAsync = false;
+
+                    $rootScope.$apply(function() {
+                        c6ImagePreloader.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy);
+                    });
+
+                    expect(promiseSpy).toHaveBeenCalled();
+                });
 			});
 		});
 	});
