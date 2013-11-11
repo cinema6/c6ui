@@ -44,11 +44,19 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         dot: true,
-                        cwd: '<%= settings.src %>',
+                        cwd: '.tmp/build',
                         dest: '<%= settings.dist %>',
                         src: [
                             '**'
                         ]
+                    },
+                    {
+                        expand: true,
+                        flatten: true,
+                        dot: true,
+                        cwd: '<%= settings.src %>',
+                        dest: '<%= settings.dist %>/img',
+                        src: '**/*.{jpg,png,svg,gif}'
                     }
                 ]
             },
@@ -73,6 +81,86 @@ module.exports = function (grunt) {
                 ]
             }
         },
+        concat: {
+            c6ui: {
+                options: {
+                    banner: '<%= settings.copyNotice() %>'
+                },
+                files: {
+                    '.tmp/build/c6uilib.js' : [
+                        '<%= settings.src %>/c6ui.js',
+                        '<%= settings.src %>/**/*.js',
+                        '!<%= settings.src %>/c6log.js'
+                    ]
+                }
+            },
+            c6log: {
+                options: {
+                    banner: '<%= settings.copyNotice() %>'
+                },
+                files: {
+                    '.tmp/build/c6log.js' : [
+                        '<%= settings.src %>/c6log.js'
+                    ]
+                }
+            }
+        },
+        uglify: {
+            c6ui: {
+                options: {
+                    banner: '<%= settings.copyNotice() %>'
+                },
+                files: {
+                    '.tmp/build/c6uilib.min.js': [
+                        '.tmp/build/c6uilib.js'
+                    ],
+                }
+            },
+            c6log: {
+                options: {
+                    banner: '<%= settings.copyNotice() %>'
+                },
+                files: {
+                    '.tmp/build/c6log.min.js': [
+                        '.tmp/build/c6log.js'
+                    ],
+                }
+            }
+        },
+        cssmin: {
+            normal: {
+                files: {
+                    '<%= settings.dist %>/css/c6uilib.min.css': ['src/**/*.css', '!src/**/*--hover.css']
+                }
+            },
+            hover: {
+                files: {
+                    '<%= settings.dist %>/css/c6uilib--hover.min.css': ['src/**/*--hover.css']
+                }
+            }
+        },
+        ngtemplates: {
+            dist: {
+                cwd: 'src',
+                src: '**/*.html',
+                dest: '.tmp/templates.js',
+                options: {
+                    prefix: 'c6ui/',
+                    module: 'c6.ui',
+                    concat: 'c6ui',
+                    htmlmin: {
+                        collapseBooleanAttributes: true,
+                        collapseWhitespace: true,
+                        removeAttributeQuotes: true,
+                        removeComments: true,
+                        removeEmptyAttributes: true,
+                        removeRedundantAttributes: true,
+                        removeScriptTypeAttributes: true,
+                        removeStyleLinkTypeAttributes: true
+                    }
+                }
+            }
+        },
         watch: {
             build: {
                 files: '<%= settings.src %>/**',
@@ -92,14 +180,6 @@ module.exports = function (grunt) {
                         ];
                     }
                 }
-            }
-        },
-        sed: {
-            copyright: {
-                pattern: '//%COPY_RIGHT%',
-                replacement: '<%= settings.copyNotice() %>',
-                path: '<%= settings.dist %>',
-                recursive: true
             }
         },
         jshint: {
@@ -136,8 +216,11 @@ module.exports = function (grunt) {
         grunt.task.run('test');
         grunt.task.run('gitLastCommit');
         grunt.task.run('clean');
+        grunt.task.run('ngtemplates');
+        grunt.task.run('cssmin');
+        grunt.task.run('concat');
+        grunt.task.run('uglify');
         grunt.task.run('copy:dist');
-        grunt.task.run('sed');
     });
 
     grunt.registerTask('server', function() {

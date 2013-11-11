@@ -9,9 +9,13 @@
 				images = [],
 				imageCreateSpy,
 				$window = {
+                    location: {
+                        origin: 'http://localhost:9000'
+                    },
 					Image: function() {
 						var self = this,
-							eventHandlers = {};
+							eventHandlers = {},
+                            src = null;
 
 						imageCreateSpy();
 
@@ -38,6 +42,16 @@
 						};
 
                         this.complete = !loadImagesAsync;
+
+                        Object.defineProperty(this, 'src', {
+                            get: function() {
+                                return src;
+                            },
+                            set: function(value) {
+                                src = $window.location.origin + '/' + value;
+                                return src;
+                            }
+                        });
 
 						images.push(this);
 					}
@@ -71,15 +85,16 @@
 					expect(imageCreateSpy.callCount).toBe(3);
 
 					urlsToLoad.forEach(function(url) {
-						var matchingSrc;
+						var matchingSrc,
+                            fullUrl = $window.location.origin + '/' + url;
 
 						images.forEach(function(image) {
-							if (image.src === url) {
+							if (image.src === fullUrl) {
 								matchingSrc = image.src;
 							}
 						});
 
-						expect(url).toBe(matchingSrc);
+						expect(fullUrl).toBe(matchingSrc);
 					});
 				});
 
