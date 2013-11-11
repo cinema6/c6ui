@@ -33,13 +33,13 @@
 		}
 		
 			.controls__btnPlay-icon {
-				background: url(img/icon_play.svg) no-repeat center center; background-size: 18%;
+				background: url(../img/icon_play.svg) no-repeat center center; background-size: 18%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer; padding: 0;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 
 			.controls__btnPause-icon {
-				background: url(img/icon_pause.svg) no-repeat center center; background-size: 20%;
+				background: url(../img/icon_pause.svg) no-repeat center center; background-size: 20%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer; padding: 0;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
@@ -52,7 +52,7 @@
 			-moz-transition:width 0.5s; -webkit-transition:width 0.5s; -o-transition:width 0.5s; transition:width 0.5s;
 		}
 			.controls__btnReturn-icon {
-				background: url(img/icon_return.svg) no-repeat center center; background-size: 35%;
+				background: url(../img/icon_return.svg) no-repeat center center; background-size: 35%;
 				display: block; height: 100%; width: 58px;
 				opacity: 0.3; border: 0; padding: 0; cursor: pointer; 
 				float: left;
@@ -60,14 +60,14 @@
 			}
 
 			.controls__btnReturn-disabled {
-				background: url(img/icon_return.svg) no-repeat center center; background-size: 35%;
+				background: url(../img/icon_return.svg) no-repeat center center; background-size: 35%;
 				display: block; height: 100%; width: 58px;
 				opacity: 0.1; border: 0; padding: 0; cursor: pointer; 
 				float: left;
 			}	
 
 			.controls__btnFullscreen-icon {
-				background: url(img/icon_fullscreen.svg) no-repeat center center; background-size: 28%;
+				background: url(../img/icon_fullscreen.svg) no-repeat center center; background-size: 28%;
 				display: block; height: 100%; width: 58px; 
 				opacity: 0.3; border: 0; padding: 0; cursor: pointer; 
 				float: right; 
@@ -104,28 +104,28 @@
 		}
 
 			.volume__btnVolume-icon {
-				background: url(img/icon_volume.svg) no-repeat center center; background-size: 36%;
+				background: url(../img/icon_volume.svg) no-repeat center center; background-size: 36%;
 				display: block; height: 100%; width: 100%; opacity: 0.3; border: 0; cursor: pointer; padding: 0; position: absolute; top: 0;
 				-moz-transition:opacity 1s; -webkit-transition:opacity 1s; -o-transition:opacity 1s; transition:opacity 1s;
 			}
 
 				.volume__btnVolume-high {
-					background: url(img/icon_volume-high.svg) no-repeat center center; background-size: 36%;
+					background: url(../img/icon_volume-high.svg) no-repeat center center; background-size: 36%;
 					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
 				}
 
 				.volume__btnVolume-med {
-					background: url(img/icon_volume-med.svg) no-repeat center center; background-size: 36%;
+					background: url(../img/icon_volume-med.svg) no-repeat center center; background-size: 36%;
 					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
 				}
 
 				.volume__btnVolume-low {
-					background: url(img/icon_volume-low.svg) no-repeat center center; background-size: 36%;
+					background: url(../img/icon_volume-low.svg) no-repeat center center; background-size: 36%;
 					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
 				}
 
 				.volume__btnVolume-mute {
-					background: url(img/icon_volume-mute.svg) no-repeat center center; background-size: 36%;
+					background: url(../img/icon_volume-mute.svg) no-repeat center center; background-size: 36%;
 					height: 100%; width: 100%; cursor: pointer; position: absolute; top: 0;
 				}
 
@@ -172,7 +172,7 @@
 			.controls__scene-btn {
 				height: 12px; width: 100%; cursor: pointer; position: inherit;
 				margin: 14px 0; padding: 0; border: 0;
-				background: url(img/btn_scene.png) no-repeat center center; 
+				background: url(../img/btn_scene.png) no-repeat center center; 
 			}
 
     		.controls__caption-bottom {
