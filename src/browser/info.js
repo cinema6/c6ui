@@ -4,19 +4,28 @@
     angular.module('c6.ui')
         .provider('c6BrowserInfo', [function() {
             var providerPrivate = {
-                    Modernizr: undefined
+                    Modernizr: undefined,
+                    profileAugmenter: angular.noop
                 };
 
             this.setModernizr = function(modernizr) {
                 providerPrivate.Modernizr = modernizr;
+
+                return this;
+            };
+
+            this.augmentProfile = function(augmenter) {
+                providerPrivate.profileAugmenter = augmenter;
+
+                return this;
             };
 
             this._private = function() {
                 return providerPrivate;
             };
 
-            this.$get = ['c6UserAgent', '$window', '$log',
-                function( c6UserAgent ,  $window ,  $log) {
+            this.$get = ['c6UserAgent', '$window', '$injector', '$log',
+                function( c6UserAgent ,  $window ,  $injector ,  $log ) {
                 function C6BrowserInfo() {
                     var _private = {
                             modernizr: function() {
@@ -84,6 +93,8 @@
 
                             return Modernizr && !!Modernizr.prefixed('requestAnimationFrame', $window);
                         })();
+
+                        $injector.invoke(providerPrivate.profileAugmenter, profile);
 
                         return profile;
                     };
