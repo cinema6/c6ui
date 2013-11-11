@@ -65,16 +65,40 @@
                 describe('methods', function() {
                     describe('@public', function() {
                         describe('setModernizr(modernizr)', function() {
-                            var Modernizr;
+                            var Modernizr,
+                                result;
 
                             beforeEach(function() {
                                 Modernizr = {};
+
+                                result = c6BrowserInfoProvider.setModernizr(Modernizr);
+                            });
+
+                            it('should be chainable', function() {
+                                expect(result).toBe(c6BrowserInfoProvider);
                             });
 
                             it('should set the private Modernizr property', function() {
-                                c6BrowserInfoProvider.setModernizr(Modernizr);
-
                                 expect(providerPrivate.Modernizr).toBe(Modernizr);
+                            });
+                        });
+
+                        describe('augmentProfile(augmenter)', function() {
+                            var augmenter,
+                                result;
+
+                            beforeEach(function() {
+                                augmenter = function() {};
+
+                                result = c6BrowserInfoProvider.augmentProfile(augmenter);
+                            });
+
+                            it('should be chainable', function() {
+                                expect(result).toBe(c6BrowserInfoProvider);
+                            });
+
+                            it('should save a reference to the augmenter function', function() {
+                                expect(providerPrivate.profileAugmenter).toBe(augmenter);
                             });
                         });
                     });
@@ -83,6 +107,16 @@
                         describe('_private()', function() {
                             it('should return the private variable', function() {
                                 expect(_private).toBeDefined();
+                            });
+                        });
+                    });
+                });
+
+                describe('properties', function() {
+                    describe('_private', function() {
+                        describe('profileAugmenter', function() {
+                            it('should default to angular.noop', function() {
+                                expect(providerPrivate.profileAugmenter).toBe(angular.noop);
                             });
                         });
                     });
@@ -331,7 +365,7 @@
                                         c6UserAgent.os.version = '10.8.7';
                                         profile = c6BrowserInfo.generateProfile();
                                         expect(profile.canvasVideo).toBe(false);
-                                        
+
                                         c6UserAgent.os.version = '10.9.0';
                                         profile = c6BrowserInfo.generateProfile();
                                         expect(profile.canvasVideo).toBe(false);
@@ -345,6 +379,23 @@
                         });
 
                         describe('on everything', function() {
+                            describe('with a profileAugmenter', function() {
+                                var augmenter;
+
+                                beforeEach(function() {
+                                    spyOn($injector, 'invoke').andCallThrough();
+
+                                    augmenter = function() {};
+                                    providerPrivate.profileAugmenter = augmenter;
+
+                                    profile = c6BrowserInfo.generateProfile();
+                                });
+
+                                it('should invoke the augmenting function with the injector', function() {
+                                    expect($injector.invoke).toHaveBeenCalledWith(augmenter, profile);
+                                });
+                            });
+
                             describe('touch', function() {
                                 it('should use the Modernizr touch test', function() {
                                     expect(profile.touch).toBe(Modernizr.touch);
