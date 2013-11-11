@@ -82,26 +82,47 @@ module.exports = function (grunt) {
             }
         },
         concat: {
-            dist: {
+            c6ui: {
                 options: {
                     banner: '<%= settings.copyNotice() %>'
                 },
                 files: {
                     '.tmp/build/c6uilib.js' : [
                         '<%= settings.src %>/c6ui.js',
-                        '<%= settings.src %>/**/*.js'
+                        '<%= settings.src %>/**/*.js',
+                        '!<%= settings.src %>/c6log.js'
+                    ]
+                }
+            },
+            c6log: {
+                options: {
+                    banner: '<%= settings.copyNotice() %>'
+                },
+                files: {
+                    '.tmp/build/c6log.js' : [
+                        '<%= settings.src %>/c6log.js'
                     ]
                 }
             }
         },
         uglify: {
-            dist: {
+            c6ui: {
                 options: {
                     banner: '<%= settings.copyNotice() %>'
                 },
                 files: {
                     '.tmp/build/c6uilib.min.js': [
                         '.tmp/build/c6uilib.js'
+                    ],
+                }
+            },
+            c6log: {
+                options: {
+                    banner: '<%= settings.copyNotice() %>'
+                },
+                files: {
+                    '.tmp/build/c6log.min.js': [
+                        '.tmp/build/c6log.js'
                     ],
                 }
             }
@@ -126,7 +147,7 @@ module.exports = function (grunt) {
                 options: {
                     prefix: 'c6ui/',
                     module: 'c6.ui',
-                    concat: 'dist',
+                    concat: 'c6ui',
                     htmlmin: {
                         collapseBooleanAttributes: true,
                         collapseWhitespace: true,
