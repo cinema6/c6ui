@@ -44,11 +44,19 @@ module.exports = function (grunt) {
                     {
                         expand: true,
                         dot: true,
-                        cwd: '<%= settings.src %>',
+                        cwd: '.tmp/build',
                         dest: '<%= settings.dist %>',
                         src: [
                             '**'
                         ]
+                    },
+                    {
+                        expand: true,
+                        flatten: true,
+                        dot: true,
+                        cwd: '<%= settings.src %>',
+                        dest: '<%= settings.dist %>/img',
+                        src: '**/*.{jpg,png,svg,gif}'
                     }
                 ]
             },
@@ -75,41 +83,60 @@ module.exports = function (grunt) {
         },
         concat: {
             dist: {
+                options: {
+                    banner: '<%= settings.copyNotice() %>'
+                },
                 files: {
-                    '.tmp/c6uilib.js' : [
+                    '.tmp/build/c6uilib.js' : [
                         '<%= settings.src %>/c6ui.js',
-                        '<%= settings.src %>/anicache/anicache.js',
-                        '<%= settings.src %>/browser/info.js',
-                        '<%= settings.src %>/browser/user_agent.js',
-                        '<%= settings.src %>/computed/computed.js',
-                        '<%= settings.src %>/controls/controls.js',
-                        '<%= settings.src %>/debounce/debounce.js',
-                        '<%= settings.src %>/events/emitter.js',
-                        '<%= settings.src %>/events/journal.js',
-                        '<%= settings.src %>/format/format.js',
-                        '<%= settings.src %>/imagepreloader/imagepreloader.js',
-                        '<%= settings.src %>/mouseactivity/mouseactivity.js',
-                        '<%= settings.src %>/panels/panels.js',
-                        '<%= settings.src %>/postmessage/postmessage.js',
-                        '<%= settings.src %>/resize/resize.js',
-                        '<%= settings.src %>/sfx/sfx.js',
-                        '<%= settings.src %>/site/site.js',
-                        '<%= settings.src %>/url/urlmaker.js',
-                        '<%= settings.src %>/videos/playlist.js',
-                        '<%= settings.src %>/videos/playlist_history.js',
-                        '<%= settings.src %>/videos/video.js',
-                        '<%= settings.src %>/visible/visible.js',
-                        '<%= settings.src %>/c6log.js'
+                        '<%= settings.src %>/**/*.js'
                     ]
                 }
             }
         },
         uglify: {
             dist: {
+                options: {
+                    banner: '<%= settings.copyNotice() %>'
+                },
                 files: {
-                    '.tmp/c6uilib.min.js': [
-                        '.tmp/c6uilib.js'
+                    '.tmp/build/c6uilib.min.js': [
+                        '.tmp/build/c6uilib.js'
                     ],
+                }
+            }
+        },
+        cssmin: {
+            normal: {
+                files: {
+                    '<%= settings.dist %>/css/c6uilib.min.css': ['src/**/*.css', '!src/**/*--hover.css']
+                }
+            },
+            hover: {
+                files: {
+                    '<%= settings.dist %>/css/c6uilib--hover.min.css': ['src/**/*--hover.css']
+                }
+            }
+        },
+        ngtemplates: {
+            dist: {
+                cwd: 'src',
+                src: '**/*.html',
+                dest: '.tmp/templates.js',
+                options: {
+                    prefix: 'c6ui/',
+                    module: 'c6.ui',
+                    concat: 'dist',
+                    htmlmin: {
+                        collapseBooleanAttributes: true,
+                        collapseWhitespace: true,
+                        removeAttributeQuotes: true,
+                        removeComments: true,
+                        removeEmptyAttributes: true,
+                        removeRedundantAttributes: true,
+                        removeScriptTypeAttributes: true,
+                        removeStyleLinkTypeAttributes: true
+                    }
                 }
             }
         },
@@ -132,14 +159,6 @@ module.exports = function (grunt) {
                         ];
                     }
                 }
-            }
-        },
-        sed: {
-            copyright: {
-                pattern: '//%COPY_RIGHT%',
-                replacement: '<%= settings.copyNotice() %>',
-                path: '<%= settings.dist %>',
-                recursive: true
             }
         },
         jshint: {
@@ -176,8 +195,11 @@ module.exports = function (grunt) {
         grunt.task.run('test');
         grunt.task.run('gitLastCommit');
         grunt.task.run('clean');
+        grunt.task.run('ngtemplates');
+        grunt.task.run('cssmin');
+        grunt.task.run('concat');
+        grunt.task.run('uglify');
         grunt.task.run('copy:dist');
-        grunt.task.run('sed');
     });
 
     grunt.registerTask('server', function() {

@@ -1,4 +1,4 @@
-(function(appBaseUrl) {
+(function() {
 	'use strict';
 
 	angular.module('c6.ui')
@@ -10,7 +10,7 @@
 					handlers: '&'
 				},
 				require: '^c6Controls',
-				templateUrl: appBaseUrl + '/lib/c6ui/controls/node.html',
+				templateUrl: 'c6ui/controls/node.html',
 				replace: true,
 				link: function(scope, element, attrs, C6ControlsController) {
 					var setRectPosition = function() {
@@ -69,7 +69,7 @@
 					playPause: '&',
 					volume: '&'
 				},
-				templateUrl: appBaseUrl + '/lib/c6ui/controls/controls.html',
+				templateUrl: 'c6ui/controls/controls.html',
 				replace: true,
 				controller: 'C6ControlsController'
 			};
@@ -527,4 +527,4 @@
 
 			$scope.state = state;
 		}]);
-})(window.__C6_APP_BASE_URL__);
+})();
