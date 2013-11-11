@@ -73,6 +73,46 @@ module.exports = function (grunt) {
                 ]
             }
         },
+        concat: {
+            dist: {
+                files: {
+                    '.tmp/c6uilib.js' : [
+                        '<%= settings.src %>/c6ui.js',
+                        '<%= settings.src %>/anicache/anicache.js',
+                        '<%= settings.src %>/browser/info.js',
+                        '<%= settings.src %>/browser/user_agent.js',
+                        '<%= settings.src %>/computed/computed.js',
+                        '<%= settings.src %>/controls/controls.js',
+                        '<%= settings.src %>/debounce/debounce.js',
+                        '<%= settings.src %>/events/emitter.js',
+                        '<%= settings.src %>/events/journal.js',
+                        '<%= settings.src %>/format/format.js',
+                        '<%= settings.src %>/imagepreloader/imagepreloader.js',
+                        '<%= settings.src %>/mouseactivity/mouseactivity.js',
+                        '<%= settings.src %>/panels/panels.js',
+                        '<%= settings.src %>/postmessage/postmessage.js',
+                        '<%= settings.src %>/resize/resize.js',
+                        '<%= settings.src %>/sfx/sfx.js',
+                        '<%= settings.src %>/site/site.js',
+                        '<%= settings.src %>/url/urlmaker.js',
+                        '<%= settings.src %>/videos/playlist.js',
+                        '<%= settings.src %>/videos/playlist_history.js',
+                        '<%= settings.src %>/videos/video.js',
+                        '<%= settings.src %>/visible/visible.js',
+                        '<%= settings.src %>/c6log.js'
+                    ]
+                }
+            }
+        },
+        uglify: {
+            dist: {
+                files: {
+                    '.tmp/c6uilib.min.js': [
+                        '.tmp/c6uilib.js'
+                    ],
+                }
+            }
+        },
         watch: {
             build: {
                 files: '<%= settings.src %>/**',
