@@ -159,6 +159,15 @@ module.exports = function (grunt) {
                         removeStyleLinkTypeAttributes: true
                     }
                 }
+            },
+            test: {
+                cwd: 'src',
+                src: '**/*.html',
+                dest: '.tmp/templates.js',
+                options: {
+                    prefix: 'c6ui/',
+                    module: 'c6.ui',
+                }
             }
         },
         watch: {
@@ -204,11 +213,13 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('test', function(){
-        grunt.task.run('jshint'),
+        grunt.task.run('jshint');
+        grunt.task.run('ngtemplates:test');
         grunt.task.run('karma:unit');
     });
 
     grunt.registerTask('debug', function(){
+        grunt.task.run('ngtemplates:test');
         grunt.task.run('karma:debug');
     });
 

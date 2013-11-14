@@ -13,6 +13,7 @@ files = [
   {pattern: 'lib/**/*.js',       included: false},
   {pattern: 'src/**/*.js',       included: false},
   {pattern: 'test/spec/*.js',    included: false},
+  {pattern: '.tmp/templates.js', included: false},
   'test/test-main.js'
 ];
 
