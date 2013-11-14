@@ -1,0 +1,10 @@
+<div class="c6-resize--50_50" c6-resize>
+    <ul class="player__stack">
+        <li ng-repeat="buffId in playerBuffers" class="player__item"
+            ng-class="{\'player__item--active\': videos[buffId].showPlayer}"
+            ng-show="videos[buffId].showPlayer">
+            <video c6-video id="{{buffId}}" c6-src="model.cli[buffId].data.src"
+                preload="auto" class="video__item"> </video>
+        </li>
+    </ul>
+</div>

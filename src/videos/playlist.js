@@ -224,27 +224,7 @@
             return {
                 controller   : 'C6PlaylistController',
                 restrict     : 'A',
-                template     : (function() {
-                                    return '<div class="bg-black">' +
-                                                '<div class="c6-resize--50_50" c6-resize>' +
-                                                    '<div class="border__group ">' +
-                                                        '<div class="border__top">&nbsp;</div>' +
-                                                        '<div class="border__right">&nbsp;</div>' +
-                                                        '<div class="border__bottom">&nbsp;</div>' +
-                                                        '<div class="border__left">&nbsp;</div>' +
-                                                    '</div>' +
-                                                    '<ul class="player__stack">' +
-                                                        '<li ng-repeat="buffId in playerBuffers" class="player__item"' +
-                                                            'ng-class="{\'player__item--active\': videos[buffId].showPlayer}"' +
-                                                            'ng-show="videos[buffId].showPlayer">' +
-                                                            '<video c6-video id="{{buffId}}" c6-src="model.cli[buffId].data.src"' +
-                                                                'preload="auto" class="video__item"> </video>' +
-                                                        '</li>' +
-                                                    '</ul>' +
-                                                '</div>' +
-                                            '</div>';
-
-                                })(),
+                templateUrl  : 'c6ui/videos/playlist.html',
                 replace      : true,
                 scope        : { buffers : '@', url : '@', urlFormatter : '=' },
                 link         : linker
