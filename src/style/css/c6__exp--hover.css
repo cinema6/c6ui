@@ -1,0 +1,29 @@
+/*  ==========================================================================
+    global styles
+    ========================================================================== */
+    a:hover {
+        color:#00b9ff;
+    }
+    .c6-ui__play {
+        opacity:0.22;
+        -webkit-transition:opacity 0.5s; transition:opacity 0.5s;
+    }
+        .c6-ui__play:hover {
+            opacity:1;
+        }
+
+/*  ==========================================================================
+    share modal styles
+    ========================================================================== */
+    .c6-share__facebook-btn /* button */ {
+        transition: background-color 0.5s;
+    }
+        .c6-share__facebook-btn:hover {
+            background-color: #627aad;
+        }
+    .c6-share__twitter-btn /* button */ {
+        transition: background-color 0.5s;
+    }
+        .c6-share__twitter-btn:hover {
+            background-color: #99def8;
+        }
