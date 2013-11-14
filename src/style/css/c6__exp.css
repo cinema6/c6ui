@@ -1,4 +1,68 @@
 /*  ==========================================================================
+    global styles
+    ========================================================================== */
+    body {
+        font-size: 1em; font-family: 'Open Sans', Arial, Helvetica, sans-serif; line-height: 1.5; margin:0;
+    }
+    @font-face {
+        font-family: 'iconies_socialregular';
+        src: url('iconiessocial-webfont.eot');
+        src: url('iconiessocial-webfont.eot?#iefix') format('embedded-opentype'),
+             url('iconiessocial-webfont.woff') format('woff'),
+             url('iconiessocial-webfont.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+    ::-moz-selection {
+        background: #e900a4; text-shadow: none; color:#fff;
+    }
+    ::selection {
+        background: #e900a4; text-shadow: none; color:#fff;
+    }
+    p {
+        margin: 0.75em 0;
+    }
+    textarea {
+        resize: vertical;
+    }
+    img {
+        border:0; max-width:100%;
+    }
+    a {
+        text-decoration: none; color:#266cb3;
+        -webkit-transition:color 0.5s; transition:color 0.5s;
+    }
+/*  ==========================================================================
+    Helper classes
+    ========================================================================== */
+    .ir {
+        background-color: transparent;
+        border: 0; width:0; height:0;
+        overflow: hidden; display: block; float:left;
+    }
+    .clearfix:before,
+    .clearfix:after {
+        content: ' ';
+        display: table;
+    }
+    .clearfix:after {
+        clear: both;
+    }
+
+/*  ==========================================================================
+    c6-copy classes : general type styles
+    ========================================================================== */
+    .tk--main {
+        font-family:'Open Sans', Arial, Helvetica, sans-serif; font-weight:400;
+    }
+    .tk--hdr {
+        font-family: 'museo-sans', 'Open Sans', Arial, Helvetica, sans-serif;   
+    }
+    .tk--social {
+        font-family:'iconies_socialregular', sans-serif;
+    }
+    
+/*  ==========================================================================
     c6-view classes : used for layout
     ========================================================================== */
     .c6-view__container {
