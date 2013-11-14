@@ -224,7 +224,7 @@
             return {
                 controller   : 'C6PlaylistController',
                 restrict     : 'A',
-                templateUrl  : 'c6ui/videos/playlist.html',
+                templateUrl  : 'c6ui/videos/c6-playlist.html',
                 replace      : true,
                 scope        : { buffers : '@', url : '@', urlFormatter : '=' },
                 link         : linker

@@ -1,16 +1,4 @@
 /*  ==========================================================================
-    from c6-main.css (remove after testing)
-    ========================================================================== */
-	body {font-size: 1em; font-family: "open-sans", Arial, Helvetica, sans-serif; color:#545454; line-height: 1.5;
-	        background:#efefef; margin:0;}
-	.ir {
-	    background-color: transparent;
-	    border: 0; width:0; height:0;
-	    overflow: hidden;
-	    display: block; float:left;
-	}
-
-/*  ==========================================================================
     default styles
     ========================================================================== */
 	.controls__group {

@@ -5,12 +5,6 @@
 
     angular.module('c6.ui')
     .directive('c6Panels', ['$log', 'c6AniCache', function($log, c6AniCache){
-        var template =
-            '<div class="panel__top" ng-show="panels.showUpper" ng-animate="\'upperPanel\'">' +
-            '&nbsp;</div>' +
-            '<div class="panel__bottom" ng-show="panels.showLower" ng-animate="\'lower-panel\'">' +
-            '&nbsp;</div>' ;
-
         function fnLink($scope/*,$element,$attrs*/){
             $log.info('In c6Panels');
 
@@ -62,7 +56,7 @@
 
         return {
             link: fnLink,
-            template : template,
+            templateUrl : 'c6ui/panels/c6-panels.html',
             restrict: 'E,A',
             scope : {
                 duration : '=',
