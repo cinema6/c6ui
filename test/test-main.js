@@ -11,7 +11,8 @@
 
         paths : {
             "angular"       : "../lib/angular/angular",
-            "angularMocks"  : "../lib/angular/angular-mocks"
+            "angularMocks"  : "../lib/angular/angular-mocks",
+            "templates"     : "../.tmp/templates"
         },
 
         shim : {
@@ -23,6 +24,9 @@
             },
             "c6ui" : {
                 "deps" : [ "angularMocks" ]
+            },
+            "templates" : {
+                "deps" : [ "c6ui" ]
             },
             "browser/user_agent" : {
                 "deps" : [ "c6ui" ]
@@ -61,7 +65,7 @@
                 "deps": ["events/emitter", "events/journal"]
             },
             "videos/playlist": {
-                "deps": ["c6ui"]
+                "deps": ["c6ui", "templates"]
             },
             "videos/video": {
                 "deps": ["c6ui"]

@@ -1219,6 +1219,7 @@
                                 '</div>');
                             expect(function(){
                                 $compile($element)($scope);
+                                $scope.$digest();
                             }).toThrow('buffers property must be passed a number');
                             expect(readySpy).not.toHaveBeenCalled();
                         });
