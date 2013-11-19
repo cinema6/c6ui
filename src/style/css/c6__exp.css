@@ -1,56 +1,4 @@
 /*  ==========================================================================
-    global styles
-    ========================================================================== */
-    body {
-        font-size: 1em; font-family: 'Open Sans', Arial, Helvetica, sans-serif; line-height: 1.5; margin:0;
-    }
-    @font-face {
-        font-family: 'iconies_socialregular';
-        src: url('iconiessocial-webfont.eot');
-        src: url('iconiessocial-webfont.eot?#iefix') format('embedded-opentype'),
-             url('iconiessocial-webfont.woff') format('woff'),
-             url('iconiessocial-webfont.ttf') format('truetype');
-        font-weight: normal;
-        font-style: normal;
-    }
-    ::-moz-selection {
-        background: #e900a4; text-shadow: none; color:#fff;
-    }
-    ::selection {
-        background: #e900a4; text-shadow: none; color:#fff;
-    }
-    p {
-        margin: 0.75em 0;
-    }
-    textarea {
-        resize: vertical;
-    }
-    img {
-        border:0; max-width:100%;
-    }
-    a {
-        text-decoration: none; color:#266cb3;
-        -webkit-transition:color 0.5s; transition:color 0.5s;
-    }
-/*  ==========================================================================
-    Helper classes
-    ========================================================================== */
-    .ir {
-        background-color: transparent;
-        border: 0; width:0; height:0;
-        overflow: hidden; display: block; float:left;
-    }
-    .clearfix:before,
-    .clearfix:after {
-        content: ' ';
-        display: table;
-    }
-    .clearfix:after {
-        clear: both;
-    }
-
-
-/*  ==========================================================================
     CSSWIZARDRY-GRIDS
     ========================================================================== */
     .grid {
@@ -108,6 +56,59 @@
             width: 41.666%;
         }
     }
+
+
+/*  ==========================================================================
+    global styles
+    ========================================================================== */
+    body {
+        font-size: 1em; font-family: 'Open Sans', Arial, Helvetica, sans-serif; line-height: 1.5; margin:0;
+    }
+    @font-face {
+        font-family: 'iconies_socialregular';
+        src: url('iconiessocial-webfont.eot');
+        src: url('iconiessocial-webfont.eot?#iefix') format('embedded-opentype'),
+             url('iconiessocial-webfont.woff') format('woff'),
+             url('iconiessocial-webfont.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+    ::-moz-selection {
+        background: #e900a4; text-shadow: none; color:#fff;
+    }
+    ::selection {
+        background: #e900a4; text-shadow: none; color:#fff;
+    }
+    p {
+        margin: 0.75em 0;
+    }
+    textarea {
+        resize: vertical;
+    }
+    img {
+        border:0; max-width:100%;
+    }
+    a {
+        text-decoration: none; color:#266cb3;
+        -webkit-transition:color 0.5s; transition:color 0.5s;
+    }
+/*  ==========================================================================
+    Helper classes
+    ========================================================================== */
+    .ir {
+        background-color: transparent;
+        border: 0; width:0; height:0;
+        overflow: hidden; display: block; float:left;
+    }
+    .clearfix:before,
+    .clearfix:after {
+        content: ' ';
+        display: table;
+    }
+    .clearfix:after {
+        clear: both;
+    }
+
 
 /*  ==========================================================================
     c6-copy classes : general type styles
@@ -230,20 +231,52 @@
         z-index: 4; background-size: contain;
     }
 
+    @media only screen and (min-width:1701px) {
+        .exp-hero__vertical-spacer, .exp-hero__group {
+            height:62em; /*992px*/
+        }
+    }
+    @media only screen and (min-width:1401px) and (max-width:1700px) {
+        .exp-hero__vertical-spacer, .exp-hero__group {
+            height:55em; /*880px*/
+        }
+    }
+    @media only screen and (min-width:1001px) and (max-width:1400px) {
+        .exp-hero__vertical-spacer, .exp-hero__group {
+            height:47em; /*752px*/
+        }
+    }
     @media only screen and (min-width:700px) and (max-width:1000px) {
-        .exp-hero__vertical-spacer {
+        .exp-hero__vertical-spacer, .exp-hero__group {
             height:31.125em; /*498px*/
         }
-        .exp-hero__copy-box {
-            font-size:0.875em;
+    }
+    @media only screen and (max-width:699px) {
+        .exp-hero__vertical-spacer, .exp-hero__group {
+            height:28em; /*448px*/
+        }
+    }
+    @media only screen and (max-device-width : 568px) and (orientation: landscape) {
+        .exp-hero__vertical-spacer, .exp-hero__group {
+            height:18em; /*288px*/
+        }
+    }
+
+
+    @media only screen and (min-width:700px) and (max-width:1000px) {
+        .exp-hero__title {
+           font-size:2.5em; 
+        }
+        .exp-hero__sub {
+            font-size:1.25em; 
         }
     }
     @media only screen and (min-width:481px) and (max-width:699px) {
-        .exp-hero__vertical-spacer {
-            height:24.75em; /*396px*/
+        .exp-hero__title {
+           font-size:1.75em; 
         }
-        .exp-hero__copy-box {
-            font-size:0.75em;
+        .exp-hero__sub {
+            font-size:1.125em; 
         }
         .c6-ui__play, .c6-ui__create {
             width:4em; height:4.5em; margin:-2.25em 0 0 -2em; 
@@ -253,22 +286,19 @@
             width: 7em;
         }
     }
-    @media only screen and (max-device-width:400px) and (orientation: portrait), (max-width:400px) {
-        .exp-hero__group {
-            height:24.75em; /*396px*/ 
-        }
+    @media only screen and (max-device-width:480px) and (orientation: portrait), (max-width:480px) {
         .exp-hero__vertical-spacer {
             display: none;
         }
         .exp-hero__desc {
-            margin-top:13em;
+            margin-top:15em;
         }
-            .exp-hero__copy-box {
-                font-size:0.75em;
-            }
-            .exp-hero__title {
-                font-size:2em;
-            }
+        .exp-hero__title {
+           font-size:1.375em; 
+        }
+        .exp-hero__sub {
+            font-size:1.125em; 
+        }
             .exp-hero__sub, .exp-hero__title {
                 text-align: center;
             }
@@ -280,23 +310,17 @@
         }
     }
     @media only screen and (max-device-width : 480px) and (orientation: landscape) {
-        .exp-hero__vertical-spacer, .exp-hero__group  {
-            height:15em; /*240px*/
-        }
             .exp-hero__desc {
                 margin-top: 0; width: 41.666% !important;
             }
-            .exp-hero__copy-box {
-                font-size:0.75em; padding:1em 2.1667em 1em 0; 
+            .exp-hero__title {
+               font-size:1.375em; 
             }
-                .exp-hero__title {
-                    font-size:2em;
-                }
+            .exp-hero__sub {
+                font-size:1.125em;
+            }
                 .exp-hero__sub, .exp-hero__title {
                     text-align: left;
-                }
-                .exp-hero__copy {
-                    display:none;
                 }
         .exp-hero__tag {
             width: 5em;
