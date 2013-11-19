@@ -230,20 +230,27 @@
         height: 12.5em; width: 12.5em;
         z-index: 4; background-size: contain;
     }
-
-    @media only screen and (min-width:1701px) {
+    .exp-hero__vertical-spacer, .exp-hero__group {
+        height:42.375em; /*678px*/
+    }
+    @media only screen and (min-width:2001px) {
         .exp-hero__vertical-spacer, .exp-hero__group {
-            height:62em; /*992px*/
+            height:59.25em; /*948px*/
+        }
+    }
+    @media only screen and (min-width:1701px) and (max-width:2000px) {
+        .exp-hero__vertical-spacer, .exp-hero__group {
+            height:51em; /*816px*/
         }
     }
     @media only screen and (min-width:1401px) and (max-width:1700px) {
         .exp-hero__vertical-spacer, .exp-hero__group {
-            height:55em; /*880px*/
+            height:47.25em; /*756px*/
         }
     }
     @media only screen and (min-width:1001px) and (max-width:1400px) {
         .exp-hero__vertical-spacer, .exp-hero__group {
-            height:47em; /*752px*/
+            height:45em; /*720px*/
         }
     }
     @media only screen and (min-width:700px) and (max-width:1000px) {
