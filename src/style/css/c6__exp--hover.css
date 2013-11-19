@@ -4,11 +4,11 @@
     a:hover {
         color:#00b9ff;
     }
-    .c6-ui__play {
-        opacity:0.22;
+    .c6-ui__play, .c6-ui__create {
+        opacity:0.22; cursor: pointer;
         -webkit-transition:opacity 0.5s; transition:opacity 0.5s;
     }
-        .c6-ui__play:hover {
+        .c6-ui__play:hover, .c6-ui__create:hover {
             opacity:1;
         }
 
