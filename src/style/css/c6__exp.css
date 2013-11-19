@@ -49,6 +49,66 @@
         clear: both;
     }
 
+
+/*  ==========================================================================
+    CSSWIZARDRY-GRIDS
+    ========================================================================== */
+    .grid {
+        list-style: none; margin: 0 0 0 -24px; padding: 0; letter-spacing: -0.31em;
+    }
+    /* Opera hack */
+    .opera:-o-prefocus,
+    .grid {
+        word-spacing: -0.43em;
+    }
+    .grid__item {
+        display: inline-block; padding-left: 24px; vertical-align: top; width: 100%;
+        -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+        letter-spacing: normal; word-spacing: normal;
+    }
+    .grid--middle > .grid__item {
+        vertical-align: middle;
+    }
+
+    /*------------------------------------*\
+        $WIDTHS
+    \*------------------------------------*/
+    .one-third {
+        width: 33.333%;
+    }
+    .one-twelfth {
+        width: 8.333%;
+    }
+    .eleven-twelfths {
+      width: 91.666%;
+    }
+
+    /**
+     * Our responsive classes, if we have enabled them.
+     */
+    @media only screen and (max-width: 480px) {
+        /**
+        * Hide
+        */
+        .palm--hide {
+            display:none;
+        }
+        /**
+        * Whole
+        */
+        .palm--one-whole {
+            width: 100%;
+        }
+    }
+    @media only screen and (min-width: 481px) and (max-width: 768px) {
+        /**
+        * Twelfths
+        */
+        .lap--five-twelfths {
+            width: 41.666%;
+        }
+    }
+
 /*  ==========================================================================
     c6-copy classes : general type styles
     ========================================================================== */
@@ -100,18 +160,22 @@
         .c6-ui__btn--twitter {
             background:#00bef6;
         }
-    .c6-ui__play {
+    .c6-ui__play, .c6-ui__create {
         display:block; width:8em; height:9em; 
         position:absolute; top:50%; left:50%; margin:-4.5em 0 0 -4em; z-index:10;
-        background: url(../img/c6-sprite--alpha.png) 0 100% no-repeat; background-size:265px 265px;
     }
-        @media screen and (max-width:480px), (max-device-width : 568px) and (orientation: landscape) {
-            .c6-ui__play {
-                width:4em; height:4.5em; margin:-4.5em 0 0 -4em
-                ; margin:-2.25em 0 0 -2em; 
-                background-size:133px 133px;
-            }
+        .c6-ui__play {
+            background: url(../img/c6-sprite--alpha.png) 0 100% no-repeat; background-size:265px 265px;
         }
+        .c6-ui__create {
+            background: url(../img/c6-sprite--alpha.png) 94% 100% no-repeat; background-size:265px 265px;
+        }
+            @media screen and (max-width:480px), (max-device-width : 568px) and (orientation: landscape) {
+                .c6-ui__play, .c6-ui__create {
+                    width:4em; height:4.5em; margin:-2.25em 0 0 -2em; 
+                    background-size:133px 133px;
+                }
+            }
     .c6-ui__play--med, .c6-ui__create--med {
         width:4em; height:4.5em; display: block;
         background: url(../img/c6-sprite--alpha.png) 0 -48px no-repeat; background-size:265px 265px;
@@ -156,9 +220,15 @@
             .exp-hero__copy {
                 font-size:1em; line-height:1.5;
             }
-        .exp-hero__vertical-spacer {
-            height:42em;
-        }
+            .exp-hero__vertical-spacer {
+                height:42em;
+            }
+
+    .exp-hero__tag {
+        position: absolute; top: 0; left: 0;
+        height: 12.5em; width: 12.5em;
+        z-index: 4; background-size: contain;
+    }
 
     @media only screen and (min-width:700px) and (max-width:1000px) {
         .exp-hero__vertical-spacer {
@@ -175,21 +245,26 @@
         .exp-hero__copy-box {
             font-size:0.75em;
         }
-        .c6-ui__play {
-            width:4em; height:4.5em; margin:-4.5em 0 0 -4em
-            ; margin:-2.25em 0 0 -2em; 
+        .c6-ui__play, .c6-ui__create {
+            width:4em; height:4.5em; margin:-2.25em 0 0 -2em; 
             background-size:133px 133px;
+        } 
+        .exp-hero__tag {
+            width: 7em;
         }
     }
-    @media only screen and (max-device-width:400px) and (orientation: portrait), (max-width:480px) {
+    @media only screen and (max-device-width:400px) and (orientation: portrait), (max-width:400px) {
         .exp-hero__group {
             height:24.75em; /*396px*/ 
+        }
+        .exp-hero__vertical-spacer {
+            display: none;
         }
         .exp-hero__desc {
             margin-top:13em;
         }
             .exp-hero__copy-box {
-                font-size:0.75em; padding:0; background:none;
+                font-size:0.75em;
             }
             .exp-hero__title {
                 font-size:2em;
@@ -197,76 +272,33 @@
             .exp-hero__sub, .exp-hero__title {
                 text-align: center;
             }
-        .c6-ui__play {
+        .c6-ui__play, .c6-ui__create {
             top:41%;
         }
+        .exp-hero__tag {
+            width: 5em;
+        }
     }
-    @media only screen and (max-device-width : 568px) and (orientation: landscape) {
+    @media only screen and (max-device-width : 480px) and (orientation: landscape) {
         .exp-hero__vertical-spacer, .exp-hero__group  {
             height:15em; /*240px*/
         }
+            .exp-hero__desc {
+                margin-top: 0; width: 41.666% !important;
+            }
             .exp-hero__copy-box {
-                font-size:0.75em; padding:1em 2.1667em 1em 0;
+                font-size:0.75em; padding:1em 2.1667em 1em 0; 
             }
-            .exp-hero__title {
-                font-size:2em;
-            }
-    }
-
-
-/*  ==========================================================================
-    CSSWIZARDRY-GRIDS
-    ========================================================================== */
-    .grid {
-        list-style: none; margin: 0 0 0 -24px; padding: 0; letter-spacing: -0.31em;
-    }
-    /* Opera hack */
-    .opera:-o-prefocus,
-    .grid {
-        word-spacing: -0.43em;
-    }
-    .grid__item {
-        display: inline-block; padding-left: 24px; vertical-align: top; width: 100%;
-        -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
-        letter-spacing: normal; word-spacing: normal;
-    }
-    .grid--middle > .grid__item {
-        vertical-align: middle;
-    }
-
-    /*------------------------------------*\
-        $WIDTHS
-    \*------------------------------------*/
-    .one-third {
-        width: 33.333%;
-    }
-    .one-twelfth {
-        width: 8.333%;
-    }
-
-
-    /**
-     * Our responsive classes, if we have enabled them.
-     */
-    @media only screen and (max-width: 480px) {
-        /**
-        * Hide
-        */
-        .palm--hide {
-            display:none;
-        }
-        /**
-        * Whole
-        */
-        .palm--one-whole {
-            width: 100%;
-        }
-    }
-    @media only screen and (min-width: 481px) and (max-width: 768px) {
-        /**
-        * Twelfths
-        */
-        .lap--five-twelfths {
-            width: 41.666%;
+                .exp-hero__title {
+                    font-size:2em;
+                }
+                .exp-hero__sub, .exp-hero__title {
+                    text-align: left;
+                }
+                .exp-hero__copy {
+                    display:none;
+                }
+        .exp-hero__tag {
+            width: 5em;
         }
     }
