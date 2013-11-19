@@ -160,6 +160,15 @@ module.exports = function (grunt) {
                     }
                 }
             },
+            app: {
+                cwd: 'src',
+                src: '**/*.html',
+                dest: '<%= settings.app %>/assets/lib/c6ui/templates.js',
+                options: {
+                    prefix: 'c6ui/',
+                    module: 'c6.ui',
+                }
+            },
             test: {
                 cwd: 'src',
                 src: '**/*.html',
@@ -173,7 +182,7 @@ module.exports = function (grunt) {
         watch: {
             build: {
                 files: '<%= settings.src %>/**',
-                tasks: 'copy:app'
+                tasks: ['copy:app', 'ngtemplates:app']
             }
         },
         connect: {
@@ -236,6 +245,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('server', function() {
         grunt.task.run('copy:app');
+        grunt.task.run('ngtemplates:app');
         grunt.task.run('connect:dev');
         grunt.task.run('watch');
     });
