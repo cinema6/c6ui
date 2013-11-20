@@ -210,7 +210,7 @@
     ========================================================================== */
     .c6-ui__btn {
         -webkit-border-radius: 3px; border-radius: 3px; background:#a2a4a8; border:0; 
-        text-align: center; color:#fff; text-transform: uppercase;
+        text-align: center; color:#fff; text-trnasform: uppercase;
     }
         .c6-ui__btn--med {
             font-size:0.875em; padding:6px 10px 5px; font-weight:bold;
@@ -289,6 +289,7 @@
         position: absolute; top: 0; left: 0;
         height: 12.5em; width: 12.5em;
         z-index: 4; background-size: contain;
+        background-repeat: no-repeat; background-position: 0 0;
     }
     .exp-hero__vertical-spacer, .exp-hero__group {
         height:42.375em; /*678px*/
