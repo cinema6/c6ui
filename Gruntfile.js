@@ -56,7 +56,20 @@ module.exports = function (grunt) {
                         dot: true,
                         cwd: '<%= settings.src %>',
                         dest: '<%= settings.dist %>/img',
-                        src: '**/*.{jpg,png,svg,gif}'
+                        src: [
+                            '**/*.{jpg,png,svg,gif}',
+                            '!style/css/**/*'
+                        ]
+                    },
+                    {
+                        expand: true,
+                        flatten: true,
+                        dot: true,
+                        cwd: '<%= settings.src %>/style/css',
+                        dest: '<%= settings.dist %>/css',
+                        src: [
+                            '**/*.{eot,svg,ttf,woff}'
+                        ]
                     }
                 ]
             },
