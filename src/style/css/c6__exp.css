@@ -65,6 +65,66 @@
         font-size: 1em; font-family: 'Open Sans', Arial, Helvetica, sans-serif; line-height: 1.5; margin:0;
     }
     @font-face {
+        font-family: 'MuseoSans';
+        src: url('museosans-300-webfont.eot');
+        src: url('museosans-300-webfont.eot?#iefix') format('embedded-opentype'),
+             url('museosans-300-webfont.woff') format('woff'),
+             url('museosans-300-webfont.svg#museo_sans300') format('svg'),
+             url('museosans-300-webfont.ttf') format('truetype');
+        font-weight: 300;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'MuseoSans';
+        src: url('museosans-300italic-webfont.eot');
+        src: url('museosans-300italic-webfont.eot?#iefix') format('embedded-opentype'),
+             url('museosans-300italic-webfont.woff') format('woff'),
+             url('museosans-300italic-webfont.svg#museo_sans300_italic') format('svg'),
+             url('museosans-300italic-webfont.ttf') format('truetype');
+        font-weight: 300;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: 'MuseoSans';
+        src: url('museosans_700-webfont.eot');
+        src: url('museosans_700-webfont.eot?#iefix') format('embedded-opentype'),
+             url('museosans_700-webfont.woff') format('woff'),
+             url('museosans_700-webfont.svg#museo_sans700') format('svg'),
+             url('museosans_700-webfont.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'MuseoSans';
+        src: url('museosans-700italic-webfont.eot');
+        src: url('museosans-700italic-webfont.eot?#iefix') format('embedded-opentype'),
+             url('museosans-700italic-webfont.woff') format('woff'),
+             url('museosans-700italic-webfont.svg#museo_sans700_italic') format('svg'),
+             url('museosans-700italic-webfont.ttf') format('truetype');
+        font-weight: 700;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: 'MuseoSans';
+        src: url('museosans_900-webfont.eot');
+        src: url('museosans_900-webfont.eot?#iefix') format('embedded-opentype'),
+             url('museosans_900-webfont.woff') format('woff'),
+             url('museosans_900-webfont.svg#museo_sans900') format('svg'),
+             url('museosans_900-webfont.ttf') format('truetype');
+        font-weight: 900;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'MuseoSans';
+        src: url('museosans-900italic-webfont.eot');
+        src: url('museosans-900italic-webfont.eot?#iefix') format('embedded-opentype'),
+             url('museosans-900italic-webfont.woff') format('woff'),
+             url('museosans-900italic-webfont.svg#museo_sans900_italic') format('svg'),
+             url('museosans-900italic-webfont.ttf') format('truetype');
+        font-weight: 900;
+        font-style: italic;
+    }
+    @font-face {
         font-family: 'iconies_socialregular';
         src: url('iconiessocial-webfont.eot');
         src: url('iconiessocial-webfont.eot?#iefix') format('embedded-opentype'),
@@ -117,7 +177,7 @@
         font-family:'Open Sans', Arial, Helvetica, sans-serif; font-weight:400;
     }
     .tk--hdr {
-        font-family: 'museo-sans', 'Open Sans', Arial, Helvetica, sans-serif;   
+        font-family: 'MuseoSans', 'Open Sans', Arial, Helvetica, sans-serif;   
     }
     .tk--social {
         font-family:'iconies_socialregular', sans-serif;
@@ -171,7 +231,7 @@
         .c6-ui__create {
             background: url(../img/c6-sprite--alpha.png) 94% 100% no-repeat; background-size:265px 265px;
         }
-            @media screen and (max-width:480px), (max-device-width : 568px) and (orientation: landscape) {
+            @media screen and (max-width:699px) {
                 .c6-ui__play, .c6-ui__create {
                     width:4em; height:4.5em; margin:-2.25em 0 0 -2em; 
                     background-size:133px 133px;
@@ -285,10 +345,6 @@
         .exp-hero__sub {
             font-size:1.125em; 
         }
-        .c6-ui__play, .c6-ui__create {
-            width:4em; height:4.5em; margin:-2.25em 0 0 -2em; 
-            background-size:133px 133px;
-        } 
         .exp-hero__tag {
             width: 7em;
         }
