@@ -289,6 +289,7 @@
         position: absolute; top: 0; left: 0;
         height: 12.5em; width: 12.5em;
         z-index: 4; background-size: contain;
+        background-repeat: no-repeat; background-position: 0 0;
     }
     .exp-hero__vertical-spacer, .exp-hero__group {
         height:42.375em; /*678px*/
