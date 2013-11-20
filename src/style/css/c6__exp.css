@@ -210,7 +210,7 @@
     ========================================================================== */
     .c6-ui__btn {
         -webkit-border-radius: 3px; border-radius: 3px; background:#a2a4a8; border:0; 
-        text-align: center; color:#fff; text-trnasform: uppercase;
+        text-align: center; color:#fff; text-transform: uppercase;
     }
         .c6-ui__btn--med {
             font-size:0.875em; padding:6px 10px 5px; font-weight:bold;
