@@ -231,7 +231,7 @@
         .c6-ui__create {
             background: url(../img/c6-sprite--alpha.png) 94% 100% no-repeat; background-size:265px 265px;
         }
-            @media screen and (max-width:480px), (max-device-width : 568px) and (orientation: landscape) {
+            @media screen and (max-width:699px) {
                 .c6-ui__play, .c6-ui__create {
                     width:4em; height:4.5em; margin:-2.25em 0 0 -2em; 
                     background-size:133px 133px;
@@ -345,10 +345,6 @@
         .exp-hero__sub {
             font-size:1.125em; 
         }
-        .c6-ui__play, .c6-ui__create {
-            width:4em; height:4.5em; margin:-2.25em 0 0 -2em; 
-            background-size:133px 133px;
-        } 
         .exp-hero__tag {
             width: 7em;
         }
