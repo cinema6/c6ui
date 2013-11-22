@@ -152,7 +152,7 @@
         text-decoration: none; color:#266cb3;
         -webkit-transition:color 0.5s; transition:color 0.5s;
     }
-    a:focus, button:focus, input:focus {
+    a:focus, button:focus, input:focus, textarea:focus {
         outline:none; border:0;
     }
 /*  ==========================================================================
