@@ -88,12 +88,16 @@
             describe('with web audio api', function() {
                 var c6Sfx,
                     $httpBackend,
+                    $log,
                     httpResponse = {},
                     context,
                     source,
-                    gainNode;
+                    gainNode,
+                    kSampleRate;
 
                 beforeEach(function() {
+                    kSampleRate = 44100;
+
                     module('ngMock');
                     module(function($provide) {
                         $provide.value('$window', {
@@ -113,6 +117,8 @@
                                 };
 
                                 this.destination = {};
+
+                                this.sampleRate = kSampleRate;
 
                                 context = this;
                             },
@@ -149,8 +155,9 @@
                     };
 
 
-                    inject(function(_$httpBackend_, _c6Sfx_) {
+                    inject(function(_$httpBackend_, _c6Sfx_, _$log_) {
                         c6Sfx = _c6Sfx_;
+                        $log = _$log_;
                         $httpBackend = _$httpBackend_;
                     });
                     $httpBackend.when('GET', 'test/foo.mp3').respond(httpResponse);
@@ -257,6 +264,22 @@
                         foo.play();
 
                         expect(gainNode.gain.value).toBe(0.5);
+                    });
+
+                    it('should log an error and do nothing if the sampleRate changes (iOS bug)', function() {
+                        var foo;
+
+                        spyOn($log, 'error');
+
+                        c6Sfx.loadSounds(sounds);
+                        foo = c6Sfx.getSoundByName('foo');
+
+                        kSampleRate = 48000;
+
+                        foo.play();
+
+                        expect($log.error).toHaveBeenCalledWith('SampleRate has changed from 44100 to 48000! Not playing.');
+                        expect(source.start).not.toHaveBeenCalled();
                     });
 
                     it('should call start if the browser supports it', function() {

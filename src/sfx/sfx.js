@@ -6,13 +6,22 @@
             return $window.AudioContext || $window.webkitAudioContext || $window.msAudioContext || $window.mozAudioContext;
         }])
 
-        .service('c6Sfx', ['c6AudioContext', '$http', '$q', '$rootScope', '$window', '$log', '$timeout', function(AudioContext, $http, $q, $rootScope, $window, $log, $timeout) {
+        .service('c6Sfx', ['c6AudioContext', '$http', '$q', '$rootScope', '$window', '$log', '$timeout',
+        function          ( AudioContext   ,  $http ,  $q ,  $rootScope ,  $window ,  $log ,  $timeout ) {
             var context = AudioContext ? new AudioContext() : undefined,
                 sounds = [],
                 safeApply = function(func) {
                     return $rootScope.$$phase ? func() : $rootScope.$apply(func);
                 },
                 c6SfxSvc = this, C6Sfx;
+
+            if (!$log.context) {
+                $log.context = function() {
+                    return $log;
+                };
+            }
+
+            $log = $log.context('c6Sfx');
 
             if (context) {
                 if (context.createGain === undefined){
@@ -86,6 +95,14 @@
                 this.play = function(config) {
                     if (context) {
                         this.play = function(config) {
+                            var testContext = new AudioContext();
+
+                            if (testContext.sampleRate !== context.sampleRate) {
+                                $log.error('SampleRate has changed from ' + context.sampleRate + ' to ' + testContext.sampleRate + '! Not playing.');
+
+                                return;
+                            }
+
                             var source = context.createBufferSource(),
                                 gainNode = context.createGain(),
                                 sfx = {
