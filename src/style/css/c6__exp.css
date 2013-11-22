@@ -290,7 +290,7 @@
 
     .exp-hero__tag {
         position: absolute; top: 0; left: 0;
-        height: 12.5em; width: 12.5em;
+        height: 5em; width: 5em;
         z-index: 4; background-size: contain;
         background-repeat: no-repeat; background-position: 0 0;
     }
@@ -349,9 +349,6 @@
         .exp-hero__sub {
             font-size:1.125em; 
         }
-        .exp-hero__tag {
-            width: 7em;
-        }
     }
     @media only screen and (max-device-width:480px) and (orientation: portrait), (max-width:480px) {
         .exp-hero__vertical-spacer {
@@ -372,9 +369,6 @@
         .c6-ui__play, .c6-ui__create {
             top:41%;
         }
-        .exp-hero__tag {
-            width: 5em;
-        }
     }
     @media only screen and (max-device-width : 480px) and (orientation: landscape) {
             .exp-hero__desc {
@@ -389,7 +383,4 @@
                 .exp-hero__sub, .exp-hero__title {
                     text-align: left;
                 }
-        .exp-hero__tag {
-            width: 5em;
-        }
     }
