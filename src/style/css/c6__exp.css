@@ -312,7 +312,7 @@
             height:47.25em; /*756px*/
         }
     }
-    @media only screen and (min-width:1001px) and (max-width:1400px) {
+    @media only screen and (min-width:1250px) and (max-width:1400px) {
         .exp-hero__vertical-spacer, .exp-hero__group {
             height:45em; /*720px*/
         }
