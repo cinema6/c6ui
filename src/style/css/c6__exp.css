@@ -185,7 +185,6 @@
     .tk--social {
         font-family:'iconies_socialregular', sans-serif;
     }
-    
 /*  ==========================================================================
     c6-view classes : used for layout
     ========================================================================== */
@@ -240,6 +239,12 @@
                     background-size:133px 133px;
                 }
             }
+            @media only screen and (min-width:700px) and (max-width:1024px) {
+                .c6-ui__play, .c6-ui__create, .c6-ui__preloader {
+                    width:6em; height:6.75em; margin:-3.375em 0 0 -3em; 
+                    background-size:199px 199px;
+                }
+            }
     .c6-ui__play--med, .c6-ui__create--med {
         width:4em; height:4.5em; display: block;
         background: url(../img/c6-sprite--alpha.png) 0 -48px no-repeat; background-size:265px 265px;
@@ -270,23 +275,20 @@
     .exp-hero__desc {
         color:#fff; 
     }
-        .exp-hero__copy-box {
-            background:rgb(0,0,0); background:rgba(0,0,0,0.78); padding:1em 1.5em;
+        .exp-hero__title {
+           font-size:3em; font-weight:900; line-height: 1; text-transform: uppercase;
+           margin:0.083em 0 0.5em 0;
         }
-            .exp-hero__title {
-               font-size:3em; font-weight:900; line-height: 1; text-transform: uppercase;
-               margin:0.083em 0 0.5em 0;
-            }
-            .exp-hero__sub {
-                font-size:1.5em; font-weight:300; line-height: 1;
-                margin:0;
-            }
-            .exp-hero__copy {
-                font-size:1em; line-height:1.5;
-            }
-            .exp-hero__vertical-spacer {
-                height:42em;
-            }
+        .exp-hero__sub {
+            font-size:1.5em; font-weight:300; line-height: 1.2; font-style:italic;
+            margin:0;
+        }
+        .exp-hero__copy {
+            font-size:1em; line-height:1.5; 
+        }
+        .exp-hero__vertical-spacer {
+            height:42em;
+        }
 
     .exp-hero__tag {
         position: absolute; top: 0; left: 0;
@@ -294,44 +296,41 @@
         z-index: 4; background-size: contain;
         background-repeat: no-repeat; background-position: 0 0;
     }
-    .exp-hero__vertical-spacer, .exp-hero__group {
-        height:42.375em; /*678px*/
+    .exp-hero__vertical-spacer {
+        height:31.125em; /*498px*/
     }
     @media only screen and (min-width:2001px) {
-        .exp-hero__vertical-spacer, .exp-hero__group {
-            height:59.25em; /*948px*/
+        .exp-hero__vertical-spacer {
+            height:52.5em; /*840px*/
         }
     }
     @media only screen and (min-width:1701px) and (max-width:2000px) {
-        .exp-hero__vertical-spacer, .exp-hero__group {
-            height:51em; /*816px*/
+        .exp-hero__vertical-spacer {
+            height:46.125em; /*738px*/
         }
     }
-    @media only screen and (min-width:1401px) and (max-width:1700px) {
-        .exp-hero__vertical-spacer, .exp-hero__group {
-            height:47.25em; /*756px*/
+    @media only screen and (min-width:1501px) and (max-width:1700px) {
+        .exp-hero__vertical-spacer {
+            height:40.125em; /*642px*/
         }
     }
-    @media only screen and (min-width:1250px) and (max-width:1400px) {
-        .exp-hero__vertical-spacer, .exp-hero__group {
-            height:45em; /*720px*/
+    @media only screen and (min-width:1301px) and (max-width:1500px) {
+        .exp-hero__vertical-spacer {
+            height:34.875em; /*558px*/
         }
     }
-    @media only screen and (min-width:700px) and (max-width:1000px) {
-        .exp-hero__vertical-spacer, .exp-hero__group {
-            height:31.125em; /*498px*/
-        }
-    }
+    /* 700 - 1300 = uses default height of 498px */
     @media only screen and (max-width:699px) {
-        .exp-hero__vertical-spacer, .exp-hero__group {
+        .exp-hero__vertical-spacer {
             height:28em; /*448px*/
         }
     }
     @media only screen and (max-device-width : 568px) and (orientation: landscape) {
-        .exp-hero__vertical-spacer, .exp-hero__group {
+        .exp-hero__vertical-spacer {
             height:18em; /*288px*/
         }
     }
+
 
 
     @media only screen and (min-width:700px) and (max-width:1000px) {
@@ -363,7 +362,7 @@
         .exp-hero__sub {
             font-size:1.125em; 
         }
-            .exp-hero__sub, .exp-hero__title {
+            .exp-hero__sub, .exp-hero__title, .exp-hero__copy {
                 text-align: center;
             }
         .c6-ui__play, .c6-ui__create {
