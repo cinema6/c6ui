@@ -289,7 +289,9 @@
         .exp-hero__vertical-spacer {
             height:42em;
         }
-
+        .exp-hero__highlight {
+            background:#000; background:rgba(0,0,0,0.78); 
+        }
     .exp-hero__tag {
         position: absolute; top: 0; left: 0;
         height: 5em; width: 5em;
