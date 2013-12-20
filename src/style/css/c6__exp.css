@@ -286,9 +286,6 @@
         .exp-hero__copy {
             font-size:1em; line-height:1.5; 
         }
-        .exp-hero__vertical-spacer {
-            height:42em;
-        }
         .exp-hero__highlight {
             background:#000; background:rgba(0,0,0,0.78); padding:3px 0;
         }
