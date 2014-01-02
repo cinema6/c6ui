@@ -65,6 +65,67 @@
         };
 
     }])
+    .animation('.upperPanel',function(){
+        return {
+            show: function(element,done){
+                    $log.info('upper-panel-show setup');
+                    var timeline = new TimelineLite({paused:true}),
+                        duration = aniCache.data('c6Panels').duration;
+                    element.css({ bottom : '100%', display : 'block', 'z-index' : 99999 });
+                    timeline.to( element[0], duration, { bottom: '50%', ease:Power2.easeInOut} );
+                    $log.info('upper-panel-show start');
+                    timeline.eventCallback('onComplete',function(){
+                        $log.info('upper-panel-show end');
+                        done();
+                    });
+                    timeline.play();
+                },
+            hide: function(element,done){
+                    $log.info('upper-panel-hide setup');
+                    var timeline = new TimelineLite({paused:true}),
+                        duration = aniCache.data('c6Panels').duration;
+                    element.css({ bottom : '50%', display : 'block', 'z-index' : 99999 });
+                    timeline.to( element[0], duration, { bottom: '100%', ease:Power2.easeInOut} );
+                    $log.info('upper-panel-hide start');
+                    timeline.eventCallback('onComplete',function(){
+                        $log.info('upper-panel-hide end');
+                        done();
+                    });
+                    timeline.play();
+                }
+        };
+    })
+    .animation('.lower-panel',function(){
+        return {
+            show: function(element,done){
+                $log.info('lower-panel-show setup');
+                var timeline = new TimelineLite({paused:true}),
+                    duration = aniCache.data('c6Panels').duration;
+                element.css({ top : '100%', display : 'block', 'z-index' : 99999 });
+                timeline.to( element[0], duration, { top: '50%', ease:Power2.easeInOut} );
+                $log.info('lower-panel-show start');
+                timeline.eventCallback('onComplete',function(){
+                    $log.info('lower-panel-show end');
+                    done();
+                });
+                timeline.play();
+            },
+            hide: function(element,done){
+                $log.info('lower-panel-hide setup');
+                var timeline = new TimelineLite({paused:true}),
+                    duration = aniCache.data('c6Panels').duration;
+                element.css({ top : '50%', display : 'block', 'z-index' : 99999 });
+                timeline.to( element[0], duration, { top: '100%', ease:Power2.easeInOut} );
+                $log.info('lower-panel-hide start');
+                timeline.eventCallback('onComplete',function(){
+                    $log.info('lower-panel-hide end');
+                    done();
+                });
+                timeline.play();
+            }
+        };
+    });
+    /*
     .animation('upperPanel-show', ['$log', 'c6AniCache', function($log, aniCache) {
         return aniCache({
             id : 'upper-panel-show',
@@ -149,4 +210,5 @@
             }
         });
     }]);
+    */
 }());

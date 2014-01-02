@@ -4,14 +4,20 @@
     var tests = Object.keys($window.__karma__.files).filter(function(file){
         return /\.ut\.js$/.test(file);
     });
+    
+    function libUrl(url) {
+        return 'http://s3.amazonaws.com/c6.dev/ext/' + url;
+    }
 
     requirejs({
 
         baseUrl: '/base/src',
 
         paths : {
-            "angular"       : "../lib/angular/angular",
-            "angularMocks"  : "../lib/angular/angular-mocks",
+            "angular": libUrl('angular/v1.2.6-0-g98ee371/angular'),
+            "angularMocks": libUrl('angular/v1.2.6-0-g98ee371/angular-mocks'),
+            //"angular"       : "../lib/angular/angular",
+            //"angularMocks"  : "../lib/angular/angular-mocks",
             "templates"     : "../.tmp/templates"
         },
 
