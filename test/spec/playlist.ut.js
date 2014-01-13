@@ -314,7 +314,7 @@
                                     var args = C6PlaylistCtrl._compilePlayList.mostRecentCall.args;
 
                                     expect(C6PlaylistCtrl._compilePlayList).toHaveBeenCalled();
-                                    expect(args[0]).toBe(playlistData);
+                                    expect(args[0]).toEqual(playlistData);
                                     expect(args[1]).toBe($scope.model);
                                 });
                             });
