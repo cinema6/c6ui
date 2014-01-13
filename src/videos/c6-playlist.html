@@ -1,7 +1,7 @@
 <ul class="exp-player__stack c6-view--fill-100">
     <li ng-repeat="buffId in playerBuffers" class="exp-player__item"
         ng-class="{'exp-player__item--active': videos[buffId].showPlayer}"
-        ng-show="videos[buffId].showPlayer" ng-animate="'videoBuffer'">
+        ng-show="videos[buffId].showPlayer" >
         <video c6-video id="{{buffId}}" c6-src="model.cli[buffId].data.src"
             preload="auto" class="exp-player__video c6-view--fill-100"> </video>
     </li>

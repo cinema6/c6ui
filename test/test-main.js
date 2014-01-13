@@ -14,10 +14,8 @@
         baseUrl: '/base/src',
 
         paths : {
-            "angular": libUrl('angular/v1.2.6-0-g98ee371/angular'),
-            "angularMocks": libUrl('angular/v1.2.6-0-g98ee371/angular-mocks'),
-            //"angular"       : "../lib/angular/angular",
-            //"angularMocks"  : "../lib/angular/angular-mocks",
+            "angular"       : libUrl('angular/v1.2.6-0-g98ee371/angular'),
+            "angularMocks"  : libUrl('angular/v1.2.6-0-g98ee371/angular-mocks'),
             "templates"     : "../.tmp/templates"
         },
 
@@ -46,9 +44,6 @@
             "events/journal" : {
                 "deps" : [ "c6ui" ]
             },
-            "anicache/anicache" : {
-                "deps" : [ "events/emitter" ]
-            },
             "computed/computed": {
                 "deps": ["c6ui"]
             },
@@ -74,12 +69,6 @@
                 "deps": ["c6ui", "templates"]
             },
             "videos/video": {
-                "deps": ["c6ui"]
-            },
-            "panels/panels": {
-                "deps": ["anicache/anicache"]
-            },
-            "visible/visible": {
                 "deps": ["c6ui"]
             },
             "url/urlmaker": {
