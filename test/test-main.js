@@ -2,9 +2,9 @@
     'use strict';
 
     var tests = Object.keys($window.__karma__.files).filter(function(file){
-        return /\.ut\.js$/.test(file);
+        return (/\.ut\.js$/).test(file);
     });
-    
+
     function libUrl(url) {
         return 'http://s3.amazonaws.com/c6.dev/ext/' + url;
     }
@@ -80,7 +80,7 @@
             "postmessage/postmessage": {
                 "deps": ["events/emitter"]
             },
-            "site/site": {
+            "cinema6/cinema6": {
                 "deps": ["postmessage/postmessage"]
             }
         },
