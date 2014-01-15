@@ -88,6 +88,83 @@
                     expect(event2List[0]()).toEqual('testEvent2-1');
                 }); 
 
+                it('should enable listener self removal',function(){
+                    var called = false, listener = function(){
+                        called = true;
+                        emitter.removeListener('testRemove',this);
+                    };
+                    emitter.on('testRemove',listener);
+                    emitter.emit('testRemove');
+
+                    expect(called).toEqual(true);
+                    expect(emitter.listeners('testRemove').length).toEqual(0);
+                });
+
+                it('should enable listener self removal with multilple listeners when listener is first',function(){
+                    var called = false, listener = function(){
+                        called = true;
+                        emitter.removeListener('testRemove',this);
+                    }, l1 = jasmine.createSpy('l1'), l2 = jasmine.createSpy('l2');
+
+                    emitter.on('testRemove',listener);
+                    emitter.on('testRemove',l1);
+                    emitter.on('testRemove',l2);
+                    
+                    expect(emitter.listeners('testRemove').length).toEqual(3);
+                    
+                    emitter.emit('testRemove');
+
+                    expect(emitter.listeners('testRemove').length).toEqual(2);
+                    expect(called).toEqual(true);
+                    expect(l1.callCount).toEqual(1);
+                    expect(l2.callCount).toEqual(1);
+
+                });
+
+
+                it('should enable listener self removal with multilple listeners when listener is last',function(){
+                    var called = false, listener = function(){
+                        called = true;
+                        emitter.removeListener('testRemove',this);
+                    }, l1 = jasmine.createSpy('l1'), l2 = jasmine.createSpy('l2');
+
+                    emitter.on('testRemove',l1);
+                    emitter.on('testRemove',l2);
+                    emitter.on('testRemove',listener);
+                    
+                    expect(emitter.listeners('testRemove').length).toEqual(3);
+                    
+                    emitter.emit('testRemove');
+
+                    expect(emitter.listeners('testRemove').length).toEqual(2);
+                    expect(called).toEqual(true);
+                    expect(l1.callCount).toEqual(1);
+                    expect(l2.callCount).toEqual(1);
+
+                });
+
+                it('should enable listener self removal with multilple listeners when listener is in the middle',function(){
+                    var called = false, listener = function(){
+                        called = true;
+                        emitter.removeListener('testRemove',this);
+                    }, l1 = jasmine.createSpy('l1'), l2 = jasmine.createSpy('l2');
+
+                    emitter.on('testRemove',l1);
+                    emitter.on('testRemove',listener);
+                    emitter.on('testRemove',l2);
+                    
+                    expect(emitter.listeners('testRemove').length).toEqual(3);
+                    
+                    emitter.emit('testRemove');
+
+                    expect(emitter.listeners('testRemove').length).toEqual(2);
+                    expect(called).toEqual(true);
+                    expect(l1.callCount).toEqual(1);
+                    expect(l2.callCount).toEqual(1);
+
+                });
+
+
                 it('should enable removal of all listeners for an event', function(){
                     expect( emitter.removeAllListeners('testEvent2') ).toBe(emitter);
                     
