@@ -44,6 +44,7 @@
                 if (evtBucket){
                     for (var i = 0; i < evtBucket.length; i++){
                         if (evtBucket[i].listener === listener){
+                            evtBucket[i].removed = true;
                             evtBucket.splice(i--,1);
                         }
                     }
@@ -95,14 +96,21 @@
             };
 
             emitter.emit = function(eventName){
-                var evtBucket = events[eventName], result = false;
+                var evtBucket = events[eventName], result = false, bucketItem, copy;
                 if (evtBucket){
-                    var copy = [].slice.call(arguments);
+                    copy = [].slice.call(arguments);
                     copy.shift();
                     for (var i = 0; i < evtBucket.length; i++){
-                        evtBucket[i].listener.apply(evtBucket[i].listener,copy);
+                        bucketItem = evtBucket[i];
+                        bucketItem.listener.apply(bucketItem.listener,copy);
                         result = true;
-                        if (evtBucket[i].reuse === false){
+                        if (bucketItem.removed === true){
+                            // This bucketItem's listener removed itself, we should
+                            // dial back i;
+                            i--;
+                            continue;
+                        }
+                        if (bucketItem.reuse === false){
                             evtBucket.splice(i--,1);
                         }
                     }
