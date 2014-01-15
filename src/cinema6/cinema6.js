@@ -5,8 +5,6 @@
         .service('cinema6', ['$window', '$q', 'c6EventEmitter', 'postMessage',
         function            ( $window ,  $q ,  c6EventEmitter ,  postMessage ) {
             var self = this,
-                $rootScope,
-                $location,
                 _private = {
                     session: $q.defer(),
                     appData: $q.defer(),
