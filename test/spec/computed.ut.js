@@ -313,6 +313,32 @@
                         expect($scope.csv).toBe('Steph,Josh,Evan');
                     });
                 });
+
+                it('should handle adding items to the collection', function() {
+                    var names = $scope.names = ['Howard', 'Josh', 'Evan'];
+
+                    c6Computed($scope, 'csv', function() {
+                        return this.names.toString();
+                    }, $scope, ['names.@each']);
+
+                    $apply(function() {
+                        expect($scope.csv).toBe('Howard,Josh,Evan');
+                    });
+
+                    $apply(function() {
+                        $scope.names.push('Steph');
+                    });
+                    $apply(function() {
+                        expect($scope.csv).toBe('Howard,Josh,Evan,Steph');
+                    });
+
+                    $apply(function() {
+                        names[3] = 'Moo';
+                    });
+                    $apply(function() {
+                        expect($scope.csv).toBe('Howard,Josh,Evan,Moo');
+                    });
+                });
             });
 
             describe('setting', function() {

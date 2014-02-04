@@ -5,7 +5,8 @@
         .factory('c6Computed', [function() {
             return function(model, prop, fn, scope, deps) {
                 var cached,
-                    dirty = true;
+                    dirty = true,
+                    watchers = [];
 
                 function compute() {
                     var value = fn.call(scope);
@@ -16,11 +17,25 @@
                     return value;
                 }
 
+                function watchCollectionLength(newLength, oldLength) {
+                    if (newLength === oldLength) { return; }
+
+                    // Remove all the old $watchers
+                    angular.forEach(watchers, function(deregister) {
+                        deregister();
+                    });
+                    watchers.length = 0;
+
+                    // Setup $watchers again
+                    angular.forEach(deps, setupWatch);
+                }
+
                 function getExpressions(dep) {
                     var parts = dep.split('.@each'),
                         expressions = [],
                         collection = parts[0],
-                        length = scope.$eval(collection + '.length');
+                        lengthExpression = (collection + '.length'),
+                        length = scope.$eval(lengthExpression);
 
                     // The first part of the array is the collection.
                     // The second part is the property to watch on
@@ -33,9 +48,17 @@
                          while (length--) {
                             var item = (collection + '[' + length + ']');
 
-                            // Recurse so that many @each are taken care of
-                            expressions.push.apply(expressions, getExpressions(item + parts.join('.@each')));
+                            if (parts.length > 1) {
+                                // Recurse so that many @each are taken care of
+                                expressions.push.apply(expressions, getExpressions(item + parts.join('.@each')));
+                            } else {
+                                expressions.push(item + parts[0]);
+                            }
                         }
+
+                        // If the size of the collection changes, we need to
+                        // setup new $watchers.
+                        scope.$watch(lengthExpression, watchCollectionLength);
                     } else {
                         // No @each. Just push the dependency and return.
                         expressions.push(dep);
@@ -46,7 +69,7 @@
 
                 function setupWatch(dep) {
                     angular.forEach(getExpressions(dep), function(expression) {
-                        scope.$watch(expression, setDirty);
+                        watchers.push(scope.$watch(expression, setDirty));
                     });
                 }
 
