@@ -31,15 +31,11 @@
 					};
 					$timeout(setRectPosition, 0); // Initialize
 
-					scope.leftMargin = c(scope, function() {
+                    c(scope, 'leftMargin', function() {
 						var width = element.prop('offsetWidth');
 
 						return ((width / 2) * -1);
-					}, ['model().text']);
-
-					scope.$on('c6ControlsNodesShouldReposition', function() {
-						$timeout(function() { scope.leftMargin.invalidate(); });
-					});
+                    }, scope, ['model().text']);
 
 					angular.element($window).bind('resize', function() { scope.$apply(setRectPosition()); });
 					scope.$watch('leftMargin()', function(newValue, oldValue) {
@@ -115,117 +111,12 @@
 
 					return sorted;
 				},
-				state = {
-					playing: false,
-					playheadPosition: 0,
-					bufferedPercent: 0,
-					hasButton: function(button) {
-						return ($scope.buttons() || []).indexOf(button) !== -1;
-					},
-					seekbarStyles: c($scope, function(hasPlayPause, hasVolume) {
-						var leftMargin = 22,
-							rightMargin = 22;
-
-						if (hasPlayPause) {
-							leftMargin += 68;
-						}
-
-						if (hasVolume) {
-							rightMargin += 68;
-						}
-
-						return {
-							marginLeft: leftMargin + 'px',
-							marginRight: rightMargin + 'px'
-						};
-					}, ['state.showPlayPause()', 'state.showVolume()']),
-					buttonsConfig: c($scope, function(buttons) {
-						var config = [];
-
-						if (angular.isArray(buttons)) {
-							angular.forEach(buttons, function(button) {
-								config.push({
-									class: button.charAt(0).toUpperCase() + button.slice(1),
-									disabled: false
-								});
-							});
-
-							return config;
-						} else {
-							return config;
-						}
-					}, ['buttons()'], true),
-					leftMargin: c($scope, function() {
-						var myButtons = sortedButtons(this.buttons() || []).left;
-
-						return myButtons.length ? (myButtons.length * 58) : 22;
-					}, ['buttons().length']),
-					rightMargin: c($scope, function() {
-						var myButtons = sortedButtons(this.buttons() || []).right;
-
-						return myButtons.length ? (myButtons.length * 58) : 22;
-					}, ['buttons().length']),
-					volume: {
-						show: false,
-						seeking: false,
-						playheadPosition: 100,
-						muted: false,
-						tiers: {
-							mute: c($scope, function(playheadPosition, muted) {
-								if (playheadPosition === 0 || muted) {
-									return 1;
-								} else {
-									return 0;
-								}
-							}, volumeTierDependencies),
-							low: c($scope, function(playheadPosition, muted) {
-								return getSoundwaveOpacity(0, muted, playheadPosition);
-							}, volumeTierDependencies),
-							med: c($scope, function(playheadPosition, muted) {
-								return getSoundwaveOpacity(33, muted, playheadPosition);
-							}, volumeTierDependencies),
-							high: c($scope, function(playheadPosition, muted) {
-								return getSoundwaveOpacity(67, muted, playheadPosition);
-							}, volumeTierDependencies)
-						}
-					},
-					seeking: false,
-					seekPercent: undefined,
-					segments: $scope.segments,
-					nodes: $scope.nodes,
-					pastSegmentsLength: c($scope, function(playheadPosition, segments) {
-						var length = 0;
-
-						segments.some(function(segment) {
-							if (!(segment.__c6Controls && segment.__c6Controls.active())) {
-								length += segment.portion;
-							} else {
-								return true;
-							}
-						});
-
-						return length;
-					}, ['state.playheadPosition', 'state.segments()']),
-					showPlayPause: c($scope, function(playPause) {
-						if (angular.isUndefined(playPause)) {
-							return true;
-						} else {
-							return playPause;
-						}
-					}, ['playPause()']),
-					showVolume: c($scope, function(volume) {
-						if (angular.isUndefined(volume)) {
-							return true;
-						} else {
-							return volume;
-						}
-					}, ['volume()'])
-				},
+				state = {},
 				getMousePositionAsSeekbarPercent = function(seeker$, mousePosition) {
 					var position = mousePosition - seeker$[0].getBoundingClientRect().left,
 						positionPercent = ((position / seeker$[0].offsetWidth) * 100),
-						marginsAsPercent = (((state.leftMargin() + state.rightMargin() + 16) / seeker$.prop('offsetWidth')) * 100),
-						leftPercent = Math.max(0, positionPercent - (((state.leftMargin() + 8) / seeker$.prop('offsetWidth')) * 100));
+						marginsAsPercent = (((state.leftMargin + state.rightMargin + 16) / seeker$.prop('offsetWidth')) * 100),
+						leftPercent = Math.max(0, positionPercent - (((state.leftMargin + 8) / seeker$.prop('offsetWidth')) * 100));
 
 					return Math.min(((leftPercent * 100) / (100 - marginsAsPercent)), 100);
 				},
@@ -389,6 +280,116 @@
 				nodeDetectionSessionInitialized = false,
 				controller = $scope.controller;
 
+            state.playing = false;
+            state.playheadPosition = 0;
+            state.bufferedPercent = 0;
+            state.hasButton = function(button) {
+                return ($scope.buttons() || []).indexOf(button) !== -1;
+            };
+            state.seeking = false;
+            state.seekPercent = undefined;
+            state.segments = $scope.segments;
+            state.nodes = $scope.nodes;
+            c(state, 'seekbarStyles', function(hasPlayPause, hasVolume) {
+                var leftMargin = 22,
+                    rightMargin = 22;
+
+                if (this.state.showPlayPause) {
+                    leftMargin += 68;
+                }
+
+                if (this.state.showVolume) {
+                    rightMargin += 68;
+                }
+
+                return {
+                    marginLeft: leftMargin + 'px',
+                    marginRight: rightMargin + 'px'
+                };
+            }, $scope, ['state.showPlayPause', 'state.showVolume']);
+            c(state, 'buttonsConfig', function() {
+                var config = [],
+                    buttons = this.buttons();
+
+                if (angular.isArray(buttons)) {
+                    angular.forEach(buttons, function(button) {
+                        config.push({
+                            class: button.charAt(0).toUpperCase() + button.slice(1),
+                            disabled: false
+                        });
+                    });
+
+                    return config;
+                } else {
+                    return config;
+                }
+            }, $scope, ['buttons().length']);
+            c(state, 'leftMargin', function() {
+                var myButtons = sortedButtons(this.buttons() || []).left;
+
+                return myButtons.length ? (myButtons.length * 58) : 22;
+            }, $scope, ['buttons().length']);
+            c(state, 'rightMargin', function() {
+                var myButtons = sortedButtons(this.buttons() || []).right;
+
+                return myButtons.length ? (myButtons.length * 58) : 22;
+            }, $scope, ['buttons().length']);
+            c(state, 'pastSegmentsLength', function() {
+                var length = 0;
+
+                this.state.segments().some(function(segment) {
+                    if (!(segment.__c6Controls && segment.__c6Controls.active())) {
+                        length += segment.portion;
+                    } else {
+                        return true;
+                    }
+                });
+
+                return length;
+            }, $scope, ['state.playheadPosition', 'state.segments()']);
+            c(state, 'showPlayPause', function() {
+                var playPause = this.playPause();
+
+                if (angular.isUndefined(playPause)) {
+                    return true;
+                } else {
+                    return playPause;
+                }
+            }, $scope, ['playPause()']);
+            c(state, 'showVolume', function() {
+                var volume = this.volume();
+
+                if (angular.isUndefined(volume)) {
+                    return true;
+                } else {
+                    return volume;
+                }
+            }, $scope, ['volume()']);
+            state.volume = {
+                show: false,
+                seeking: false,
+                playheadPosition: 100,
+                muted: false,
+                tiers: {}
+            };
+            c(state.volume.tiers, 'mute', function() {
+                if (this.state.volume.playheadPosition === 0 || this.state.volume.muted) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }, $scope, volumeTierDependencies);
+            c(state.volume.tiers, 'low', function() {
+                return getSoundwaveOpacity(0, this.state.volume.muted, this.state.volume.playheadPosition);
+            }, $scope, volumeTierDependencies);
+            c(state.volume.tiers, 'med', function() {
+                return getSoundwaveOpacity(33, this.state.volume.muted, this.state.volume.playheadPosition);
+            }, $scope, volumeTierDependencies);
+            c(state.volume.tiers, 'high', function() {
+                return getSoundwaveOpacity(67, this.state.volume.muted, this.state.volume.playheadPosition);
+            }, $scope, volumeTierDependencies);
+
+
 			controller().play = function() {
 				state.playing = true;
 			};
@@ -456,7 +457,7 @@
 			controller().setButtonDisabled = function(buttonName, disable) {
 				var index = $scope.buttons().indexOf(buttonName);
 
-				state.buttonsConfig()[index].disabled = disable;
+				state.buttonsConfig[index].disabled = disable;
 			};
 			controller().ready = true;
 
