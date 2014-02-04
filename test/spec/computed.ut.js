@@ -1,166 +1,359 @@
 (function() {
-	'use strict';
+    'use strict';
 
-	define(['computed/computed'], function() {
-		describe('c6Computed', function() {
-			var c6Computed,
-				$rootScope,
-				$scope;
+    define(['computed/computed'], function() {
+        describe('c6Computed', function() {
+            var c6Computed,
+                $rootScope,
+                $scope;
 
-			beforeEach(module('c6.ui'));
-			beforeEach(inject(function(_c6Computed_, _$rootScope_) {
-				c6Computed = _c6Computed_;
-				$rootScope = _$rootScope_;
+            function $apply(fn) {
+                return $rootScope.$apply(fn);
+            }
 
-				$scope = $rootScope.$new();
+            beforeEach(function() {
+                module('c6.ui');
 
-				$scope.test = 'hello';
-				$scope.test2 = 'world';
+                inject(function($injector) {
+                    c6Computed = $injector.get('c6Computed');
+                    $rootScope = $injector.get('$rootScope');
 
-				$scope.helloWorld = c6Computed($scope, function(test, test2) {
-					return test + ' ' + test2;
-				}, ['test', 'test2']);
-			}));
+                    $scope = $rootScope.$new();
+                });
+            });
 
-			it('should exist', function() {
-				expect(c6Computed).toBeDefined();
-			});
+            it('should exist', function() {
+                expect(c6Computed).toEqual(jasmine.any(Function));
+            });
 
-			describe('setting up the scope', function() {
-				it ('should watch the passed in scope properties', function() {
-					expect($scope.$$watchers.length).toBe(2);
-				});
-			});
+            describe('basic usage', function() {
+                var model;
 
-			describe('getting and updating', function() {
-				it('should return the value of the computing function', function() {
-					expect($scope.helloWorld()).toBe('hello world');
-				});
+                beforeEach(function() {
+                    model = {};
 
-				it('should update the computed property if any of the dependencies change.', function() {
-					expect($scope.helloWorld()).toBe('hello world');
+                    $scope.first = 'Josh';
+                    $scope.last = 'Minzner';
+                });
 
-					$scope.$apply($scope.test = 'greetings');
+                it('should compute the property with the provided dependencies', function() {
+                    var fullName = jasmine.createSpy('full name')
+                        .andCallFake(function() {
+                            return $scope.first + ' ' + $scope.last;
+                        });
 
-					expect($scope.helloWorld()).toBe('greetings world');
+                    c6Computed(model, 'fullName', fullName, $scope, ['first', 'last']);
 
-					$scope.$apply(function() {
-						$scope.test = 'what\'s up';
-						$scope.test2 = 'homie';
-					});
+                    $apply(function() {
+                        expect(model.fullName).toBe('Josh Minzner');
+                    });
+                    expect(fullName).toHaveBeenCalled();
 
-					expect($scope.helloWorld()).toBe('what\'s up homie');
-				});
+                    $apply(function() {
+                        $scope.first = 'Jessica';
+                        expect(model.fullName).toBe('Jessica Minzner');
+                    });
+                });
 
-				it('should be able to work with nested object properties', function() {
-					$scope.myObject = {
-						anotherObject: {
-							boss: 'Howard'
-						},
-						ceo: 'Jason',
-						ranking: c6Computed($scope, function(boss, ceo) {
-							return 'My boss is ' + boss + '. The CEO is ' + ceo + '.';
-						}, ['myObject.anotherObject.boss', 'myObject.ceo'])
-					};
+                it('should set "this" to the $scope being watched', function() {
+                    c6Computed(model, 'foo', function() {
+                        expect(this).toBe($scope);
+                    }, $scope, []);
 
-					expect($scope.myObject.ranking()).toBe('My boss is Howard. The CEO is Jason.');
+                    $apply(function() {
+                        angular.noop(model.foo);
+                    });
+                });
 
-					$scope.myObject.ceo = 'Steve Jobs';
-					$scope.$digest();
+                it('should only run the computing function if the $scope dependencies change', function() {
+                    var fullName = jasmine.createSpy('last, first')
+                        .andCallFake(function() {
+                            return this.last + ', ' + this.first;
+                        });
 
-					expect($scope.myObject.ranking()).toBe('My boss is Howard. The CEO is Steve Jobs.');
-				});
+                    $apply(function() {
+                        c6Computed(model, 'fullName', fullName, $scope, ['last', 'first']);
+                    });
 
-				it('should allow computed properties to be dependencies of other computed properties.', function() {
-					$scope.gender = 'Male';
-					$scope.firstName = 'Howard';
-					$scope.lastName = 'Engelhart';
-					$scope.fullName = c6Computed($scope, function(firstName, lastName) {
-						return firstName + ' ' + lastName;
-					}, ['firstName', 'lastName']);
-					$scope.profile = c6Computed($scope, function(fullName, gender) {
-						return 'Name: ' + fullName + ', Gender: ' + gender + '.';
-					}, ['fullName()', 'gender']);
+                    $apply(function() {
+                        angular.noop(model.fullName);
+                    });
+                    expect(fullName.callCount).toBe(1);
 
-					expect($scope.fullName()).toBe('Howard Engelhart');
-					expect($scope.profile()).toBe('Name: Howard Engelhart, Gender: Male.');
+                    $apply(function() {
+                        angular.noop(model.fullname);
+                    });
+                    expect(fullName.callCount).toBe(1);
 
-					$scope.gender = 'Female';
-					$scope.$digest();
+                    $apply(function() {
+                        $scope.first = 'Dan';
+                    });
+                    $apply(function() {
+                        expect(model.fullName).toBe('Minzner, Dan');
+                    });
+                    expect(fullName.callCount).toBe(2);
 
-					expect($scope.profile()).toBe('Name: Howard Engelhart, Gender: Female.');
+                    $apply(function() {
+                        angular.noop(model.fullName);
+                    });
+                    expect(fullName.callCount).toBe(2);
 
-					$scope.firstName = 'Jessica';
-					$scope.$digest();
+                    $apply(function() {
+                        angular.noop(model.fullName);
+                    });
+                    expect(fullName.callCount).toBe(2);
+                });
 
-					expect($scope.profile()).toBe('Name: Jessica Engelhart, Gender: Female.');
-				});
+                it('should be $watchable', function() {
+                    var spy = jasmine.createSpy('$watcher spy');
 
-				it('should only run the computing function when one of the dependencies changes.', function() {
-					var computedSpy = jasmine.createSpy();
+                    $scope.$watch('test', spy);
 
-					$scope.favoriteFoods = ['Peanuts', 'Chips', 'Sushi'];
-					
-					$scope.favoriteFoodsString = c6Computed($scope, function(favoriteFoods) {
-						computedSpy();
-						return favoriteFoods.join(', ');
-					}, ['favoriteFoods']);
+                    $apply(function() {
+                        c6Computed($scope, 'test', function() {
+                            return this.first + ' ' + this.last;
+                        }, $scope, ['first', 'last']);
+                    });
 
-					expect($scope.favoriteFoodsString()).toBe('Peanuts, Chips, Sushi');
-					expect(computedSpy.callCount).toBe(1);
+                    expect(spy).toHaveBeenCalledWith('Josh Minzner', 'Josh Minzner', $scope);
 
-					$scope.$digest(); // After digest, because the dependency didn't change, the computing function shouldn't have run
-					expect(computedSpy.callCount).toBe(1);
+                    $apply(function() {
+                        $scope.last = 'Groban';
+                    });
 
-					$scope.favoriteFoods.push('Pasta');
-					$scope.$digest(); // Now that the dependency has changed, the computing function should've been run again.
-					expect($scope.favoriteFoodsString()).toBe('Peanuts, Chips, Sushi, Pasta');
-					expect(computedSpy.callCount).toBe(2);
+                    expect(spy).toHaveBeenCalledWith('Josh Groban', 'Josh Minzner', $scope);
+                });
+            });
 
-					$scope.$digest(); // It shouldn't have been called after this.
-					expect(computedSpy.callCount).toBe(2);
-				});
-			});
+            describe('@each syntax', function() {
+                var item1, item2, item3,
+                    model, groceries,
+                    total;
 
-			describe('invalidate method', function() {
-				it('should make the cached value invalid (and compute the value again', function() {
-					var computedSpy = jasmine.createSpy();
+                beforeEach(function() {
+                    total = jasmine.createSpy('total')
+                        .andCallFake(function() {
+                            var total = 0;
 
-					$scope.seniorDesigner = 'Moo';
-					$scope.juniorDesigner = 'Steph';
+                            angular.forEach(this.groceries, function(item) {
+                                total += item.price;
+                            });
 
-					$scope.designersMessage = c6Computed($scope, function(seniorDesigner, juniorDesigner) {
-						computedSpy();
-						return 'The Cinema6 designers are ' + seniorDesigner + ' and ' + juniorDesigner + '!';
-					}, ['seniorDesigner', 'juniorDesigner']);
+                            return total;
+                        });
 
-					expect(computedSpy.callCount).toBe(0);
+                    model = {};
 
-					$scope.designersMessage();
+                    item1 = {
+                        name: 'Apple',
+                        price: 0.50
+                    };
+                    item2 = {
+                        name: 'Orange',
+                        price: 0.75
+                    };
+                    item3 = {
+                        name: 'Avocado',
+                        price: 1.50
+                    };
+                    $scope.groceries = groceries = [item1, item2, item3];
 
-					expect(computedSpy.callCount).toBe(1);
+                    c6Computed(model, 'total', total, $scope, ['groceries.@each.price']);
+                });
 
-					$scope.designersMessage();
+                it('should only recompute when the specified dependency of each model is changed', function() {
+                    $apply(function() {
+                        expect(model.total).toBe(2.75);
+                    });
+                    expect(total.callCount).toBe(1);
 
-					expect(computedSpy.callCount).toBe(1);
+                    $apply(function() {
+                        item2.price = 1;
+                    });
+                    expect(model.total).toBe(3);
+                    expect(total.callCount).toBe(2);
 
-					$scope.designersMessage.invalidate();
+                    $apply(function() {
+                        item3.name = 'Banana';
+                    });
+                    expect(total.callCount).toBe(2);
 
-					$scope.designersMessage();
-					expect(computedSpy.callCount).toBe(2);
-				});
+                    $apply(function() {
+                        item3.price = 2;
+                    });
+                    expect(model.total).toBe(3.50);
+                    expect(total.callCount).toBe(3);
 
-				it('should return the computed value', function() {
-					$scope.ceo = 'Jason';
-					$scope.lunch = 'Chicken & Mushrooms';
+                    $apply(function() {
+                        item1.foo = 'foo';
+                    });
+                    expect(total.callCount).toBe(3);
 
-					$scope.ceosLunch = c6Computed($scope, function(ceo, lunch) {
-						return ceo + ' had ' + lunch + ' for lunch today!';
-					}, ['ceo', 'lunch']);
+                    $apply(function() {
+                        groceries.splice(0, 1);
+                    });
+                    expect(model.total).toBe(3);
+                    expect(total.callCount).toBe(4);
+                });
 
-					expect($scope.ceosLunch.invalidate()).toBe('Jason had Chicken & Mushrooms for lunch today!');
-				});
-			});
-		});
-	});
+                it('should not dirty dirty the property if a collection member is no longer in the collection', function() {
+                    $apply(function() {
+                        expect(model.total).toBe(2.75);
+                    });
+                    expect(total.callCount).toBe(1);
+
+                    $apply(function() {
+                        item1.price = 0.75;
+                    });
+                    $apply(function() {
+                        angular.noop(model.total);
+                    });
+                    expect(total.callCount).toBe(2);
+
+                    $scope.$apply(function() {
+                        groceries.splice(0, 1);
+                    });
+                    $scope.$apply(function() {
+                        angular.noop(model.total);
+                    });
+                    expect(total.callCount).toBe(3);
+
+                    $scope.$apply(function() {
+                        item1.price = 0.50;
+                    });
+                    expect(total.callCount).toBe(3);
+                });
+
+                it('should work with multiple @each', function() {
+                    var customers = jasmine.createSpy('customers')
+                        .andCallFake(function() {
+                            var customers = [];
+
+                            angular.forEach(this.groceries, function(item) {
+                                angular.forEach(item.purchasers, function(customer) {
+                                    customers.push(customer.name);
+                                });
+                            });
+
+                            return customers;
+                        });
+
+                    item1.purchasers = [
+                        {
+                            name: 'Josh'
+                        },
+                        {
+                            name: 'Evan'
+                        }
+                    ];
+                    item2.purchasers = [
+                        {
+                            name: 'Steph'
+                        },
+                        {
+                            name: 'Moo'
+                        }
+                    ];
+                    item3.purchasers = [
+                        {
+                            name: 'Howard'
+                        },
+                        {
+                            name: 'Jason'
+                        }
+                    ];
+
+                    c6Computed($scope, 'customers', customers, $scope, ['groceries.@each.purchasers.@each.name']);
+
+                    $apply(function() {
+                        expect($scope.customers).toEqual(['Josh', 'Evan', 'Steph', 'Moo', 'Howard', 'Jason']);
+                    });
+                    expect(customers.callCount).toBe(1);
+
+                    $apply(function() {
+                        item2.purchasers[0].name = 'Stephanie';
+                    });
+                    $apply(function() {
+                        angular.noop($scope.customers);
+                    });
+                    expect(customers.callCount).toBe(2);
+
+                    $apply(function() {
+                        item1.name = 'Kiwi';
+                    });
+                    $apply(function() {
+                        angular.noop($scope.customers);
+                    });
+                    expect(customers.callCount).toBe(2);
+
+                    $apply(function() {
+                        item3.purchasers[1].name = 'Jason Glickman';
+                    });
+                    $apply(function() {
+                        expect($scope.customers).toEqual(['Josh', 'Evan', 'Stephanie', 'Moo', 'Howard', 'Jason Glickman']);
+                    });
+                    expect(customers.callCount).toBe(3);
+                });
+
+                it('should work on primitives', function() {
+                    var names = $scope.names = ['Howard', 'Josh', 'Evan'];
+
+                    c6Computed($scope, 'csv', function() {
+                        return this.names.toString();
+                    }, $scope, ['names.@each']);
+
+                    $apply(function() {
+                        expect($scope.csv).toBe('Howard,Josh,Evan');
+                    });
+
+                    $apply(function() {
+                        names[0] = 'Steph';
+                    });
+                    $apply(function() {
+                        expect($scope.csv).toBe('Steph,Josh,Evan');
+                    });
+                });
+            });
+
+            describe('setting', function() {
+                var full;
+
+                beforeEach(function() {
+                    $scope.first = 'Josh';
+                    $scope.last = 'Minzner';
+
+                    full = jasmine.createSpy('full')
+                        .andCallFake(function(value) {
+                            var parts;
+
+                            if (arguments.length) {
+                                parts = value.split(' ');
+
+                                this.first = parts[0];
+                                this.last = parts[1];
+                            }
+
+                            return this.first + ' ' + this.last;
+                        });
+                    c6Computed($scope, 'full', full, $scope, ['first', 'last']);
+                });
+
+                it('should call the computing function with the value to set', function() {
+                    $apply(function() {
+                        expect($scope.full).toBe('Josh Minzner');
+                    });
+
+                    $apply(function() {
+                        $scope.full = 'Peter Catalanotto';
+                    });
+                    expect(full).toHaveBeenCalledWith('Peter Catalanotto');
+                    $apply(function() {
+                        expect($scope.full).toBe('Peter Catalanotto');
+                        expect($scope.first).toBe('Peter');
+                        expect($scope.last).toBe('Catalanotto');
+                    });
+                });
+            });
+        });
+    });
 })();
