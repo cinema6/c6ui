@@ -45,7 +45,7 @@
 
                     // This means there's an @each in there somewhere
                     if (parts.length) {
-                         while (length--) {
+                        while (length--) {
                             var item = (collection + '[' + length + ']');
 
                             if (parts.length > 1) {

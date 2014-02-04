@@ -290,7 +290,7 @@
             state.seekPercent = undefined;
             state.segments = $scope.segments;
             state.nodes = $scope.nodes;
-            c(state, 'seekbarStyles', function(hasPlayPause, hasVolume) {
+            c(state, 'seekbarStyles', function() {
                 var leftMargin = 22,
                     rightMargin = 22;
 
