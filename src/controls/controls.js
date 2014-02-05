@@ -2,7 +2,8 @@
 	'use strict';
 
 	angular.module('c6.ui')
-		.directive('c6ControlsNode', ['c6Computed', '$timeout', '$window', function(c, $timeout, $window) {
+		.directive('c6ControlsNode', ['c6Computed','$timeout','$window',
+        function                     ( c6Computed , $timeout , $window ) {
 			return {
 				restrict: 'E',
 				scope: {
@@ -13,29 +14,31 @@
 				templateUrl: 'c6ui/controls/node.html',
 				replace: true,
 				link: function(scope, element, attrs, C6ControlsController) {
-					var setRectPosition = function() {
-						if (!scope.model()) {
-							return false; // Not ready yet...
-						} else if (!scope.model().__c6ControlsNode) {
-							scope.model().__c6ControlsNode = {
-								position: {},
-								top: false
-							};
-						}
+					var c = c6Computed(scope),
+                        setRectPosition = function() {
+                            if (!scope.model()) {
+                                return false; // Not ready yet...
+                            } else if (!scope.model().__c6ControlsNode) {
+                                scope.model().__c6ControlsNode = {
+                                    position: {},
+                                    top: false
+                                };
+                            }
 
-						var positionObject = scope.model().__c6ControlsNode.position,
-							rect = element[0].getBoundingClientRect();
+                            var positionObject = scope.model().__c6ControlsNode.position,
+                                rect = element[0].getBoundingClientRect();
 
-						positionObject.left = rect.left;
-						positionObject.right = rect.right;
-					};
+                            positionObject.left = rect.left;
+                            positionObject.right = rect.right;
+                        };
+
 					$timeout(setRectPosition, 0); // Initialize
 
                     c(scope, 'leftMargin', function() {
 						var width = element.prop('offsetWidth');
 
 						return ((width / 2) * -1);
-                    }, scope, ['model().text']);
+                    }, ['model().text']);
 
 					angular.element($window).bind('resize', function() { scope.$apply(setRectPosition()); });
 					scope.$watch('leftMargin()', function(newValue, oldValue) {
@@ -71,8 +74,10 @@
 			};
 		}])
 
-		.controller('C6ControlsController', ['$scope', '$element', '$document', '$timeout', 'c6Computed', function($scope, $element, $document, $timeout, c) {
-			var noop = angular.noop,
+		.controller('C6ControlsController', ['$scope','$element','$document','$timeout','c6Computed',
+        function                            ( $scope , $element , $document , $timeout , c6Computed ) {
+			var c = c6Computed($scope),
+                noop = angular.noop,
 				delegate = function(method, args) {
 					var actualDelegate = ($scope.delegate || function() { return {}; })();
 
@@ -294,11 +299,11 @@
                 var leftMargin = 22,
                     rightMargin = 22;
 
-                if (this.state.showPlayPause) {
+                if (this.showPlayPause) {
                     leftMargin += 68;
                 }
 
-                if (this.state.showVolume) {
+                if (this.showVolume) {
                     rightMargin += 68;
                 }
 
@@ -306,10 +311,10 @@
                     marginLeft: leftMargin + 'px',
                     marginRight: rightMargin + 'px'
                 };
-            }, $scope, ['state.showPlayPause', 'state.showVolume']);
+            }, ['state.showPlayPause', 'state.showVolume']);
             c(state, 'buttonsConfig', function() {
                 var config = [],
-                    buttons = this.buttons();
+                    buttons = $scope.buttons();
 
                 if (angular.isArray(buttons)) {
                     angular.forEach(buttons, function(button) {
@@ -323,21 +328,21 @@
                 } else {
                     return config;
                 }
-            }, $scope, ['buttons().length']);
+            }, ['buttons().length']);
             c(state, 'leftMargin', function() {
-                var myButtons = sortedButtons(this.buttons() || []).left;
+                var myButtons = sortedButtons($scope.buttons() || []).left;
 
                 return myButtons.length ? (myButtons.length * 58) : 22;
-            }, $scope, ['buttons().length']);
+            }, ['buttons().length']);
             c(state, 'rightMargin', function() {
-                var myButtons = sortedButtons(this.buttons() || []).right;
+                var myButtons = sortedButtons($scope.buttons() || []).right;
 
                 return myButtons.length ? (myButtons.length * 58) : 22;
-            }, $scope, ['buttons().length']);
+            }, ['buttons().length']);
             c(state, 'pastSegmentsLength', function() {
                 var length = 0;
 
-                this.state.segments().some(function(segment) {
+                this.segments().some(function(segment) {
                     if (!(segment.__c6Controls && segment.__c6Controls.active())) {
                         length += segment.portion;
                     } else {
@@ -346,25 +351,25 @@
                 });
 
                 return length;
-            }, $scope, ['state.playheadPosition', 'state.segments()']);
+            }, ['state.playheadPosition', 'state.segments()']);
             c(state, 'showPlayPause', function() {
-                var playPause = this.playPause();
+                var playPause = $scope.playPause();
 
                 if (angular.isUndefined(playPause)) {
                     return true;
                 } else {
                     return playPause;
                 }
-            }, $scope, ['playPause()']);
+            }, ['playPause()']);
             c(state, 'showVolume', function() {
-                var volume = this.volume();
+                var volume = $scope.volume();
 
                 if (angular.isUndefined(volume)) {
                     return true;
                 } else {
                     return volume;
                 }
-            }, $scope, ['volume()']);
+            }, ['volume()']);
             state.volume = {
                 show: false,
                 seeking: false,
@@ -373,21 +378,21 @@
                 tiers: {}
             };
             c(state.volume.tiers, 'mute', function() {
-                if (this.state.volume.playheadPosition === 0 || this.state.volume.muted) {
+                if ($scope.state.volume.playheadPosition === 0 || $scope.state.volume.muted) {
                     return 1;
                 } else {
                     return 0;
                 }
-            }, $scope, volumeTierDependencies);
+            }, volumeTierDependencies);
             c(state.volume.tiers, 'low', function() {
-                return getSoundwaveOpacity(0, this.state.volume.muted, this.state.volume.playheadPosition);
-            }, $scope, volumeTierDependencies);
+                return getSoundwaveOpacity(0, $scope.state.volume.muted, $scope.state.volume.playheadPosition);
+            }, volumeTierDependencies);
             c(state.volume.tiers, 'med', function() {
-                return getSoundwaveOpacity(33, this.state.volume.muted, this.state.volume.playheadPosition);
-            }, $scope, volumeTierDependencies);
+                return getSoundwaveOpacity(33, $scope.state.volume.muted, $scope.state.volume.playheadPosition);
+            }, volumeTierDependencies);
             c(state.volume.tiers, 'high', function() {
-                return getSoundwaveOpacity(67, this.state.volume.muted, this.state.volume.playheadPosition);
-            }, $scope, volumeTierDependencies);
+                return getSoundwaveOpacity(67, $scope.state.volume.muted, $scope.state.volume.playheadPosition);
+            }, volumeTierDependencies);
 
 
 			controller().play = function() {
