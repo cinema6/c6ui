@@ -5,7 +5,8 @@
         describe('c6Computed', function() {
             var c6Computed,
                 $rootScope,
-                $scope;
+                $scope,
+                c;
 
             function $apply(fn) {
                 return $rootScope.$apply(fn);
@@ -19,6 +20,7 @@
                     $rootScope = $injector.get('$rootScope');
 
                     $scope = $rootScope.$new();
+                    c = c6Computed($scope);
                 });
             });
 
@@ -42,7 +44,7 @@
                             return $scope.first + ' ' + $scope.last;
                         });
 
-                    c6Computed(model, 'fullName', fullName, $scope, ['first', 'last']);
+                    c(model, 'fullName', fullName, ['first', 'last']);
 
                     $apply(function() {
                         expect(model.fullName).toBe('Josh Minzner');
@@ -55,10 +57,10 @@
                     });
                 });
 
-                it('should set "this" to the $scope being watched', function() {
-                    c6Computed(model, 'foo', function() {
-                        expect(this).toBe($scope);
-                    }, $scope, []);
+                it('should set "this" to the model', function() {
+                    c(model, 'foo', function() {
+                        expect(this).toBe(model);
+                    }, []);
 
                     $apply(function() {
                         angular.noop(model.foo);
@@ -68,11 +70,11 @@
                 it('should only run the computing function if the $scope dependencies change', function() {
                     var fullName = jasmine.createSpy('last, first')
                         .andCallFake(function() {
-                            return this.last + ', ' + this.first;
+                            return $scope.last + ', ' + $scope.first;
                         });
 
                     $apply(function() {
-                        c6Computed(model, 'fullName', fullName, $scope, ['last', 'first']);
+                        c(model, 'fullName', fullName, ['last', 'first']);
                     });
 
                     $apply(function() {
@@ -110,9 +112,9 @@
                     $scope.$watch('test', spy);
 
                     $apply(function() {
-                        c6Computed($scope, 'test', function() {
-                            return this.first + ' ' + this.last;
-                        }, $scope, ['first', 'last']);
+                        c($scope, 'test', function() {
+                            return $scope.first + ' ' + $scope.last;
+                        }, ['first', 'last']);
                     });
 
                     expect(spy).toHaveBeenCalledWith('Josh Minzner', 'Josh Minzner', $scope);
@@ -135,7 +137,7 @@
                         .andCallFake(function() {
                             var total = 0;
 
-                            angular.forEach(this.groceries, function(item) {
+                            angular.forEach($scope.groceries, function(item) {
                                 total += item.price;
                             });
 
@@ -158,7 +160,7 @@
                     };
                     $scope.groceries = groceries = [item1, item2, item3];
 
-                    c6Computed(model, 'total', total, $scope, ['groceries.@each.price']);
+                    c(model, 'total', total, ['groceries.@each.price']);
                 });
 
                 it('should only recompute when the specified dependency of each model is changed', function() {
@@ -263,7 +265,7 @@
                         }
                     ];
 
-                    c6Computed($scope, 'customers', customers, $scope, ['groceries.@each.purchasers.@each.name']);
+                    c($scope, 'customers', customers, ['groceries.@each.purchasers.@each.name']);
 
                     $apply(function() {
                         expect($scope.customers).toEqual(['Josh', 'Evan', 'Steph', 'Moo', 'Howard', 'Jason']);
@@ -298,9 +300,9 @@
                 it('should work on primitives', function() {
                     var names = $scope.names = ['Howard', 'Josh', 'Evan'];
 
-                    c6Computed($scope, 'csv', function() {
+                    c($scope, 'csv', function() {
                         return this.names.toString();
-                    }, $scope, ['names.@each']);
+                    }, ['names.@each']);
 
                     $apply(function() {
                         expect($scope.csv).toBe('Howard,Josh,Evan');
@@ -317,9 +319,9 @@
                 it('should handle adding items to the collection', function() {
                     var names = $scope.names = ['Howard', 'Josh', 'Evan'];
 
-                    c6Computed($scope, 'csv', function() {
+                    c($scope, 'csv', function() {
                         return this.names.toString();
-                    }, $scope, ['names.@each']);
+                    }, ['names.@each']);
 
                     $apply(function() {
                         expect($scope.csv).toBe('Howard,Josh,Evan');
@@ -361,7 +363,7 @@
 
                             return this.first + ' ' + this.last;
                         });
-                    c6Computed($scope, 'full', full, $scope, ['first', 'last']);
+                    c($scope, 'full', full, ['first', 'last']);
                 });
 
                 it('should call the computing function with the value to set', function() {
