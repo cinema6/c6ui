@@ -64,40 +64,38 @@
 				describe('controls state', function() {
 					describe('buttonsConfig', function() {
 						it('should have an object for every button passed in.', function() {
-							expect($scope.state.buttonsConfig().length).toBe(0);
+							expect($scope.state.buttonsConfig.length).toBe(0);
 
 							buttons = ['return'];
 							$scope.$digest();
-							expect($scope.state.buttonsConfig().length).toBe(1);
+							expect($scope.state.buttonsConfig.length).toBe(1);
 
 							buttons.push('fullscreen');
 							$scope.$digest();
-							expect($scope.state.buttonsConfig().length).toBe(2);
+							expect($scope.state.buttonsConfig.length).toBe(2);
 
 							buttons.splice(0, 1);
 							$scope.$digest();
-							expect($scope.state.buttonsConfig().length).toBe(1);
+							expect($scope.state.buttonsConfig.length).toBe(1);
 
 							buttons = null;
 							$scope.$digest();
-							expect($scope.state.buttonsConfig().length).toBe(0);
+							expect($scope.state.buttonsConfig.length).toBe(0);
 						});
 
 						it('should set the configs class property to the button name with the first letter capitalized', function() {
 							buttons = ['fullscreen', 'return'];
 							$scope.$digest();
 
-							var buttonsConfig = $scope.state.buttonsConfig();
-
-							expect(buttonsConfig[0].class).toBe('Fullscreen');
-							expect(buttonsConfig[1].class).toBe('Return');
+							expect($scope.state.buttonsConfig[0].class).toBe('Fullscreen');
+							expect($scope.state.buttonsConfig[1].class).toBe('Return');
 						});
 
 						it('should put the buttons in an enabled state by default', function() {
 							buttons = ['fullscreen', 'return'];
 							$scope.$digest();
 
-							$scope.state.buttonsConfig().forEach(function(config) {
+							$scope.state.buttonsConfig.forEach(function(config) {
 								expect(config.disabled).toBe(false);
 							});
 						});
@@ -107,13 +105,13 @@
 						it('should be true by default', function() {
 							volume = undefined;
 							$scope.$digest();
-							expect($scope.state.showVolume()).toBe(true);
+							expect($scope.state.showVolume).toBe(true);
 						});
 
 						it('should be false if you specify false', function() {
 							volume = false;
 							$scope.$digest();
-							expect($scope.state.showVolume()).toBe(false);
+							expect($scope.state.showVolume).toBe(false);
 						});
 					});
 
@@ -121,23 +119,21 @@
 						it('should be true by default', function() {
 							playPause = undefined;
 							$scope.$digest();
-							expect($scope.state.showPlayPause()).toBe(true);
+							expect($scope.state.showPlayPause).toBe(true);
 						});
 
 						it('should be false if you specify false', function() {
 							playPause = false;
 							$scope.$digest();
-							expect($scope.state.showPlayPause()).toBe(false);
+							expect($scope.state.showPlayPause).toBe(false);
 						});
 					});
 
 					describe('seekbarStyles', function() {
 						it('should change depending on whether or not the playPause/volume button is present', function() {
-							var styles = $scope.state.seekbarStyles;
-
 							function checkStyles(left, right) {
-								expect(styles().marginLeft).toBe(left + 'px');
-								expect(styles().marginRight).toBe(right + 'px');
+								expect($scope.state.seekbarStyles.marginLeft).toBe(left + 'px');
+								expect($scope.state.seekbarStyles.marginRight).toBe(right + 'px');
 							}
 
 							volume = false;
@@ -160,17 +156,19 @@
 						beforeEach(function() { buttons = null; });
 
 						it('should be 22 if there are no buttons on the left side', function() {
-							expect($scope.state.leftMargin()).toBe(22);
+							expect($scope.state.leftMargin).toBe(22);
 						});
 
 						it('should add 58 pixels for every button you add to the left', function() {
 							buttons = ['return'];
-							expect($scope.state.leftMargin()).toBe(58);
+							expect($scope.state.leftMargin).toBe(58);
 						});
 
 						it('should throw an error if you pass in a non-valid button', function() {
 							buttons = ['foo'];
-							expect($scope.state.leftMargin).toThrow();
+							expect(function() {
+                                angular.noop($scope.state.leftMargin);
+                            }).toThrow();
 						});
 					});
 
@@ -178,17 +176,19 @@
 						beforeEach(function() { buttons = null; });
 
 						it('should be 22 if there are no buttons on the left side', function() {
-							expect($scope.state.rightMargin()).toBe(22);
+							expect($scope.state.rightMargin).toBe(22);
 						});
 
 						it('should add 58 pixels for every button you add to the left', function() {
 							buttons = ['fullscreen'];
-							expect($scope.state.rightMargin()).toBe(58);
+							expect($scope.state.rightMargin).toBe(58);
 						});
 
 						it('should throw an error if you pass in a non-valid button', function() {
 							buttons = ['foo'];
-							expect($scope.state.rightMargin).toThrow();
+							expect(function() {
+                                angular.noop($scope.state.rightMargin);
+                            }).toThrow();
 						});
 					});
 
@@ -197,35 +197,35 @@
 
 						describe('mute', function() {
 							it('should be 1 if the controls are muted or the volume is 0', function() {
-								expect($scope.state.volume.tiers.mute()).toBe(1);
+								expect($scope.state.volume.tiers.mute).toBe(1);
 
 								$scope.state.volume.playheadPosition = 100;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.mute()).toBe(0);
+								expect($scope.state.volume.tiers.mute).toBe(0);
 
 								$scope.state.volume.muted = true;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.mute()).toBe(1);
+								expect($scope.state.volume.tiers.mute).toBe(1);
 							});
 						});
 
 						describe('low', function() {
 							it('should scale between 0 and 1 as the playhead scales between 0 and 33', function() {
-								expect($scope.state.volume.tiers.low()).toBe(0);
+								expect($scope.state.volume.tiers.low).toBe(0);
 
 								$scope.state.volume.playheadPosition = 10;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.low()).toBe(0.33);
+								expect($scope.state.volume.tiers.low).toBe(0.33);
 
 								$scope.state.volume.playheadPosition = 30;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.low()).toBe(0.99);
+								expect($scope.state.volume.tiers.low).toBe(0.99);
 							});
 
 							it('should never go above 1', function() {
 								$scope.state.volume.playheadPosition = 50;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.low()).toBe(1);
+								expect($scope.state.volume.tiers.low).toBe(1);
 							});
 
 							it('should be 0 if the controls are muted', function() {
@@ -233,7 +233,7 @@
 								$scope.state.volume.muted = true;
 								$scope.$digest();
 
-								expect($scope.state.volume.tiers.low()).toBe(0);
+								expect($scope.state.volume.tiers.low).toBe(0);
 							});
 						});
 
@@ -241,25 +241,25 @@
 							it('should scale between 0 and 1 as the playhead scales between 33 and 66', function() {
 								$scope.state.volume.playheadPosition = 33;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.med()).toBe(0);
+								expect($scope.state.volume.tiers.med).toBe(0);
 
 								$scope.state.volume.playheadPosition = 43;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.med()).toBe(0.33);
+								expect($scope.state.volume.tiers.med).toBe(0.33);
 
 								$scope.state.volume.playheadPosition = 63;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.med()).toBe(0.99);
+								expect($scope.state.volume.tiers.med).toBe(0.99);
 							});
 
 							it('should never go above 1', function() {
 								$scope.state.volume.playheadPosition = 75;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.med()).toBe(1);
+								expect($scope.state.volume.tiers.med).toBe(1);
 							});
 
 							it('should never go below 0', function() {
-								expect($scope.state.volume.tiers.med()).toBe(0);
+								expect($scope.state.volume.tiers.med).toBe(0);
 							});
 
 							it('should be 0 if the controls are muted', function() {
@@ -267,7 +267,7 @@
 								$scope.state.volume.muted = true;
 								$scope.$digest();
 
-								expect($scope.state.volume.tiers.med()).toBe(0);
+								expect($scope.state.volume.tiers.med).toBe(0);
 							});
 						});
 
@@ -275,19 +275,19 @@
 							it('should scale between 0 and 1 as the playhead scales between 66 and 100', function() {
 								$scope.state.volume.playheadPosition = 66;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.high()).toBe(0);
+								expect($scope.state.volume.tiers.high).toBe(0);
 
 								$scope.state.volume.playheadPosition = 76;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.high()).toBe(0.297);
+								expect($scope.state.volume.tiers.high).toBe(0.297);
 
 								$scope.state.volume.playheadPosition = 96;
 								$scope.$digest();
-								expect($scope.state.volume.tiers.high()).toBe(0.957);
+								expect($scope.state.volume.tiers.high).toBe(0.957);
 							});
 
 							it('should never go below 0', function() {
-								expect($scope.state.volume.tiers.high()).toBe(0);
+								expect($scope.state.volume.tiers.high).toBe(0);
 							});
 
 							it('should be 0 if the controls are muted', function() {
@@ -295,7 +295,7 @@
 								$scope.state.volume.muted = true;
 								$scope.$digest();
 
-								expect($scope.state.volume.tiers.high()).toBe(0);
+								expect($scope.state.volume.tiers.high).toBe(0);
 							});
 						});
 					});
@@ -377,15 +377,15 @@
 								];
 								$scope.$digest();
 
-								expect($scope.state.pastSegmentsLength()).toBe(0);
+								expect($scope.state.pastSegmentsLength).toBe(0);
 
 								$scope.state.playheadPosition = 30;
 								$scope.$digest();
-								expect($scope.state.pastSegmentsLength()).toBe(25);
+								expect($scope.state.pastSegmentsLength).toBe(25);
 
 								$scope.state.playheadPosition = 60;
 								$scope.$digest();
-								expect($scope.state.pastSegmentsLength()).toBe(50);
+								expect($scope.state.pastSegmentsLength).toBe(50);
 							});
 						});
 					});
@@ -659,16 +659,16 @@
 
 						it('should disable and reenable the button', function() {
 							$scope.controller().setButtonDisabled('return', true);
-							expect($scope.state.buttonsConfig()[0].disabled).toBe(true);
+							expect($scope.state.buttonsConfig[0].disabled).toBe(true);
 
 							$scope.controller().setButtonDisabled('fullscreen', true);
-							expect($scope.state.buttonsConfig()[1].disabled).toBe(true);
+							expect($scope.state.buttonsConfig[1].disabled).toBe(true);
 
 							$scope.controller().setButtonDisabled('return', false);
-							expect($scope.state.buttonsConfig()[0].disabled).toBe(false);
+							expect($scope.state.buttonsConfig[0].disabled).toBe(false);
 
 							$scope.controller().setButtonDisabled('fullscreen', false);
-							expect($scope.state.buttonsConfig()[1].disabled).toBe(false);
+							expect($scope.state.buttonsConfig[1].disabled).toBe(false);
 						});
 					});
 

@@ -1,47 +1,98 @@
 (function() {
-	'use strict';
+    'use strict';
 
-	angular.module('c6.ui')
-		.factory('c6Computed', [function() {
-			function c6Computed(scope, computingFunction, dependencies, equality) {
-				var actualDependencies = [],
-					dirty = true,
-					cachedValue,
-					setDirty = function() {
-						dirty = true;
-					};
+    angular.module('c6.ui')
+        .factory('c6Computed', [function() {
+            return function(scope) {
+                return function(model, prop, fn, deps) {
+                    var cached,
+                        dirty = true,
+                        watchers = [];
 
-				dependencies.forEach(function(dependency) {
-					scope.$watch(dependency, setDirty, (equality || false));
-				});
+                    function compute() {
+                        var value = fn.call(model);
 
-				var c6ComputedResult = function() {
-					if (dirty) {
-						dirty = false;
+                        cached = value;
+                        dirty = false;
 
-						actualDependencies.length = 0;
+                        return value;
+                    }
 
-						dependencies.forEach(function(dependency) {
-							actualDependencies.push(scope.$eval(dependency));
-						});
+                    function watchCollectionLength(newLength, oldLength) {
+                        if (newLength === oldLength) { return; }
 
-						cachedValue = computingFunction.apply(scope, actualDependencies);
-					}
+                        // Remove all the old $watchers
+                        angular.forEach(watchers, function(deregister) {
+                            deregister();
+                        });
+                        watchers.length = 0;
 
-					return cachedValue;
-				};
-				c6ComputedResult.invalidate = function() {
-					dirty = true;
+                        // Setup $watchers again
+                        angular.forEach(deps, setupWatch);
+                    }
 
-					return c6ComputedResult();
-				};
+                    function getExpressions(dep) {
+                        var parts = dep.split('.@each'),
+                            expressions = [],
+                            collection = parts[0],
+                            lengthExpression = (collection + '.length'),
+                            length = scope.$eval(lengthExpression);
 
-				return c6ComputedResult;
-			}
-			c6Computed.invalidate = function() {
+                        // The first part of the array is the collection.
+                        // The second part is the property to watch on
+                        // that collection. Because we are processing the
+                        // collection right now, get rid of it from the array.
+                        parts.shift();
 
-			};
+                        // This means there's an @each in there somewhere
+                        if (parts.length) {
+                            while (length--) {
+                                var item = (collection + '[' + length + ']');
 
-			return c6Computed;
-		}]);
+                                if (parts.length > 1) {
+                                    // Recurse so that many @each are taken care of
+                                    expressions.push.apply(expressions, getExpressions(item + parts.join('.@each')));
+                                } else {
+                                    expressions.push(item + parts[0]);
+                                }
+                            }
+
+                            // If the size of the collection changes, we need to
+                            // setup new $watchers.
+                            scope.$watch(lengthExpression, watchCollectionLength);
+                        } else {
+                            // No @each. Just push the dependency and return.
+                            expressions.push(dep);
+                        }
+
+                        return expressions;
+                    }
+
+                    function setupWatch(dep) {
+                        angular.forEach(getExpressions(dep), function(expression) {
+                            watchers.push(scope.$watch(expression, setDirty));
+                        });
+                    }
+
+                    function setDirty() {
+                        dirty = true;
+                    }
+
+                    angular.forEach(deps, setupWatch);
+
+                    Object.defineProperty(model, prop, {
+                        get: function() {
+                            if (dirty) {
+                                return compute();
+                            }
+
+                            return cached;
+                        },
+                        set: function(value) {
+                            fn.call(model, value);
+                        }
+                    });
+                };
+            };
+        }]);
 })();
