@@ -142,7 +142,7 @@
                 }
 
                 if (typeof src === 'string') {
-                    var extension = src.split('.').pop(),
+                    var extension = src.split('.').pop().toLowerCase(),
                     validFormats = c6videoService.validFormats;
                     if (validFormats.indexOf(c6videoService.formatForExtension(extension)) === -1) {
                         if (!bestFormat) { throw new Error('This player can\'t player any availabe valid formats.'); }

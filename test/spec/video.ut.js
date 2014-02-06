@@ -129,6 +129,12 @@
                     return c6video;
                 }, 'never got the player object', 1000);
                 runs(function() {
+                    c6video.src('test/stupid/uppercase.MP4');
+                    expect(c6video.player.src).toBe('test/stupid/uppercase.MP4');
+
+                    c6video.src('test/another/sTuPiD/video.WEBM');
+                    expect(c6video.player.src).toBe('test/another/sTuPiD/video.WEBM');
+
                     c6video.src('test/hey/media.mp4');
                     expect(c6video.player.src).toBe('test/hey/media.mp4');
 
