@@ -41,7 +41,7 @@
                     }, ['model().text']);
 
 					angular.element($window).bind('resize', function() { scope.$apply(setRectPosition()); });
-					scope.$watch('leftMargin()', function(newValue, oldValue) {
+					scope.$watch('leftMargin', function(newValue, oldValue) {
 						if (newValue !== oldValue) {
 							setRectPosition();
 						}
