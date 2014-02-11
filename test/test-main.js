@@ -2,7 +2,7 @@
     'use strict';
 
     var tests = Object.keys($window.__karma__.files).filter(function(file){
-        return (/\.ut\.js$/).test(file);
+        return (/\.(ut|it)\.js$/).test(file);
     });
 
     function libUrl(url) {
@@ -14,8 +14,8 @@
         baseUrl: '/base/src',
 
         paths : {
-            "angular"       : libUrl('angular/v1.2.6-0-g98ee371/angular'),
-            "angularMocks"  : libUrl('angular/v1.2.6-0-g98ee371/angular-mocks'),
+            "angular"       : libUrl('angular/v1.2.12-0-g5cc5cc1/angular'),
+            "angularMocks"  : libUrl('angular/v1.2.12-0-g5cc5cc1/angular-mocks'),
             "templates"     : "../.tmp/templates"
         },
 
