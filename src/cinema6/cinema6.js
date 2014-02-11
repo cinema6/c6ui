@@ -187,6 +187,13 @@
                     });
                 };
 
+                self.getUser = function() {
+                    return this.getSession()
+                        .then(function(session) {
+                            return session.request('getCurrentUser');
+                        });
+                };
+
                 /* @private */
 
                 self._private = function() {
