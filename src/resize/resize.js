@@ -21,7 +21,7 @@
 
         angular.element($window).bind('resize', function() {
             resizeFunctions.forEach(function(code) {
-                code($window.innerWidth, $window.innerHeight);
+                code();
             });
         });
     }])
@@ -35,14 +35,14 @@
                 return excludeArray.indexOf(attribute) !== -1;
             };
 
-            var myFunction = function(winWidth, winHeight) {
+            var myFunction = function() {
                 // set variable dimensions for element
                 var baseWidth   = configObject.width || 1280,
                     baseHeight  = configObject.height || 720,
                     offsetW     = configObject.offsetW || 0,
                     offsetH     = configObject.offsetH || 0,
-                    viewWidth   = Math.min(winWidth - offsetW),
-                    viewHeight  = Math.min(winHeight - offsetH),
+                    viewWidth   = Math.min(element.parent()[0].offsetWidth - offsetW),
+                    viewHeight  = Math.min(element.parent()[0].offsetHeight - offsetH),
                     //fontSize = configObject.font || 28,
 
                     //find scale factor
