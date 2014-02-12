@@ -265,6 +265,27 @@
                         expect(session.ping).toHaveBeenCalledWith('fullscreenMode', false);
                     });
                 });
+
+                describe('getUser()', function() {
+                    var promise;
+
+                    beforeEach(function() {
+                        promise = $q.defer().promise;
+
+                        session.request.andReturn(promise);
+
+                        $rootScope.$apply(function() {
+                            _private.session.resolve(session);
+                        });
+                    });
+
+                    it('should send a request to cinema6 for the current user', function() {
+                        $rootScope.$apply(function() {
+                            expect(cinema6.getUser().then).toEqual(jasmine.any(Function));
+                        });
+                        expect(session.request).toHaveBeenCalledWith('getCurrentUser');
+                    });
+                });
             });
 
             describe('@private methods', function() {
