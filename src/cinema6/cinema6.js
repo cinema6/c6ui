@@ -89,46 +89,42 @@
 
                 /* @public */
 
+                function saveToCache(type, items) {
+                    angular.forEach(items, function(item) {
+                        cache.put((type + ':' + item.id), item);
+                    });
+
+                    return items;
+                }
+
                 self.db = {
-                    find: function(type, matcher) {
-                        var isObject = angular.isObject,
-                            isQuery = isObject(matcher);
-
-                        function saveToCache(items) {
-                            angular.forEach(items, function(item) {
-                                cache.put((type + ':' + item.id), item);
-                            });
-
-                            return items;
-                        }
-
+                    find: function(type, id) {
                         function fetchFromCache() {
-                            var item = cache.get(type + ':' + matcher);
+                            var item = cache.get(type + ':' + id);
 
                             if (!item) {
-                                return $q.reject('Cannot find ' + (type + ':' + matcher) + ' in cache.');
+                                return $q.reject('Cannot find ' + (type + ':' + id) + ' in cache.');
                             }
 
                             return $q.when([item]);
                         }
 
                         function fetchFromAdapter() {
-                            return adapter.find(type, matcher);
+                            return adapter.find(type, id);
                         }
 
                         function extractSingle(items) {
                             return items[0];
                         }
 
-                        if (!matcher || isQuery) {
-                            return adapter[isQuery ? 'findQuery' : 'findAll'].apply(adapter, arguments)
-                                .then(saveToCache);
-                        }
-
                         return fetchFromCache()
                             .catch(fetchFromAdapter)
-                            .then(saveToCache)
+                            .then(saveToCache.bind(null, type))
                             .then(extractSingle);
+                    },
+                    findAll: function(type, matcher) {
+                        return adapter[matcher ? 'findQuery' : 'findAll'].apply(adapter, arguments)
+                            .then(saveToCache.bind(null, type));
                     }
                 };
 

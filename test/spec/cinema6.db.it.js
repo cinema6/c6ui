@@ -73,13 +73,13 @@
                 });
 
                 it('should support finding all records', function() {
-                    cinema6.db.find('experience').then(resultSpy);
+                    cinema6.db.findAll('experience').then(resultSpy);
                     $httpBackend.flush();
 
                     expect(resultSpy).toHaveBeenCalledWith(fixtures.experience);
 
                     $rootScope.$apply(function() {
-                        cinema6.db.find('user').then(resultSpy);
+                        cinema6.db.findAll('user').then(resultSpy);
                     });
 
                     expect(resultSpy).toHaveBeenCalledWith(fixtures.user);
@@ -101,13 +101,13 @@
                 it('should support finding records with queries', function() {
                     var experiences = fixtures.experience;
 
-                    cinema6.db.find('experience', { type: 'minireel' }).then(resultSpy);
+                    cinema6.db.findAll('experience', { type: 'minireel' }).then(resultSpy);
                     $httpBackend.flush();
 
                     expect(resultSpy).toHaveBeenCalledWith([experiences[0], experiences[1], experiences[3]]);
 
                     $rootScope.$apply(function() {
-                        cinema6.db.find('experience', { type: 'screenjack', user: 'u-38b61e71b25d1e' }).then(resultSpy);
+                        cinema6.db.findAll('experience', { type: 'screenjack', user: 'u-38b61e71b25d1e' }).then(resultSpy);
                     });
 
                     expect(resultSpy).toHaveBeenCalledWith([experiences[2]]);

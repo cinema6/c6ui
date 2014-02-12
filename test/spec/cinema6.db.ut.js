@@ -84,7 +84,65 @@
                     });
                 });
 
-                describe('find(type, matcher)', function() {
+                describe('find(type, id)', function() {
+                    var result,
+                        findSpy;
+
+                    beforeEach(function() {
+                        result = [
+                            {
+                                id: 'e-2ff054584731c6',
+                                type: 'minireel',
+                                user: 'u-38b61e71b25d1e'
+                            }
+                        ];
+
+                        findSpy = jasmine.createSpy('find spy');
+
+                        $rootScope.$apply(function() {
+                            cinema6.db.find('experience', 'e-2ff054584731c6').then(findSpy);
+                        });
+                    });
+
+                    it('should call the adapter\'s find method', function() {
+                        expect(adapter.find).toHaveBeenCalledWith('experience', 'e-2ff054584731c6');
+                    });
+
+                    it('should resolve with the singular result of the adapter', function() {
+                        expect(findSpy).not.toHaveBeenCalled();
+
+                        $rootScope.$apply(function() {
+                            adapter._deferreds.find.resolve(result);
+                        });
+                        expect(findSpy).toHaveBeenCalledWith(result[0]);
+                    });
+
+                    it('should cache the item by type and id', function() {
+                        $rootScope.$apply(function() {
+                            adapter._deferreds.find.resolve(result);
+                        });
+
+                        expect($cacheFactory.get('cinema6.db').get('experience:e-2ff054584731c6')).toBe(result[0]);
+                    });
+
+                    it('should consult the cache before call the adapter', function() {
+                        var exp = {
+                            id: 'abc123'
+                        };
+
+                        adapter.find.callCount = 0;
+                        $cacheFactory.get('cinema6.db').put('experience:abc123', exp);
+
+                        $rootScope.$apply(function() {
+                            cinema6.db.find('experience', 'abc123').then(findSpy);
+                        });
+
+                        expect(adapter.find.callCount).toBe(0);
+                        expect(findSpy).toHaveBeenCalledWith(exp);
+                    });
+                });
+
+                describe('findAll(type, matcher)', function() {
                     var findSpy;
 
                     beforeEach(function() {
@@ -109,7 +167,7 @@
                             ];
 
                             $rootScope.$apply(function() {
-                                cinema6.db.find('experience').then(findSpy);
+                                cinema6.db.findAll('experience').then(findSpy);
                             });
                         });
 
@@ -135,61 +193,6 @@
 
                             expect(cache.get('experience:e-2ff054584731c6')).toBe(results[0]);
                             expect(cache.get('experience:e-04464ceeded4fc')).toBe(results[1]);
-                        });
-                    });
-
-                    describe('if an id is provided as a matcher', function() {
-                        var result;
-
-                        beforeEach(function() {
-                            result = [
-                                {
-                                    id: 'e-2ff054584731c6',
-                                    type: 'minireel',
-                                    user: 'u-38b61e71b25d1e'
-                                }
-                            ];
-
-                            $rootScope.$apply(function() {
-                                cinema6.db.find('experience', 'e-2ff054584731c6').then(findSpy);
-                            });
-                        });
-
-                        it('should call the adapter\'s find method', function() {
-                            expect(adapter.find).toHaveBeenCalledWith('experience', 'e-2ff054584731c6');
-                        });
-
-                        it('should resolve with the singular result of the adapter', function() {
-                            expect(findSpy).not.toHaveBeenCalled();
-
-                            $rootScope.$apply(function() {
-                                adapter._deferreds.find.resolve(result);
-                            });
-                            expect(findSpy).toHaveBeenCalledWith(result[0]);
-                        });
-
-                        it('should cache the item by type and id', function() {
-                            $rootScope.$apply(function() {
-                                adapter._deferreds.find.resolve(result);
-                            });
-
-                            expect($cacheFactory.get('cinema6.db').get('experience:e-2ff054584731c6')).toBe(result[0]);
-                        });
-
-                        it('should consult the cache before call the adapter', function() {
-                            var exp = {
-                                id: 'abc123'
-                            };
-
-                            adapter.find.callCount = 0;
-                            $cacheFactory.get('cinema6.db').put('experience:abc123', exp);
-
-                            $rootScope.$apply(function() {
-                                cinema6.db.find('experience', 'abc123').then(findSpy);
-                            });
-
-                            expect(adapter.find.callCount).toBe(0);
-                            expect(findSpy).toHaveBeenCalledWith(exp);
                         });
                     });
 
@@ -219,7 +222,7 @@
                             ];
 
                             $rootScope.$apply(function() {
-                                cinema6.db.find('experience', query).then(findSpy);
+                                cinema6.db.findAll('experience', query).then(findSpy);
                             });
                         });
 
