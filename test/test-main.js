@@ -9,6 +9,25 @@
         return 'http://s3.amazonaws.com/c6.dev/ext/' + url;
     }
 
+    /* Very upset with phantom js for not supporting Function.prototype.bind. Here's a pollyfill. */
+    if (!Function.prototype.bind) {
+        Function.prototype.bind = function(self) {
+            var slice = Array.prototype.slice,
+                boundArgs = slice.call(arguments, 1),
+                fn = this;
+
+            return function() {
+                var calledArgs = slice.call(arguments),
+                    args = [];
+
+                args.push.apply(args, boundArgs);
+                args.push.apply(args, calledArgs);
+
+                return fn.apply(self, args);
+            };
+        };
+    }
+
     requirejs({
 
         baseUrl: '/base/src',
