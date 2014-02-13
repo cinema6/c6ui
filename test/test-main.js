@@ -101,6 +101,9 @@
             },
             "cinema6/cinema6": {
                 "deps": ["postmessage/postmessage"]
+            },
+            "storage/storage": {
+                "deps": ["c6ui"]
             }
         },
 
