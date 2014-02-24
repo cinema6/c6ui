@@ -16,6 +16,7 @@
 					$document,
 					volume,
 					playPause,
+					fullwidthslider,
 					buttons,
 					segments,
 					nodes,
@@ -53,6 +54,9 @@
 					$scope.playPause = function() {
 						return playPause;
 					};
+					$scope.fullwidthslider = function() {
+						return fullwidthslider;
+					}
 
 					Controller = $controller('C6ControlsController', { $scope: $scope, $element: $element, $document: $document, $timeout: $timeout, c6Computed: c6Computed });
 				}));
@@ -130,7 +134,7 @@
 					});
 
 					describe('seekbarStyles', function() {
-						it('should change depending on whether or not the playPause/volume button is present', function() {
+						it('should change depending on whether or not the playPause/volume button is present and if the slider should fill ful width', function() {
 							function checkStyles(left, right) {
 								expect($scope.state.seekbarStyles.marginLeft).toBe(left + 'px');
 								expect($scope.state.seekbarStyles.marginRight).toBe(right + 'px');
@@ -149,6 +153,13 @@
 							volume = true;
 							$scope.$digest();
 							checkStyles(90, 90);
+
+							fullwidthslider = true;
+							$scope.$digest();
+							checkStyles(0,0);
+
+							fullwidthslider = false;
+							$scope.$digest();
 						});
 					});
 
@@ -162,6 +173,12 @@
 						it('should add 58 pixels for every button you add to the left', function() {
 							buttons = ['return'];
 							expect($scope.state.leftMargin).toBe(58);
+						});
+
+						it('should be 0 if fullwidthslider is set to true', function() {
+							fullwidthslider = true;
+							expect($scope.state.leftMargin).toBe(0);
+							fullwidthslider = false;
 						});
 
 						it('should throw an error if you pass in a non-valid button', function() {
@@ -182,6 +199,12 @@
 						it('should add 58 pixels for every button you add to the left', function() {
 							buttons = ['fullscreen'];
 							expect($scope.state.rightMargin).toBe(58);
+						});
+
+						it('should be 0 if fullwidthslider is set to true', function() {
+							fullwidthslider = true;
+							expect($scope.state.rightMargin).toBe(0);
+							fullwidthslider = false;
 						});
 
 						it('should throw an error if you pass in a non-valid button', function() {
