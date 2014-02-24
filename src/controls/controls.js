@@ -66,7 +66,8 @@
 					nodes: '&',
 					buttons: '&',
 					playPause: '&',
-					volume: '&'
+					volume: '&',
+					verticalvolume: '&'
 				},
 				templateUrl: 'c6ui/controls/controls.html',
 				replace: true,
@@ -295,6 +296,24 @@
             state.seekPercent = undefined;
             state.segments = $scope.segments;
             state.nodes = $scope.nodes;
+            c(state, 'volumeSliderStyles', function() {
+                var verticalVolume = $scope.verticalvolume();
+
+                if (angular.isUndefined(verticalVolume) || verticalVolume) {
+                    return {height: (this.volume.playheadPosition || 0) + '%'};
+                } else {
+                    return {width: (this.volume.playheadPosition || 0) + '%'};
+                }
+            }, ['verticalvolume()', 'state.volume.playheadPosition']);
+            c(state, 'volumePlayheadStyles', function() {
+                var verticalVolume = $scope.verticalvolume();
+
+                if (angular.isUndefined(verticalVolume) || verticalVolume) {
+                    return {bottom: (state.volume.playheadPosition || 0) + '%'};
+                } else {
+                    return {left: (state.volume.playheadPosition || 0) + '%'};
+                }
+            }, ['verticalvolume()', 'state.volume.playheadPosition']);
             c(state, 'seekbarStyles', function() {
                 var leftMargin = 22,
                     rightMargin = 22;
