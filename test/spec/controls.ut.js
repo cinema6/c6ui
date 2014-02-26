@@ -16,7 +16,7 @@
 					$document,
 					volume,
 					playPause,
-					fullwidthslider,
+					fullWidthSlider,
 					buttons,
 					segments,
 					nodes,
@@ -54,8 +54,8 @@
 					$scope.playPause = function() {
 						return playPause;
 					};
-					$scope.fullwidthslider = function() {
-						return fullwidthslider;
+					$scope.fullWidthSlider = function() {
+						return fullWidthSlider;
 					}
 
 					Controller = $controller('C6ControlsController', { $scope: $scope, $element: $element, $document: $document, $timeout: $timeout, c6Computed: c6Computed });
@@ -154,11 +154,11 @@
 							$scope.$digest();
 							checkStyles(90, 90);
 
-							fullwidthslider = true;
+							fullWidthSlider = true;
 							$scope.$digest();
 							checkStyles(0,0);
 
-							fullwidthslider = false;
+							fullWidthSlider = false;
 							$scope.$digest();
 						});
 					});
@@ -175,10 +175,10 @@
 							expect($scope.state.leftMargin).toBe(58);
 						});
 
-						it('should be 0 if fullwidthslider is set to true', function() {
-							fullwidthslider = true;
+						it('should be 0 if fullWidthSlider is set to true', function() {
+							fullWidthSlider = true;
 							expect($scope.state.leftMargin).toBe(0);
-							fullwidthslider = false;
+							fullWidthSlider = false;
 						});
 
 						it('should throw an error if you pass in a non-valid button', function() {
@@ -201,10 +201,10 @@
 							expect($scope.state.rightMargin).toBe(58);
 						});
 
-						it('should be 0 if fullwidthslider is set to true', function() {
-							fullwidthslider = true;
+						it('should be 0 if fullWidthSlider is set to true', function() {
+							fullWidthSlider = true;
 							expect($scope.state.rightMargin).toBe(0);
-							fullwidthslider = false;
+							fullWidthSlider = false;
 						});
 
 						it('should throw an error if you pass in a non-valid button', function() {
