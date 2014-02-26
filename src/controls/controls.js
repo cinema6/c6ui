@@ -67,7 +67,7 @@
 					buttons: '&',
 					playPause: '&',
 					volume: '&',
-					verticalvolume: '&'
+					verticalVolume: '&'
 				},
 				templateUrl: 'c6ui/controls/controls.html',
 				replace: true,
@@ -297,23 +297,23 @@
             state.segments = $scope.segments;
             state.nodes = $scope.nodes;
             c(state, 'volumeSliderStyles', function() {
-                var verticalVolume = $scope.verticalvolume();
+                var verticalVolume = angular.isUndefined($scope.verticalVolume()) ? true : $scope.verticalVolume();
 
-                if (angular.isUndefined(verticalVolume) || verticalVolume) {
+                if (verticalVolume) {
                     return {height: (this.volume.playheadPosition || 0) + '%'};
                 } else {
                     return {width: (this.volume.playheadPosition || 0) + '%'};
                 }
-            }, ['verticalvolume()', 'state.volume.playheadPosition']);
+            }, ['verticalVolume()', 'state.volume.playheadPosition']);
             c(state, 'volumePlayheadStyles', function() {
-                var verticalVolume = $scope.verticalvolume();
+                var verticalVolume = angular.isUndefined($scope.verticalVolume()) ? true : $scope.verticalVolume();
 
-                if (angular.isUndefined(verticalVolume) || verticalVolume) {
+                if (verticalVolume) {
                     return {bottom: (state.volume.playheadPosition || 0) + '%'};
                 } else {
                     return {left: (state.volume.playheadPosition || 0) + '%'};
                 }
-            }, ['verticalvolume()', 'state.volume.playheadPosition']);
+            }, ['verticalVolume()', 'state.volume.playheadPosition']);
             c(state, 'seekbarStyles', function() {
                 var leftMargin = 22,
                     rightMargin = 22;
