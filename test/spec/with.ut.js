@@ -40,6 +40,32 @@
                 expect($with.text()).toBe('Josh');
             });
 
+            it('should work if the model is undefined', function() {
+                var $with,
+                    scope;
+
+                $scope.Ctrl = {
+                    model: null
+                };
+
+                $scope.$apply(function() {
+                    $with = $compile('<div c6-with="Ctrl.model.user as user">{{user.name}}</div>')($scope);
+                });
+                scope = $with.contents().scope();
+
+                expect($with.text()).toBe('');
+
+                $scope.$apply(function() {
+                    $scope.Ctrl.model = {
+                        user: {
+                            name: 'Josh'
+                        }
+                    };
+                });
+
+                expect($with.text()).toBe('Josh');
+            });
+
             it('should work with an alternate element syntax', function() {
                 var $c6With,
                     scope;

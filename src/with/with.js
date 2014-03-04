@@ -11,7 +11,9 @@
                         myProp = config[1] || attrs.as,
                         parentValue = config[0] || attrs.model;
 
-                    scope[myProp] = scope.$parent.$eval(parentValue);
+                    scope.$parent.$watch(parentValue, function(model) {
+                        scope[myProp] = model;
+                    });
                 }
             };
         }]);
