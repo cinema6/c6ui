@@ -67,7 +67,7 @@
 					buttons: '&',
 					playPause: '&',
 					volume: '&',
-					fullWidthSlider: '&'
+					fullWidthSlider: '&',
 					verticalVolume: '&'
 				},
 				templateUrl: 'c6ui/controls/controls.html',
