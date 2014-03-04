@@ -104,6 +104,9 @@
             },
             "storage/storage": {
                 "deps": ["c6ui"]
+            },
+            "with/with": {
+                "deps": ["c6ui"]
             }
         },
 
