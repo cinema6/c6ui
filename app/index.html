@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div ng-mouseenter="VideoPlayerCtrl.userIsUsingControls = true;" ng-mouseleave="VideoPlayerCtrl.userIsUsingControls = false;" ng-show="VideoPlayerCtrl.showControls">
-                <c6-controls delegate="VideoPlayerCtrl" controller="VideoPlayerCtrl.ControlsController" segments="VideoPlayerCtrl.segments" nodes="VideoPlayerCtrl.nodes" buttons="['return', 'fullscreen']" class="controls"></c6-video-controls>
+                <c6-controls delegate="VideoPlayerCtrl" controller="VideoPlayerCtrl.ControlsController" segments="VideoPlayerCtrl.segments" nodes="VideoPlayerCtrl.nodes" buttons="['return', 'fullscreen']" vertical-volume="false" class="controls"></c6-video-controls>
             <div>
         </div>
     </body>
