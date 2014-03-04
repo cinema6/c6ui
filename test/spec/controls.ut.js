@@ -15,6 +15,7 @@
 					}],
 					$document,
 					volume,
+					verticalVolume,
 					playPause,
 					fullWidthSlider,
 					buttons,
@@ -50,6 +51,9 @@
 					};
 					$scope.volume = function() {
 						return volume;
+					};
+					$scope.verticalVolume = function() {
+						return verticalVolume;
 					};
 					$scope.playPause = function() {
 						return playPause;
@@ -116,6 +120,29 @@
 							volume = false;
 							$scope.$digest();
 							expect($scope.state.showVolume).toBe(false);
+						});
+					});
+
+					describe('volume orientation (vertical vs. horizontal)', function() {
+						it('should be vertical by default', function() {
+							verticalVolume = undefined;
+							$scope.$digest();
+							expect($scope.state.volumeSliderStyles).toEqual({ height : '100%' });
+							expect($scope.state.volumePlayheadStyles).toEqual({ bottom : '100%' });
+						});
+
+						it('should be vertical if set to true', function() {
+							verticalVolume = true;
+							$scope.$digest();
+							expect($scope.state.volumeSliderStyles).toEqual({ height : '100%' });
+							expect($scope.state.volumePlayheadStyles).toEqual({ bottom : '100%' });
+						});
+
+						it('should be horizontal if set to false', function() {
+							verticalVolume = false;
+							$scope.$digest();
+							expect($scope.state.volumeSliderStyles).toEqual({ width : '100%' });
+							expect($scope.state.volumePlayheadStyles).toEqual({ left : '100%' });
 						});
 					});
 
