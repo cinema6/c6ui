@@ -67,6 +67,7 @@
 					buttons: '&',
 					playPause: '&',
 					volume: '&',
+					fullWidthSlider: '&',
 					verticalVolume: '&'
 				},
 				templateUrl: 'c6ui/controls/controls.html',
@@ -326,11 +327,16 @@
                     rightMargin += 68;
                 }
 
+                if($scope.fullWidthSlider()) {
+                    leftMargin = 0;
+                    rightMargin = 0;
+                }
+
                 return {
                     marginLeft: leftMargin + 'px',
                     marginRight: rightMargin + 'px'
                 };
-            }, ['state.showPlayPause', 'state.showVolume']);
+            }, ['state.showPlayPause', 'state.showVolume', 'fullWidthSlider()']);
             c(state, 'buttonsConfig', function() {
                 var config = [],
                     buttons = $scope.buttons();
@@ -351,10 +357,18 @@
             c(state, 'leftMargin', function() {
                 var myButtons = sortedButtons($scope.buttons() || []).left;
 
+                if($scope.fullWidthSlider()) {
+                    return 0;
+                }
+
                 return myButtons.length ? (myButtons.length * 58) : 22;
             }, ['buttons().length']);
             c(state, 'rightMargin', function() {
                 var myButtons = sortedButtons($scope.buttons() || []).right;
+
+                if($scope.fullWidthSlider()) {
+                    return 0;
+                }
 
                 return myButtons.length ? (myButtons.length * 58) : 22;
             }, ['buttons().length']);
