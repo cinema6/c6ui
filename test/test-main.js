@@ -105,7 +105,7 @@
             "storage/storage": {
                 "deps": ["c6ui"]
             },
-            "with/with": {
+            "alias/alias": {
                 "deps": ["c6ui"]
             }
         },

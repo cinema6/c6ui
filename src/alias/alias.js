@@ -2,12 +2,12 @@
     'use strict';
 
     angular.module('c6.ui')
-        .directive('c6With', [function() {
+        .directive('c6Alias', [function() {
             return {
                 restrict: 'EAC',
                 scope: true,
                 link: function(scope, element, attrs) {
-                    var config = (attrs.c6With || '').split(/\s+as\s+/),
+                    var config = (attrs.c6Alias || '').split(/\s+as\s+/),
                         myProp = config[1] || attrs.as,
                         parentValue = config[0] || attrs.model;
 

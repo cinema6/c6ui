@@ -1,8 +1,8 @@
 (function() {
     'use strict';
 
-    define(['with/with'], function() {
-        describe('<div c6-with="">', function() {
+    define(['alias/alias'], function() {
+        describe('<div c6-alias="">', function() {
             var $rootScope,
                 $scope,
                 $compile;
@@ -31,7 +31,7 @@
                 };
 
                 $scope.$apply(function() {
-                    $with = $compile('<div c6-with="Ctrl.model.user as user">{{user.name}}</div>')($scope);
+                    $with = $compile('<div c6-alias="Ctrl.model.user as user">{{user.name}}</div>')($scope);
                 });
                 scope = $with.contents().scope();
 
@@ -49,7 +49,7 @@
                 };
 
                 $scope.$apply(function() {
-                    $with = $compile('<div c6-with="Ctrl.model.user as user">{{user.name}}</div>')($scope);
+                    $with = $compile('<div c6-alias="Ctrl.model.user as user">{{user.name}}</div>')($scope);
                 });
                 scope = $with.contents().scope();
 
@@ -81,7 +81,7 @@
                 };
 
                 $scope.$apply(function() {
-                    $c6With = $compile('<c6-with model="Ctrl.data.results" as="results">{{results[0].value}}</c6-with>')($scope);
+                    $c6With = $compile('<c6-alias model="Ctrl.data.results" as="results">{{results[0].value}}</c6-alias>')($scope);
                 });
                 scope = $c6With.contents().scope();
 
