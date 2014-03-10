@@ -58,7 +58,8 @@
         };
     }])
 
-    .controller('C6VideoController', ['$scope', '$element', '$attrs', '$document', '$timeout', 'c6VideoService', '$log', function($scope, $element, $attrs, $document, $timeout, c6videoService, $log) {
+    .controller('C6VideoController', ['$scope','$element','$attrs','$document','$timeout','c6VideoService','$q','$log',
+    function                         ( $scope , $element , $attrs , $document , $timeout , c6videoService , $q , $log ) {
         var subscribedEvents = {},
             handleEvent = function(event) {
                 var eventName = event.type,
@@ -247,6 +248,67 @@
             }
         };
 
+        function preparePlayer() {
+            function waitForId() {
+                var deferred = $q.defer();
+
+                if ($attrs.id) {
+                    $attrs.$observe('id', function(id) {
+                        if (id) {
+                            // This event means an instance of C6Video has been created.
+                            c6video.id = id;
+                            deferred.resolve(c6video);
+                        }
+                    });
+                } else {
+                    deferred.resolve(c6video);
+                }
+
+                return deferred.promise;
+            }
+
+            function applyChromeHack(video) {
+                var deferred = $q.defer();
+
+                // Use the chrome hack.
+                if (c6videoService.isChrome && angular.isUndefined($attrs.noHack)) {
+                    var hackyHackyChromeySucky = function(event) {
+                        var player = event.target;
+                        $log.info(video.id + ': Applied Chrome Hack - ' + player.currentSrc);
+
+                        // SEE THE SPAGHETTI YOU MAKE ME WRITE, GOOGLE?!
+                        // Make sure I can play this video
+                        if (player.readyState > 0) {
+                            player.muted = true;
+                            player.play();
+                            $timeout(function() {
+                                // Make sure I can pause it after 50 ms. Awesome.
+                                if (player.readyState > 0) {
+                                    player.pause();
+                                    player.currentTime = 0;
+                                    player.muted = false;
+                                }
+                                deferred.resolve(video);
+                            }, 50);
+                        } else {
+                            deferred.resolve(video);
+                        }
+
+                        player.removeEventListener('canplay', hackyHackyChromeySucky, false);
+                    };
+
+                    video.player.addEventListener('canplay', hackyHackyChromeySucky, false);
+                } else {
+                    deferred.resolve(video);
+                }
+
+                return deferred.promise;
+            }
+
+            return waitForId()
+                .then(applyChromeHack);
+        }
+
         // Watch the c6-src attribute and set the src if it changes.
         $scope.$watch('c6Src()', function(src) {
             c6video.src(src);
@@ -297,52 +359,20 @@
             }
         });
 
+        preparePlayer()
+            .then(function(video) {
+                $scope.$emit('c6video-ready', video);
+            });
+
         c6video.on('play', function() {
             videoHasPlayed = true;
         });
-
-        if ($attrs.id) {
-            $attrs.$observe('id', function(id) {
-                if (id) {
-                    // This event means an instance of C6Video has been created.
-                    c6video.id = id;
-                    $scope.$emit('c6video-ready', c6video);
-                }
-            });
-        } else {
-            $scope.$emit('c6video-ready', c6video);
-        }
 
         // Emit an event if the player leaves the DOM
         $scope.$on('$destroy', function() {
             $scope.$emit('c6video-destroyed', $attrs.id);
         });
 
-        // Use the chrome hack.
-        if (c6videoService.isChrome) {
-            var hackyHackyChromeySucky = function(event) {
-                var video = event.target;
-                $log.info(c6video.id + ': Applied Chrome Hack - ' + video.currentSrc);
-
-                // SEE THE SPAGHETTI YOU MAKE ME WRITE, GOOGLE?!
-                // Make sure I can play this video
-                if (video.readyState > 0) {
-                    video.muted = true;
-                    video.play();
-                    $timeout(function() {
-                        // Make sure I can pause it after 50 ms. Awesome.
-                        if (video.readyState > 0) {
-                            video.pause();
-                            video.currentTime = 0;
-                            video.muted = false;
-                        }
-                    }, 50);
-                }
-                video.removeEventListener('canplay', hackyHackyChromeySucky, false);
-            };
-
-            c6video.player.addEventListener('canplay', hackyHackyChromeySucky, false);
-        }
     }])
 
     .directive('c6Video', [function () {

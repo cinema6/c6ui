@@ -93,6 +93,121 @@
             });
         });
 
+        describe('c6video', function() {
+            var c6Video,
+                $timeout,
+                C6VideoCtrl,
+                $rootScope,
+                $scope,
+                $controller,
+                $element,
+                $attrs;
+
+            var c6VideoService;
+
+            beforeEach(function() {
+                module('c6.ui', function($provide) {
+                    $provide.value('c6VideoService', {
+                        isChrome: false,
+                        bestFormat: jasmine.createSpy('c6VideoService.bestFormat()')
+                    });
+                });
+
+                inject(function($injector) {
+                    $rootScope = $injector.get('$rootScope');
+                    $controller = $injector.get('$controller');
+                    $timeout = $injector.get('$timeout');
+
+                    c6VideoService = $injector.get('c6VideoService');
+                    $element = {
+                        0: {
+                            play: jasmine.createSpy('video.play()'),
+                            pause: jasmine.createSpy('video.pause()'),
+                            addEventListener: jasmine.createSpy('video.addEventListener()')
+                                .andCallFake(function(event, handler) {
+                                    var handlers = $element[0].handlers[event] = $element[0].handlers[event] || [];
+
+                                    handlers.push(handler);
+                                }),
+                            removeEventListener: jasmine.createSpy('video.removeEventListener()')
+                                .andCallFake(function(event, handler) {
+                                    var handlers = $element[0].handlers[event] = $element[0].handlers[event] || [];
+
+                                    handlers.splice(handlers.indexOf(handler), 1);
+                                }),
+                            handlers: {}
+                        },
+                        length: 1,
+                        on: function(event, handler) {
+                            this[0].addEventListener(event, handler);
+                        },
+                        off: function(event, handler) {
+                            this[0].removeEventListener(event, handler);
+                        },
+                        trigger: function(event) {
+                            (this[0].handlers[event] || []).forEach(function(handler) {
+                                handler({ target: $element[0] });
+                            });
+                        }
+                    };
+                    $attrs = {
+                        $observe: jasmine.createSpy('$attrs.$observe()')
+                    };
+
+                    $scope = $rootScope.$new();
+                });
+            });
+
+            describe('in chrome', function() {
+                beforeEach(function() {
+                    spyOn($scope, '$emit');
+
+                    c6VideoService.isChrome = true;
+                    $element[0].readyState = 4;
+
+                    $scope.$apply(function() {
+                        C6VideoCtrl = $controller('C6VideoController', {
+                            $scope: $scope,
+                            $element: $element,
+                            $attrs: $attrs
+                        });
+                    });
+                });
+
+                it('should not $emit c6video-ready until after the chrome hack is applied', function() {
+                    expect($scope.$emit).not.toHaveBeenCalledWith('c6video-ready', jasmine.any(Object));
+
+                    $element.trigger('canplay');
+                    $timeout.flush();
+
+                    expect($scope.$emit).toHaveBeenCalledWith('c6video-ready', jasmine.any(Object));
+                });
+            });
+
+            describe('in chrome, if the no-hack attribute is present', function() {
+                beforeEach(function() {
+                    c6VideoService.isChrome = true;
+                    $element[0].readyState = 4;
+
+                    $attrs.noHack = '';
+
+                    $scope.$apply(function() {
+                        C6VideoCtrl = $controller('C6VideoController', {
+                            $scope: $scope,
+                            $element: $element,
+                            $attrs: $attrs
+                        });
+                    });
+                });
+
+                it('should not apply the chrome hack', function() {
+                    $element.trigger('canplay');
+
+                    expect($element[0].play).not.toHaveBeenCalled();
+                });
+            });
+        });
+
         describe('Controller: C6VideoController', function() {
             var $scope,
             $attrs = {
@@ -111,7 +226,9 @@
                     $scope.$on('c6video-ready', function(event, player) {
                         c6video = player;
                     });
-                    c6videoController = $controller('C6VideoController', { $scope: $scope, $element: $element, $attrs: $attrs, c6videoService: c6videoService });
+                    $scope.$apply(function() {
+                        c6videoController = $controller('C6VideoController', { $scope: $scope, $element: $element, $attrs: $attrs, c6videoService: c6videoService });
+                    });
                 });
             });
 
