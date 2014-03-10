@@ -42,8 +42,8 @@
 			
 			<div class="volume__box" style="display: none;" ng-mouseenter="handle.volume.show()" ng-mouseleave="handle.volume.hide(); handle.volume.stopSeeking();" ng-mouseup="handle.volume.stopSeeking()" ng-show="state.volume.show">
 			<div class="volume__slider" ng-click="handle.volume.seekbarClick($event)">
-				<div class="volume__slider-active" ng-style="{height: (state.volume.playheadPosition || 0) + '%'}">&nbsp;</div>
-				<div class="volume__playhead" ng-style="{bottom: (state.volume.playheadPosition || 0) + '%'}" ng-mousedown="handle.volume.startSeeking()">&nbsp;</div>
+				<div class="volume__slider-active" ng-style="state.volumeSliderStyles">&nbsp;</div>
+				<div class="volume__playhead" ng-style="state.volumePlayheadStyles" ng-mousedown="handle.volume.startSeeking()">&nbsp;</div>
 			</div>
 		</div>
 		</div>

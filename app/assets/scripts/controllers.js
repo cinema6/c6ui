@@ -134,21 +134,25 @@
 				{
 					position: 29,
 					style: 'scene',
+					width: 10,
 					text: 'Guitar Tap'
 				},
 				{
 					position: 42,
 					style: 'scene',
+					width: 15,
 					text: 'McLaren'
 				},
 				{
 					position: 84,
 					style: 'scene',
+					width: 20,
 					text: 'Puddle'
 				},
 				{
 					position: 86,
 					style: 'scene',
+					width: 25,
 					text: 'Dinner'
 				}
 			];

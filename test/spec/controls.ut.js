@@ -15,7 +15,9 @@
 					}],
 					$document,
 					volume,
+					verticalVolume,
 					playPause,
+					fullWidthSlider,
 					buttons,
 					segments,
 					nodes,
@@ -50,9 +52,15 @@
 					$scope.volume = function() {
 						return volume;
 					};
+					$scope.verticalVolume = function() {
+						return verticalVolume;
+					};
 					$scope.playPause = function() {
 						return playPause;
 					};
+					$scope.fullWidthSlider = function() {
+						return fullWidthSlider;
+					}
 
 					Controller = $controller('C6ControlsController', { $scope: $scope, $element: $element, $document: $document, $timeout: $timeout, c6Computed: c6Computed });
 				}));
@@ -115,6 +123,29 @@
 						});
 					});
 
+					describe('volume orientation (vertical vs. horizontal)', function() {
+						it('should be vertical by default', function() {
+							verticalVolume = undefined;
+							$scope.$digest();
+							expect($scope.state.volumeSliderStyles).toEqual({ height : '100%' });
+							expect($scope.state.volumePlayheadStyles).toEqual({ bottom : '100%' });
+						});
+
+						it('should be vertical if set to true', function() {
+							verticalVolume = true;
+							$scope.$digest();
+							expect($scope.state.volumeSliderStyles).toEqual({ height : '100%' });
+							expect($scope.state.volumePlayheadStyles).toEqual({ bottom : '100%' });
+						});
+
+						it('should be horizontal if set to false', function() {
+							verticalVolume = false;
+							$scope.$digest();
+							expect($scope.state.volumeSliderStyles).toEqual({ width : '100%' });
+							expect($scope.state.volumePlayheadStyles).toEqual({ left : '100%' });
+						});
+					});
+
 					describe('playPause button', function() {
 						it('should be true by default', function() {
 							playPause = undefined;
@@ -130,7 +161,7 @@
 					});
 
 					describe('seekbarStyles', function() {
-						it('should change depending on whether or not the playPause/volume button is present', function() {
+						it('should change depending on whether or not the playPause/volume button is present and if the slider should fill ful width', function() {
 							function checkStyles(left, right) {
 								expect($scope.state.seekbarStyles.marginLeft).toBe(left + 'px');
 								expect($scope.state.seekbarStyles.marginRight).toBe(right + 'px');
@@ -149,6 +180,13 @@
 							volume = true;
 							$scope.$digest();
 							checkStyles(90, 90);
+
+							fullWidthSlider = true;
+							$scope.$digest();
+							checkStyles(0,0);
+
+							fullWidthSlider = false;
+							$scope.$digest();
 						});
 					});
 
@@ -162,6 +200,12 @@
 						it('should add 58 pixels for every button you add to the left', function() {
 							buttons = ['return'];
 							expect($scope.state.leftMargin).toBe(58);
+						});
+
+						it('should be 0 if fullWidthSlider is set to true', function() {
+							fullWidthSlider = true;
+							expect($scope.state.leftMargin).toBe(0);
+							fullWidthSlider = false;
 						});
 
 						it('should throw an error if you pass in a non-valid button', function() {
@@ -182,6 +226,12 @@
 						it('should add 58 pixels for every button you add to the left', function() {
 							buttons = ['fullscreen'];
 							expect($scope.state.rightMargin).toBe(58);
+						});
+
+						it('should be 0 if fullWidthSlider is set to true', function() {
+							fullWidthSlider = true;
+							expect($scope.state.rightMargin).toBe(0);
+							fullWidthSlider = false;
 						});
 
 						it('should throw an error if you pass in a non-valid button', function() {
