@@ -18,6 +18,7 @@
                     touch: 'touch',
                     canvas: 'canvas',
                     localstorage: 'localstorage',
+                    cors: true,
                     prefixed: jasmine.createSpy('modernizr prefixed').andReturn(function() {})
                 };
 
@@ -399,6 +400,12 @@
                             describe('touch', function() {
                                 it('should use the Modernizr touch test', function() {
                                     expect(profile.touch).toBe(Modernizr.touch);
+                                });
+                            });
+
+                            describe('cors', function() {
+                                it('should use the Modernizr cors test', function() {
+                                    expect(profile.cors).toBe(Modernizr.cors);
                                 });
                             });
 

@@ -59,16 +59,14 @@
             }
         }];
 
-        beforeEach(function() {
-            module(function($provide) {
-                $provide.value('$document', mock$Document);
-                $provide.value('$element', $element);
-            });
-            module('c6.ui');
-        });
-
         describe('Service: c6videoService', function() {
             beforeEach(function() {
+                module(function($provide) {
+                    $provide.value('$document', mock$Document);
+                    $provide.value('$element', $element);
+                });
+                module('c6.ui');
+
                 inject(function(_c6VideoService_) {
                     c6videoService = _c6VideoService_;
                 });
@@ -106,6 +104,11 @@
             var c6VideoService;
 
             beforeEach(function() {
+                module(function($provide) {
+                    $provide.value('$document', mock$Document);
+                    $provide.value('$element', $element);
+                });
+
                 module('c6.ui', function($provide) {
                     $provide.value('c6VideoService', {
                         isChrome: false,
@@ -221,6 +224,12 @@
             c6video;
 
             beforeEach(function() {
+                module(function($provide) {
+                    $provide.value('$document', mock$Document);
+                    $provide.value('$element', $element);
+                });
+                module('c6.ui');
+
                 inject(function($rootScope, $controller) {
                     $scope = $rootScope.$new();
                     $scope.$on('c6video-ready', function(event, player) {
