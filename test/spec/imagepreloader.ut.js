@@ -9,13 +9,13 @@
 				images = [],
 				imageCreateSpy,
 				$window = {
-                    location: {
-                        origin: 'http://localhost:9000'
-                    },
+          location: {
+              origin: 'http://localhost:9000'
+          },
 					Image: function() {
 						var self = this,
 							eventHandlers = {},
-                            src = null;
+              src = null;
 
 						imageCreateSpy();
 
@@ -41,17 +41,17 @@
 							});
 						};
 
-                        this.complete = !loadImagesAsync;
+            this.complete = !loadImagesAsync;
 
-                        Object.defineProperty(this, 'src', {
-                            get: function() {
-                                return src;
-                            },
-                            set: function(value) {
-                                src = $window.location.origin + '/' + value;
-                                return src;
-                            }
-                        });
+            Object.defineProperty(this, 'src', {
+                get: function() {
+                  return src;
+                },
+                set: function(value) {
+                  src = $window.location.origin + '/' + value;
+                  return src;
+                }
+            });
 
 						images.push(this);
 					}
@@ -59,17 +59,17 @@
 
 			beforeEach(function() {
 				module('c6.ui', function($provide) {
-					$provide
-						.value('$window', $window);
+					$provide.value('$window', $window);
 				});
-				inject(function(_c6ImagePreloader_, _$rootScope_) {
-					c6ImagePreloader = _c6ImagePreloader_;
-					$rootScope = _$rootScope_;
+
+				inject(function($injector) {
+					c6ImagePreloader = $injector.get('c6ImagePreloader');
+					$rootScope = $injector.get('$rootScope');
 				});
 
 				imageCreateSpy = jasmine.createSpy();
 				images.length = 0;
-                loadImagesAsync = true;
+        loadImagesAsync = true;
 			});
 
 			it('should exist', function() {
@@ -86,7 +86,7 @@
 
 					urlsToLoad.forEach(function(url) {
 						var matchingSrc,
-                            fullUrl = $window.location.origin + '/' + url;
+            	fullUrl = $window.location.origin + '/' + url;
 
 						images.forEach(function(image) {
 							if (image.src === fullUrl) {
@@ -101,31 +101,57 @@
 				it('should return a promise that resolves when the images finish loading', function() {
 					var promiseSpy = jasmine.createSpy();
 
-                    $rootScope.$apply(function() {
-                        c6ImagePreloader.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy);
-                    });
+          $rootScope.$apply(function() {
+              c6ImagePreloader.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy);
+          });
 
 					expect(promiseSpy).not.toHaveBeenCalled();
 
-                    images[0]._triggerEvent('load');
+          images[0]._triggerEvent('load');
 
 					expect(promiseSpy).not.toHaveBeenCalled();
 
-                    images[1]._triggerEvent('load');
+          images[1]._triggerEvent('load');
 
-                    expect(promiseSpy).toHaveBeenCalled();
+          expect(promiseSpy).toHaveBeenCalled();
 				});
 
-                it('should resolve the returned promise if "load" never fires but complete is true', function() {
-                    var promiseSpy = jasmine.createSpy('load promise');
-                    loadImagesAsync = false;
+        it('should resolve the returned promise if "load" never fires but complete is true', function() {
+          var promiseSpy = jasmine.createSpy('load promise');
+          loadImagesAsync = false;
 
-                    $rootScope.$apply(function() {
-                        c6ImagePreloader.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy);
-                    });
+          $rootScope.$apply(function() {
+              c6ImagePreloader.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy);
+          });
 
-                    expect(promiseSpy).toHaveBeenCalled();
-                });
+          expect(promiseSpy).toHaveBeenCalled();
+        });
+
+        it('should reject the promise if images rturn errors', function() {
+        	var promiseSpy = jasmine.createSpy('load promise'),
+        			rejectSpy = jasmine.createSpy('reject promise'),
+        			imageUrls = [];
+
+        	$rootScope.$apply(function() {
+        			c6ImagePreloader.load(['foo/test.jpg', 'demos/heavyrain.jpg']).then(promiseSpy, rejectSpy);
+        	});
+
+        	expect(rejectSpy).not.toHaveBeenCalled();
+
+        	images[0]._triggerEvent('error');
+
+        	expect(rejectSpy).not.toHaveBeenCalled();
+
+        	images[1]._triggerEvent('error');
+
+        	angular.forEach(['foo/test.jpg', 'demos/heavyrain.jpg'], function(url) {
+        		imageUrls.push($window.location.origin + '/' + url);
+        	});
+
+        	expect(rejectSpy).toHaveBeenCalledWith(imageUrls);
+
+
+        });
 			});
 		});
 	});

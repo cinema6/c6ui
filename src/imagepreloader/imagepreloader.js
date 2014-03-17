@@ -7,6 +7,7 @@
             this.load = function(imageUrls) {
                 var image,
                     imageStatuses = {},
+                    imageErrors = [],
                     handleImageLoad = function(image) {
                         var ready = true;
 
@@ -16,11 +17,22 @@
                             if (!imageReady) { ready = false; }
                         });
 
-                        if (ready) {
-                            deferred.resolve();
+                        if(ready) {
+                            if(imageErrors.length) {
+                                deferred.reject(imageErrors);
+                            } else {
+                                deferred.resolve();
+                            }
                         }
                     },
                     handleImageLoadEvent = function(event) {
+                        $rootScope.$apply(function() {
+                            handleImageLoad(event.target);
+                        });
+                    },
+                    handleImageLoadError = function(event) {
+                        imageErrors.push(event.target.src);
+
                         $rootScope.$apply(function() {
                             handleImageLoad(event.target);
                         });
@@ -35,6 +47,7 @@
 
                     if (!image.complete) {
                         image.addEventListener('load', handleImageLoadEvent, false);
+                        image.addEventListener('error', handleImageLoadError, false);
                     } else {
                         handleImageLoad(image);
                     }
@@ -42,5 +55,6 @@
 
                 return deferred.promise;
             };
+
         }]);
 })(window.angular);
