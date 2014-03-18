@@ -59,8 +59,6 @@
 
                 inject(function($injector) {
                     $rootScope = $injector.get('$rootScope');
-                    $httpBackend = $injector.get('$httpBackend');
-                    $http = $injector.get('$http');
 
                     $window = $injector.get('$window');
                     c6BrowserInfo = $injector.get('c6BrowserInfo');
@@ -68,6 +66,13 @@
             });
 
             describe('under most use cases', function() {
+                beforeEach(function() {
+                    inject(function($injector) {
+                        $httpBackend = $injector.get('$httpBackend');
+                        $http = $injector.get('$http');
+                    });
+                });
+
                 it('should delegate to the actual $httpBackend', function() {
                     $rootScope.$apply(function() {
                         $http.get('/test/foo.html');
@@ -81,6 +86,11 @@
                 beforeEach(function() {
                     $window.XDomainRequest = MockXDR;
                     c6BrowserInfo.profile.cors = false;
+
+                    inject(function($injector) {
+                        $httpBackend = $injector.get('$httpBackend');
+                        $http = $injector.get('$http');
+                    });
                 });
 
                 it('should make an XDomainRequest', function() {
@@ -170,6 +180,14 @@
                         headers: jasmine.any(Function),
                         config: jasmine.any(Object)
                     });
+                });
+
+                it('should provide an onprogress handler', function() {
+                    $rootScope.$apply(function() {
+                        $http.get('http://google.com/api/foo');
+                    });
+
+                    expect(xdr.onprogress).toEqual(jasmine.any(Function));
                 });
             });
         });
