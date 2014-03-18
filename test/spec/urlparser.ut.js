@@ -2,8 +2,8 @@
     'use strict';
 
     define(['url/urlparser'], function() {
-        describe('urlParser', function() {
-            var urlParser;
+        describe('c6UrlParser', function() {
+            var c6UrlParser;
 
             var $location;
 
@@ -19,16 +19,16 @@
                 module('c6.ui');
 
                 inject(function($injector) {
-                    urlParser = $injector.get('urlParser');
+                    c6UrlParser = $injector.get('c6UrlParser');
                 });
             });
 
             it('should exist', function() {
-                expect(urlParser).toEqual(jasmine.any(Function));
+                expect(c6UrlParser).toEqual(jasmine.any(Function));
             });
 
             it('should parse the url', function() {
-                expect(urlParser('http://www.apple.com:9000/foo/test.json?abc=123#foo')).toEqual(jasmine.objectContaining({
+                expect(c6UrlParser('http://www.apple.com:9000/foo/test.json?abc=123#foo')).toEqual(jasmine.objectContaining({
                     href: 'http://www.apple.com:9000/foo/test.json?abc=123#foo',
                     protocol: 'http',
                     host: 'www.apple.com:9000',
@@ -41,7 +41,7 @@
             });
 
             it('should work for minimal urls', function() {
-                expect(urlParser('/hello/world.html')).toEqual(jasmine.objectContaining({
+                expect(c6UrlParser('/hello/world.html')).toEqual(jasmine.objectContaining({
                     href: location.origin + '/hello/world.html',
                     protocol: 'http',
                     host: 'localhost:8000',
@@ -55,7 +55,7 @@
 
             describe('sameOriginAs(url)', function() {
                 it('should return a boolean indicating if the provided url has the same origin as the parsed url', function() {
-                    var parsed = urlParser('http://www.cinema6.com/foo/test.xml');
+                    var parsed = c6UrlParser('http://www.cinema6.com/foo/test.xml');
 
                     expect(parsed.sameOriginAs('http://www.cinema6.com/help.json')).toBe(true);
                     expect(parsed.sameOriginAs('https://www.cinema6.com/help.json')).toBe(false);

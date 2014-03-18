@@ -2,8 +2,8 @@
     'use strict';
 
     angular.module('c6.ui')
-        .factory('urlParser', ['$document','c6UserAgent',
-        function              ( $document , c6UserAgent ) {
+        .factory('c6UrlParser', ['$document','c6UserAgent',
+        function                ( $document , c6UserAgent ) {
             var parser = $document[0].createElement('a');
 
             return function(url) {
