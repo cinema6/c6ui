@@ -16,7 +16,7 @@
                 .then(function(response) {
                     self.vimeo = response.data[0];
                 }, function(error) {
-                    console.log(error);
+                    $log.error(error);
                 });
 
             $scope.AppCtrl = this;
