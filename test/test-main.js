@@ -93,6 +93,9 @@
             "url/urlmaker": {
                 "deps": ["c6ui"]
             },
+            "url/urlparser": {
+                "deps": ["c6ui"]
+            },
             "format/format": {
                 "deps": ["c6ui"]
             },
@@ -107,6 +110,9 @@
             },
             "alias/alias": {
                 "deps": ["c6ui"]
+            },
+            "http/http": {
+                "deps": ["angular"]
             }
         },
 

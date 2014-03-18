@@ -76,6 +76,8 @@
 
                         profile.touch = Modernizr && Modernizr.touch;
 
+                        profile.cors = Modernizr && Modernizr.cors;
+
                         profile.canvas = Modernizr && Modernizr.canvas;
 
                         profile.localstorage = Modernizr && Modernizr.localstorage;

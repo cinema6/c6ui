@@ -5,9 +5,13 @@
         describe('c6UrlMakerProvider',function(){
             // Note: The c6UrlMakerProvider module will not be invoked until
             // the c6UrlMaker is injected
-            beforeEach( module('c6.ui', ['c6UrlMakerProvider', function(_c6UrlMakerProvider){
-                c6UrlMakerProvider = _c6UrlMakerProvider;
-            }]));
+            beforeEach(function() {
+                module('c6.ui');
+
+                module(['c6UrlMakerProvider', function(_c6UrlMakerProvider){
+                    c6UrlMakerProvider = _c6UrlMakerProvider;
+                }]);
+            });
                         
             describe('interface',function(){
                 // Need to inject the service to make the provider available
@@ -95,6 +99,9 @@
             });
         });
         describe('c6UrlMaker service',function(){
+            beforeEach(function() {
+                module('c6.ui');
+            });
 
             describe('initialization',function(){
                 it('defaults to /',function(){

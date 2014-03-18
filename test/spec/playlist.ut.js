@@ -40,7 +40,14 @@
                         data: 'd4'
                     };
 
-                module('c6.ui');
+                module('c6.ui', function($provide) {
+                    $provide.value('c6VideoService', {
+                        bestFormat: function() {
+                            return 'video/mp4';
+                        }
+                    });
+                });
+
                 inject(function($controller, $rootScope, _$log_, _$httpBackend_) {
                     $scope = $rootScope.$new();
                     $httpBackend = _$httpBackend_;
