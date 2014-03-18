@@ -2,10 +2,24 @@
 	'use strict';
 
 	angular.module('app')
-		.controller('AppController', ['$scope', 'c6ImagePreloader', '$log', function($scope, c6ImagePreloader, $log) {
+		.controller('AppController', ['$scope','c6ImagePreloader','$log','$http',
+        function                     ( $scope , c6ImagePreloader , $log , $http ) {
+            var self = this;
+
 			c6ImagePreloader.load(['http://farm9.staticflickr.com/8459/8020272673_8478cc3c85_b_d.jpg', 'http://farm9.staticflickr.com/8315/8024081498_35e3d37d1e_b_d.jpg']).then(function() {
 				$log.log('Images preloaded!');
 			});
+
+            this.vimeo = null;
+
+            $http.get('http://vimeo.com/api/v2/video/76579435.json')
+                .then(function(response) {
+                    self.vimeo = response.data[0];
+                }, function(error) {
+                    console.log(error);
+                });
+
+            $scope.AppCtrl = this;
 		}])
 		.controller('VideoPlayerController', ['$scope', 'c6Sfx', '$timeout', '$log', function($scope, c6Sfx, $timeout, $log) {
 			var videos = {},
