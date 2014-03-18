@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="assets/styles/main.css">
 
         <script src="assets/scripts/main.js"></script>
+        <script src="https://s3.amazonaws.com/c6.dev/ext/modernizr/modernizr.custom.71747.js"></script>
         <script src="assets/lib/angular/angular.js"></script>
         <script src="assets/lib/c6ui/c6ui.js"></script>
         <script src="assets/lib/c6ui/templates.js"></script>
@@ -19,7 +20,11 @@
         <script src="assets/scripts/app.js"></script>
         <script src="assets/scripts/controllers.js"></script>
         <script src="assets/lib/c6ui/format/format.js"></script>
+        <script src="assets/lib/c6ui/browser/info.js"></script>
+        <script src="assets/lib/c6ui/browser/user_agent.js"></script>
+        <script src="assets/lib/c6ui/url/urlparser.js"></script>
         <script src="assets/lib/c6ui/c6log.js"></script>
+        <script src="assets/lib/c6ui/http/http.js"></script>
     </head>
     <body>
         <div class="video" ng-controller="VideoPlayerController">
@@ -30,7 +35,10 @@
             </div>
             <div ng-mouseenter="VideoPlayerCtrl.userIsUsingControls = true;" ng-mouseleave="VideoPlayerCtrl.userIsUsingControls = false;" ng-show="VideoPlayerCtrl.showControls">
                 <c6-controls delegate="VideoPlayerCtrl" controller="VideoPlayerCtrl.ControlsController" segments="VideoPlayerCtrl.segments" nodes="VideoPlayerCtrl.nodes" buttons="['return', 'fullscreen']" class="controls"></c6-video-controls>
-            <div>
+            </div>
+        </div>
+        <div>
+            <img alt="vimeo thumb" ng-src="{{AppCtrl.vimeo.thumbnail_small}}">
         </div>
     </body>
 </html>

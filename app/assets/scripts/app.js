@@ -5,5 +5,5 @@
         kLogLevels: ['log', 'info', 'warn', 'error']
     };
 
-	angular.module('app', ['c6.ui', 'c6.log']);
+	angular.module('app', ['c6.ui', 'c6.log', 'c6.http']);
 })();
