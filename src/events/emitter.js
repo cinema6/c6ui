@@ -96,22 +96,25 @@
             };
 
             emitter.emit = function(eventName){
-                var evtBucket = events[eventName], result = false, bucketItem, copy;
+                var evtBucket = events[eventName], result = false, bucketItem, copy, bucketLength;
                 if (evtBucket){
+                    bucketLength = evtBucket.length;
                     copy = [].slice.call(arguments);
                     copy.shift();
-                    for (var i = 0; i < evtBucket.length; i++){
+                    for (var i = 0; i < bucketLength; i++){
                         bucketItem = evtBucket[i];
                         bucketItem.listener.apply(bucketItem.listener,copy);
                         result = true;
                         if (bucketItem.removed === true){
                             // This bucketItem's listener removed itself, we should
-                            // dial back i;
+                            // dial back i and bucketLength;
                             i--;
+                            bucketLength--;
                             continue;
                         }
                         if (bucketItem.reuse === false){
                             evtBucket.splice(i--,1);
+                            bucketLength--;
                         }
                     }
                 }
