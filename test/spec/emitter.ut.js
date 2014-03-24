@@ -224,6 +224,23 @@
                     emitter = c6EventEmitter({ });
                 });
 
+                it('should not call a handler for an event added in a handler for that event', function() {
+                    var handler1 = jasmine.createSpy('handler1')
+                            .andCallFake(function() {
+                                emitter.on('myEvent', handler2);
+                            }),
+                        handler2 = jasmine.createSpy('handler2');
+
+                    emitter.on('myEvent', handler1);
+
+                    emitter.emit('myEvent');
+                    expect(handler2).not.toHaveBeenCalled();
+
+                    emitter.emit('myEvent');
+                    expect(handler1.callCount).toBe(2);
+                    expect(handler2.callCount).toBe(1);
+                });
+
                 it('should return false if there are no listeners',function(){
                     expect(emitter.emit('testEvent')).toEqual(false);
                 });
