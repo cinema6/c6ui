@@ -23,7 +23,15 @@
                 };
 
                 $window = {
-                    Modernizr: Modernizr
+                    Modernizr: Modernizr,
+                    screen: {
+                        width: 0,
+                        height: 0
+                    },
+                    navigator: {
+                        mimeTypes: []
+                    },
+                    ActiveXObject: function() { throw new Error(); }
                 };
 
                 c6UserAgent = {
@@ -35,7 +43,8 @@
                         isIPhone: function() { return false; },
                         isIPod: function() { return false; },
                         isIPad: function() { return false; },
-                        isIOS: function() { return this.isIPhone() || this.isIPod() || this.isIPad(); }
+                        isIOS: function() { return this.isIPhone() || this.isIPod() || this.isIPad(); },
+                        isMobile: function() { return false; }
                     },
                     os: {
                         name: null,
@@ -376,6 +385,61 @@
                                         expect(profile.canvasVideo).toBe(false);
                                     });
                                 });
+                            });
+                        });
+
+                        describe('on mobile', function() {
+                            it('autoplay should be false', function() {
+                                c6UserAgent.device.isMobile = function() { return true; }
+                                profile = c6BrowserInfo.generateProfile();
+                                expect(profile.autoplay).toBe(false);
+                            });
+                        });
+
+                        describe('if flash is available', function() {
+                            it('flash should be set to true', function() {
+                                expect(profile.flash).toBe(false);
+
+                                spyOn($window, 'ActiveXObject').andReturn(true);
+                                profile = c6BrowserInfo.generateProfile();
+
+                                expect(profile.flash).toBe(true);
+                            });
+                        });
+
+                        describe('on a small screen', function() {
+                            it('should set device to phone', function() {
+                                $window.screen.width = 320;
+                                $window.screen.height = 480;
+                                profile = c6BrowserInfo.generateProfile();
+                                expect(profile.device).toBe('phone');
+                            });
+                        });
+
+                        describe('on a medium screen', function() {
+                            beforeEach(function() {
+                                $window.screen.width = 1024;
+                                $window.screen.height = 768;
+                            });
+
+                            it('should set device to tablet if touch is detected', function() {
+                                profile = c6BrowserInfo.generateProfile();
+                                expect(profile.device).toBe('tablet');
+                            });
+
+                            it('should set device to netbook if touch is not detected', function() {
+                                Modernizr.touch = false;
+                                profile = c6BrowserInfo.generateProfile();
+                                expect(profile.device).toBe('netbook');
+                            });
+                        });
+
+                        describe('on a big screen', function() {
+                            it('should set device to desktop', function() {
+                                $window.screen.width = 1366;
+                                $window.screen.height = 768;
+                                profile = c6BrowserInfo.generateProfile();
+                                expect(profile.device).toBe('desktop');
                             });
                         });
 
