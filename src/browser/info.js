@@ -96,6 +96,38 @@
                             return Modernizr && !!Modernizr.prefixed('requestAnimationFrame', $window);
                         })();
 
+                        profile.device = (function() {
+                            var screen = $window.screen,
+                                width = screen.width,
+                                height = screen.height,
+                                pixels = width * height,
+                                touch = profile.touch;
+
+                            if (pixels <= 518400) {
+                                return 'phone';
+                            } else if (pixels <= 786432) {
+                                if (touch) {
+                                    return 'tablet';
+                                } else {
+                                    return 'netbook';
+                                }
+                            } else {
+                                return 'desktop';
+                            }
+                        })();
+
+                        profile.flash = (function() {
+                            try {
+                                var flashObject = new $window.ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+
+                                return !!flashObject;
+                            } catch(e) {
+                                return !!$window.navigator.mimeTypes['application/x-shockwave-flash'];
+                            }
+                        })();
+
+                        profile.autoplay = !c6UserAgent.device.isMobile();
+
                         $injector.invoke(providerPrivate.profileAugmenter, profile);
 
                         return profile;
