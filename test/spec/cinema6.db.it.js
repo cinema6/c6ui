@@ -76,26 +76,30 @@
                     cinema6.db.findAll('experience').then(resultSpy);
                     $httpBackend.flush();
 
-                    expect(resultSpy).toHaveBeenCalledWith(fixtures.experience);
+                    resultSpy.mostRecentCall.args[0].forEach(function(item, index) {
+                        expect(item).toEqual(jasmine.objectContaining(fixtures.experience[index]));
+                    });
 
                     $rootScope.$apply(function() {
                         cinema6.db.findAll('user').then(resultSpy);
                     });
 
-                    expect(resultSpy).toHaveBeenCalledWith(fixtures.user);
+                    resultSpy.mostRecentCall.args[0].forEach(function(item, index) {
+                        expect(item).toEqual(jasmine.objectContaining(fixtures.user[index]));
+                    });
                 });
 
                 it('should support finding a single record by id', function() {
                     cinema6.db.find('user', 'u-bc03d43a69c86d').then(resultSpy);
                     $httpBackend.flush();
 
-                    expect(resultSpy).toHaveBeenCalledWith(fixtures.user[0]);
+                    expect(resultSpy).toHaveBeenCalledWith(jasmine.objectContaining(fixtures.user[0]));
 
                     $rootScope.$apply(function() {
                         cinema6.db.find('experience', 'e-f8515db773f478').then(resultSpy);
                     });
 
-                    expect(resultSpy).toHaveBeenCalledWith(fixtures.experience[3]);
+                    expect(resultSpy).toHaveBeenCalledWith(jasmine.objectContaining(fixtures.experience[3]));
                 });
 
                 it('should support finding records with queries', function() {
@@ -104,13 +108,17 @@
                     cinema6.db.findAll('experience', { type: 'minireel' }).then(resultSpy);
                     $httpBackend.flush();
 
-                    expect(resultSpy).toHaveBeenCalledWith([experiences[0], experiences[1], experiences[3]]);
+                    expect(resultSpy).toHaveBeenCalledWith([
+                        jasmine.objectContaining(experiences[0]),
+                        jasmine.objectContaining(experiences[1]),
+                        jasmine.objectContaining(experiences[3])
+                    ]);
 
                     $rootScope.$apply(function() {
                         cinema6.db.findAll('experience', { type: 'screenjack', user: 'u-38b61e71b25d1e' }).then(resultSpy);
                     });
 
-                    expect(resultSpy).toHaveBeenCalledWith([experiences[2]]);
+                    expect(resultSpy).toHaveBeenCalledWith([jasmine.objectContaining(experiences[2])]);
                 });
             });
         });
