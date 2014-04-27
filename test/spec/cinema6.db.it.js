@@ -120,6 +120,46 @@
 
                     expect(resultSpy).toHaveBeenCalledWith([jasmine.objectContaining(experiences[2])]);
                 });
+
+                it('should support creating, updating and deleting records', function() {
+                    var minireel = cinema6.db.create('experience', {
+                            name: 'My MiniReel',
+                            data: {
+                                deck: []
+                            }
+                        }),
+                        card = {
+                            id: 'rc-5250c856b92575',
+                            title: 'My Card'
+                        };
+
+                    minireel.save();
+                    $httpBackend.flush();
+
+                    expect(minireel.id).toBe('fixture0');
+
+                    $rootScope.$apply(function() {
+                        cinema6.db.findAll('experience').then(function(experiences) {
+                            expect(experiences[5]).toBe(minireel);
+                        });
+                    });
+
+                    minireel.data.deck.push(card);
+                    $rootScope.$apply(function() {
+                        minireel.save();
+                    });
+                    expect(minireel.data.deck[0]).toEqual(card);
+                    expect(minireel.data.deck[0]).not.toBe(card);
+
+                    $rootScope.$apply(function() {
+                        minireel.erase();
+                    });
+                    $rootScope.$apply(function() {
+                        cinema6.db.findAll('experience').then(function(experiences) {
+                            expect(experiences).not.toContain(minireel);
+                        });
+                    });
+                });
             });
         });
     });

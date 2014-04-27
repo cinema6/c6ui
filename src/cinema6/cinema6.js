@@ -1,7 +1,8 @@
 (function() {
     'use strict';
 
-    var copy = angular.copy;
+    var copy = angular.copy,
+        forEach = angular.forEach;
 
     angular.module('c6.ui')
         .provider('cinema6', [function() {
@@ -12,6 +13,20 @@
             this.adapters = {
                 fixture: ['config','$http','$cacheFactory',
                 function ( config , $http , $cacheFactory ) {
+                    var createdCount = -1;
+
+                    function indexOfItemWithId(items, id) {
+                        var result = -1;
+
+                        forEach(items, function(item, index) {
+                            if (item.id === id) {
+                                result = index;
+                            }
+                        });
+
+                        return result;
+                    }
+
                     this._cache = $cacheFactory('cinema6 fixtures');
 
                     this._getJSON = function(src) {
@@ -67,6 +82,41 @@
 
                                     return true;
                                 });
+                            });
+                    };
+
+                    this.create = function(type, data) {
+                        return this._getJSON(config.jsonSrc)
+                            .then(function(fixtures) {
+                                data.id = 'fixture' + (createdCount += 1);
+
+                                fixtures[type].push(data);
+
+                                return [data];
+                            });
+                    };
+
+                    this.erase = function(type, model) {
+                        return this._getJSON(config.jsonSrc)
+                            .then(function(fixtures) {
+                                var items = fixtures[type],
+                                    index = indexOfItemWithId(items, model.id);
+
+                                items.splice(index, 1);
+
+                                return null;
+                            });
+                    };
+
+                    this.update = function(type, model) {
+                        return this._getJSON(config.jsonSrc)
+                            .then(function(fixtures) {
+                                var items = fixtures[type],
+                                    index = indexOfItemWithId(items, model.id);
+
+                                items[index] = model;
+
+                                return [model];
                             });
                     };
                 }]
