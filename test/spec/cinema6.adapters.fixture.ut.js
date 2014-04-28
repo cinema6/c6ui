@@ -94,7 +94,16 @@
                     });
 
                     it('should cache the response', function() {
-                        expect(fixture._cache.get('assets/mock/fixtures.json')).toEqual([200, fixtures, {}]);
+                        var newFixtures = {};
+
+                        expect(fixture._cache.get('fixtures')).toEqual(fixtures);
+
+                        fixture._cache.put('fixtures', newFixtures);
+
+                        $rootScope.$apply(function() {
+                            fixture._getJSON('assets/mock/fixtures.json').then(spy);
+                        });
+                        expect(spy.mostRecentCall.args[0]).toBe(newFixtures);
                     });
 
                     it('should resolve to the json', function() {
