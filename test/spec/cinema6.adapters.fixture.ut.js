@@ -2,6 +2,9 @@
     'use strict';
 
     define(['cinema6/cinema6'], function() {
+        var extend = angular.extend,
+            copy = angular.copy;
+
         describe('cinema6Provider.adapters.fixture', function() {
             var cinema6Provider;
 
@@ -188,6 +191,95 @@
                         expect(spy).toHaveBeenCalledWith([users[0]]);
 
                         expect(fixture._getJSON).toHaveBeenCalledWith(adapterConfig.jsonSrc);
+                    });
+                });
+
+                describe('create(type, model)', function() {
+                    var spy,
+                        model1, model2;
+
+                    beforeEach(function() {
+                        model1 = {
+                            name: 'Josh',
+                            age: 22
+                        };
+                        model2 = {
+                            name: 'Evan',
+                            age: 23
+                        };
+
+                        spy = jasmine.createSpy('create success');
+                    });
+
+                    it('should update the fixtures with a new model and asign it an id', function() {
+                        $rootScope.$apply(function() {
+                            fixture.create('user', model1).then(spy);
+                        });
+                        expect(spy).toHaveBeenCalledWith([{
+                            name: 'Josh',
+                            age: 22,
+                            id: 'fixture0'
+                        }]);
+                        expect(fixtures.user[2]).toBe(spy.mostRecentCall.args[0][0]);
+
+                        $rootScope.$apply(function() {
+                            fixture.create('user', model2).then(spy);
+                        });
+                        expect(spy).toHaveBeenCalledWith([{
+                            name: 'Evan',
+                            age: 23,
+                            id: 'fixture1'
+                        }]);
+                        expect(fixtures.user[3]).toBe(spy.mostRecentCall.args[0][0]);
+                    });
+                });
+
+                describe('erase(type, model)', function() {
+                    var spy;
+
+                    beforeEach(function() {
+                        spy = jasmine.createSpy('erase success');
+                    });
+
+                    it('should remove the record from the fixtures', function() {
+                        var user = fixtures.user[0],
+                            userCopy = copy(user),
+                            experience = fixtures.experience[1],
+                            experienceCopy = copy(experience);
+
+                        $rootScope.$apply(function() {
+                            fixture.erase('user', userCopy).then(spy);
+                        });
+                        expect(fixtures.user).not.toContain(user);
+                        expect(spy).toHaveBeenCalledWith(null);
+
+                        $rootScope.$apply(function() {
+                            fixture.erase('experience', experienceCopy).then(spy);
+                        });
+                        expect(fixtures.experience).not.toContain(experience);
+                        expect(spy).toHaveBeenCalledWith(null);
+                    });
+                });
+
+                describe('update(type, model)', function() {
+                    var spy;
+
+                    beforeEach(function() {
+                        spy = jasmine.createSpy('update success');
+                    });
+
+                    it('should update the fixtures with the new model', function() {
+                        var user = {
+                            id: 'u-bc03d43a69c86d',
+                            name: 'Josh Minzner',
+                            age: 22
+                        };
+
+                        $rootScope.$apply(function() {
+                            fixture.update('user', user).then(spy);
+                        });
+                        expect(spy).toHaveBeenCalledWith([user]);
+                        expect(fixtures.user[0]).toBe(user);
                     });
                 });
             });
