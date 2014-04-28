@@ -1,13 +1,32 @@
 (function() {
     'use strict';
 
+    var copy = angular.copy,
+        forEach = angular.forEach;
+
     angular.module('c6.ui')
         .provider('cinema6', [function() {
-            var Adapter = angular.noop;
+            var Adapter = angular.noop,
+                toJson = angular.toJson,
+                fromJson = angular.fromJson;
 
             this.adapters = {
                 fixture: ['config','$http','$cacheFactory',
                 function ( config , $http , $cacheFactory ) {
+                    var createdCount = -1;
+
+                    function indexOfItemWithId(items, id) {
+                        var result = -1;
+
+                        forEach(items, function(item, index) {
+                            if (item.id === id) {
+                                result = index;
+                            }
+                        });
+
+                        return result;
+                    }
+
                     this._cache = $cacheFactory('cinema6 fixtures');
 
                     this._getJSON = function(src) {
@@ -65,6 +84,41 @@
                                 });
                             });
                     };
+
+                    this.create = function(type, data) {
+                        return this._getJSON(config.jsonSrc)
+                            .then(function(fixtures) {
+                                data.id = 'fixture' + (createdCount += 1);
+
+                                fixtures[type].push(data);
+
+                                return [data];
+                            });
+                    };
+
+                    this.erase = function(type, model) {
+                        return this._getJSON(config.jsonSrc)
+                            .then(function(fixtures) {
+                                var items = fixtures[type],
+                                    index = indexOfItemWithId(items, model.id);
+
+                                items.splice(index, 1);
+
+                                return null;
+                            });
+                    };
+
+                    this.update = function(type, model) {
+                        return this._getJSON(config.jsonSrc)
+                            .then(function(fixtures) {
+                                var items = fixtures[type],
+                                    index = indexOfItemWithId(items, model.id);
+
+                                items[index] = model;
+
+                                return [model];
+                            });
+                    };
                 }]
             };
 
@@ -89,12 +143,74 @@
 
                 /* @public */
 
+                function DBModel(type, data) {
+                    copy(data, this);
+
+                    this._type = type;
+                }
+                DBModel.prototype = {
+                    save: function() {
+                        var self = this;
+
+                        function update(data) {
+                            return self._update(data[0]);
+                        }
+
+                        function cacheModel(model) {
+                            return cache.put(model._type + ':' + model.id, model);
+                        }
+
+                        // When the update() function is called, the _pending property will be
+                        // stripped from the model, allowing the next call to save() to call the
+                        // adapter.
+                        return this._pending ||
+                            (this._pending = adapter[this.id ?
+                                'update' : 'create'](this._type, this.pojoify())
+                                .then(update)
+                                .then(cacheModel));
+                    },
+                    erase: function() {
+                        var self = this;
+
+                        function uncacheModel() {
+                            return cache.remove(self._type + ':' + self.id) || null;
+                        }
+
+                        return this.id ?
+                            adapter.erase(this._type, this.pojoify())
+                                .then(uncacheModel) :
+                            $q.when(null);
+                    },
+                    pojoify: function() {
+                        var pojo = fromJson(toJson(this));
+
+                        delete pojo._type;
+
+                        return pojo;
+                    },
+                    _update: function(data) {
+                        var type = this._type;
+
+                        copy(data, this);
+                        this._type = type;
+
+                        return this;
+                    }
+                };
+
                 function saveToCache(type, items) {
                     angular.forEach(items, function(item) {
                         cache.put((type + ':' + item.id), item);
                     });
 
                     return items;
+                }
+
+                function createModels(type, items) {
+                    return items.map(function(item) {
+                        return (cache.get(type + ':' + item.id) || self.db.create(type))
+                            ._update(item);
+                    });
                 }
 
                 self.db = {
@@ -110,7 +226,9 @@
                         }
 
                         function fetchFromAdapter() {
-                            return adapter.find(type, id);
+                            return adapter.find(type, id)
+                                .then(createModels.bind(null, type))
+                                .then(saveToCache.bind(null, type));
                         }
 
                         function extractSingle(items) {
@@ -119,12 +237,16 @@
 
                         return fetchFromCache()
                             .catch(fetchFromAdapter)
-                            .then(saveToCache.bind(null, type))
                             .then(extractSingle);
                     },
                     findAll: function(type, matcher) {
-                        return adapter[matcher ? 'findQuery' : 'findAll'].apply(adapter, arguments)
+                        return adapter[matcher ?
+                            'findQuery' : 'findAll'].apply(adapter, arguments)
+                            .then(createModels.bind(null, type))
                             .then(saveToCache.bind(null, type));
+                    },
+                    create: function(type, data) {
+                        return new DBModel(type, data);
                     }
                 };
 
