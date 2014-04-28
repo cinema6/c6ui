@@ -11,9 +11,10 @@
                 fromJson = angular.fromJson;
 
             this.adapters = {
-                fixture: ['config','$http','$cacheFactory',
-                function ( config , $http , $cacheFactory ) {
-                    var createdCount = -1;
+                fixture: ['config','$http','$cacheFactory','$q',
+                function ( config , $http , $cacheFactory , $q ) {
+                    var createdCount = -1,
+                        self = this;
 
                     function indexOfItemWithId(items, id) {
                         var result = -1;
@@ -30,11 +31,22 @@
                     this._cache = $cacheFactory('cinema6 fixtures');
 
                     this._getJSON = function(src) {
-                        return $http.get(src, {
-                            cache: this._cache
-                        }).then(function(response) {
-                            return response.data;
-                        });
+                        function getFromCache() {
+                            var fixtures = self._cache.get('fixtures');
+
+                            return fixtures ? $q.when(fixtures) :
+                                $q.reject('No fixtures loaded.');
+                        }
+
+                        function fetchViaAjax() {
+                            return $http.get(src)
+                                .then(function cache(response) {
+                                    return self._cache.put('fixtures', response.data);
+                                });
+                        }
+
+                        return getFromCache()
+                            .catch(fetchViaAjax);
                     };
 
                     this.findAll = function(type) {
