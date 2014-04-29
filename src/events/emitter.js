@@ -103,6 +103,9 @@
                     copy.shift();
                     for (var i = 0; i < bucketLength; i++){
                         bucketItem = evtBucket[i];
+
+                        if (!bucketItem) { continue; }
+
                         bucketItem.listener.apply(bucketItem.listener,copy);
                         result = true;
                         if (bucketItem.removed === true){
