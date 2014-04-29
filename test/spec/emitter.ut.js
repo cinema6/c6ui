@@ -100,6 +100,32 @@
                     expect(emitter.listeners('testRemove').length).toEqual(0);
                 });
 
+                it('should handle removing another listener for an event in a different handler for that event', function() {
+                    var handler1 = jasmine.createSpy('handler1'),
+                        handler2 = jasmine.createSpy('handler2')
+                            .andCallFake(function() {
+                                emitter.removeListener('myEvent', handler3);
+                            }),
+                        handler3 = jasmine.createSpy('handler3'),
+                        handler4 = jasmine.createSpy('handler4'),
+                        emitter = c6EventEmitter({});
+
+                    emitter.on('myEvent', handler1)
+                        .on('myEvent', handler2)
+                        .on('myEvent', handler3)
+                        .on('myEvent', handler4);
+
+
+                    expect(function() {
+                        emitter.emit('myEvent');
+                    }).not.toThrow();
+                    expect(handler1).toHaveBeenCalled();
+                    expect(handler2).toHaveBeenCalled();
+                    expect(handler3).not.toHaveBeenCalled();
+                    expect(handler4).toHaveBeenCalled();
+                    expect(emitter.listeners('myEvent').length).toBe(3);
+                });
+
                 it('should enable listener self removal with multilple listeners when listener is first',function(){
                     var called = false, listener = function(){
                         called = true;
