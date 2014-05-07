@@ -172,6 +172,10 @@
                             return cache.put(model._type + ':' + model.id, model);
                         }
 
+                        if (this._erased) {
+                            return $q.reject('Cannot save an erased record.');
+                        }
+
                         // When the update() function is called, the _pending property will be
                         // stripped from the model, allowing the next call to save() to call the
                         // adapter.
@@ -188,6 +192,8 @@
                             return cache.remove(self._type + ':' + self.id) || null;
                         }
 
+                        this._erased = true;
+
                         return this.id ?
                             adapter.erase(this._type, this.pojoify())
                                 .then(uncacheModel) :
@@ -197,6 +203,7 @@
                         var pojo = fromJson(toJson(this));
 
                         delete pojo._type;
+                        delete pojo._erased;
 
                         return pojo;
                     },

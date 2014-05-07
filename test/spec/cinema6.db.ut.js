@@ -206,6 +206,23 @@
                             expect(model.save()).not.toBe(promise);
                         });
 
+                        describe('if the record has been deleted', function() {
+                            beforeEach(function() {
+                                model.erase();
+
+                                $rootScope.$apply(function() {
+                                    model.save().catch(saveSpy);
+                                });
+                            });
+
+                            it('should reject the promise', function() {
+                                expect(adapter.create).not.toHaveBeenCalled();
+                                expect(adapter.update).not.toHaveBeenCalled();
+
+                                expect(saveSpy).toHaveBeenCalledWith('Cannot save an erased record.');
+                            });
+                        });
+
                         describe('if the record has not been saved before (has no ID)', function() {
                             beforeEach(function() {
                                 $rootScope.$apply(function() {
