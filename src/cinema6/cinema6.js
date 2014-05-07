@@ -159,6 +159,7 @@
                     copy(data, this);
 
                     this._type = type;
+                    this._erased = false;
                 }
                 DBModel.prototype = {
                     save: function() {
@@ -170,6 +171,10 @@
 
                         function cacheModel(model) {
                             return cache.put(model._type + ':' + model.id, model);
+                        }
+
+                        if (this._erased) {
+                            return $q.reject('Cannot save an erased record.');
                         }
 
                         // When the update() function is called, the _pending property will be
@@ -188,15 +193,25 @@
                             return cache.remove(self._type + ':' + self.id) || null;
                         }
 
-                        return this.id ?
-                            adapter.erase(this._type, this.pojoify())
-                                .then(uncacheModel) :
-                            $q.when(null);
+                        this._erased = true;
+
+                        return (
+                            this.id ?
+                                adapter.erase(this._type, this.pojoify())
+                                    .then(uncacheModel) :
+                                $q.when(null)
+                            )
+                            .catch(function resetErased(error) {
+                                self._erased = false;
+
+                                return $q.reject(error);
+                            });
                     },
                     pojoify: function() {
                         var pojo = fromJson(toJson(this));
 
                         delete pojo._type;
+                        delete pojo._erased;
 
                         return pojo;
                     },
