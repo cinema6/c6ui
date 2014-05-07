@@ -207,19 +207,46 @@
                         });
 
                         describe('if the record has been deleted', function() {
-                            beforeEach(function() {
-                                model.erase();
+                            var eraseSpy;
 
+                            beforeEach(function() {
+                                eraseSpy = jasmine.createSpy('model.erase()');
+
+                                model.save();
+                                $rootScope.$apply(function() {
+                                    adapter._deferreds.create.resolve([extend(data, { id: 'u-d83f502c99d226' })]);
+                                });
+
+                                model.erase().catch(eraseSpy);
                                 $rootScope.$apply(function() {
                                     model.save().catch(saveSpy);
                                 });
                             });
 
                             it('should reject the promise', function() {
-                                expect(adapter.create).not.toHaveBeenCalled();
                                 expect(adapter.update).not.toHaveBeenCalled();
 
                                 expect(saveSpy).toHaveBeenCalledWith('Cannot save an erased record.');
+                            });
+
+                            describe('if the erase fails', function() {
+                                beforeEach(function() {
+                                    $rootScope.$apply(function() {
+                                        adapter._deferreds.erase.reject('Erase failed!');
+                                    });
+
+                                    $rootScope.$apply(function() {
+                                        model.save();
+                                    });
+                                });
+
+                                it('should allow the model to be saved', function() {
+                                    expect(adapter.update).toHaveBeenCalled();
+                                });
+
+                                it('should still propagate a failure in the erase method', function() {
+                                    expect(eraseSpy).toHaveBeenCalledWith('Erase failed!');
+                                });
                             });
                         });
 

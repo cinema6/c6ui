@@ -159,6 +159,7 @@
                     copy(data, this);
 
                     this._type = type;
+                    this._erased = false;
                 }
                 DBModel.prototype = {
                     save: function() {
@@ -194,10 +195,17 @@
 
                         this._erased = true;
 
-                        return this.id ?
-                            adapter.erase(this._type, this.pojoify())
-                                .then(uncacheModel) :
-                            $q.when(null);
+                        return (
+                            this.id ?
+                                adapter.erase(this._type, this.pojoify())
+                                    .then(uncacheModel) :
+                                $q.when(null)
+                            )
+                            .catch(function resetErased(error) {
+                                self._erased = false;
+
+                                return $q.reject(error);
+                            });
                     },
                     pojoify: function() {
                         var pojo = fromJson(toJson(this));
