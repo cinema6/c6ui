@@ -31,7 +31,8 @@
                     this.hash = parser.hash.replace(/^#/, '');
                     this.hostname = parser.hostname;
                     this.port = parser.port;
-                    this.pathname = parser.pathname;
+                    this.pathname = ((parser.pathname.charAt(0) === '/') ? '' : '/') +
+                        parser.pathname;
                 }
                 URLInfo.prototype = {
                     sameOriginAs: function(url) {

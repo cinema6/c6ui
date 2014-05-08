@@ -3,7 +3,9 @@
 
     define(['url/urlparser'], function() {
         describe('c6UrlParser', function() {
-            var c6UrlParser;
+            var $injector,
+                c6UrlParser,
+                c6UrlParserProvider;
 
             var $location;
 
@@ -16,9 +18,13 @@
                     });
                 });
 
-                module('c6.ui');
+                module('c6.ui', function($injector) {
+                    c6UrlParserProvider = $injector.get('c6UrlParserProvider');
+                });
 
-                inject(function($injector) {
+                inject(function(_$injector_) {
+                    $injector = _$injector_;
+
                     c6UrlParser = $injector.get('c6UrlParser');
                 });
             });
@@ -51,6 +57,36 @@
                     port: '8000',
                     pathname: '/hello/world.html'
                 }));
+            });
+
+            describe('in freakin\' internet explorer', function() {
+                var doc,
+                    a;
+
+                beforeEach(function() {
+                    a = {
+                        setAttribute: jasmine.createSpy('a.setAttribute()'),
+                        pathname: 'my/path/foo',
+                        protocol: '',
+                        search: '',
+                        hash: ''
+                    };
+
+                    doc = {
+                        createElement: jasmine.createSpy('document.createElement()')
+                            .andReturn(a)
+                    };
+
+                    c6UrlParser = $injector.invoke(c6UrlParserProvider.$get, c6UrlParserProvider, {
+                        $document: [doc]
+                    });
+
+                    expect(doc.createElement).toHaveBeenCalledWith('a');
+                });
+
+                it('should include the leading slash in the pathname', function() {
+                    expect(c6UrlParser('http://www.foo.com/my/path/foo').pathname).toBe('/my/path/foo');
+                });
             });
 
             describe('sameOriginAs(url)', function() {

@@ -1,5 +1,9 @@
 # C6UI
 
+## v2.6.4 (May 8, 2014)
+* [FIX]: c6UrlParser: Include leading slash in pathname, even on
+  browsers (IE) that don't include it like they should
+
 ## v2.6.3 (May 7, 2014)
 * [FEATURE]: cinema6.db: Prevent an erased record from being saved
 
