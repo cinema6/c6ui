@@ -197,7 +197,7 @@
 
                         if (currentTime <= endTime) {
                             self.volume = startVolume - (percentThrough * (startVolume - volume));
-                            $timeout(setVolume, 1, false);
+                            $timeout(setVolume, 16, false);
                         } else {
                             self.volume = volume;
                             $rootScope.$apply(function() {

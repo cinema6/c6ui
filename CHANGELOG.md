@@ -1,5 +1,7 @@
 # C6UI
 
+* [FIX]: c6Sfx: Improve performance of easing volume in/out
+
 ## v2.6.4 (May 8, 2014)
 * [FIX]: c6UrlParser: Include leading slash in pathname, even on
   browsers (IE) that don't include it like they should
