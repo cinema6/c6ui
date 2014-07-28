@@ -1,6 +1,8 @@
 # C6UI
 
 * [FIX]: c6Sfx: Improve performance of easing volume in/out
+* [FEATURE]: cinema6.db: JavaScript objects can now be "pushed" into
+  the record cache
 
 ## v2.6.4 (May 8, 2014)
 * [FIX]: c6UrlParser: Include leading slash in pathname, even on
