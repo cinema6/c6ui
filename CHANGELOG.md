@@ -1,5 +1,6 @@
 # C6UI
 
+## v2.6.5 (July 28, 2014)
 * [FIX]: c6Sfx: Improve performance of easing volume in/out
 * [FEATURE]: cinema6.db: JavaScript objects can now be "pushed" into
   the record cache
