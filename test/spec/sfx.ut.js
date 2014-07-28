@@ -767,15 +767,14 @@
                             sfx.volume = 1;
                             sfx.setVolumeToValueOverTime(0.5, 1000).then(promiseSpy);
 
-                            for (var total = 501, i = 0; i < total; i++) {
-                                if (i === 499) { // Simulate the clock jumping ahead the last time setVolume() is called.
-                                    time += 10;
-                                    elapsedTime += 2;
+                            for (var total = 4, i = 0; i < total; i++) {
+                                if (i === 3) { // Simulate the clock jumping ahead the last time setVolume() is called.
+                                    time += 300;
                                 } else {
-                                    time += 2;
-                                    elapsedTime += 2;
+                                    time += 250;
                                 }
-                                jasmine.Clock.tick(2);
+                                elapsedTime += 250;
+                                jasmine.Clock.tick(250);
 
                                 if (elapsedTime === 250) {
                                     expect(sfx.volume).toBe(0.875);
@@ -794,10 +793,10 @@
 
                             sfx.setVolumeToValueOverTime(1, 1000).then(promiseSpy);
 
-                            for (total = 501, i = 0; i < total; i++) {
-                                time += 2;
-                                elapsedTime += 2;
-                                jasmine.Clock.tick(2);
+                            for (total = 5, i = 0; i < total; i++) {
+                                time += 250;
+                                elapsedTime += 250;
+                                jasmine.Clock.tick(250);
 
                                 if (elapsedTime === 250) {
                                     expect(sfx.volume).toBe(0.625);

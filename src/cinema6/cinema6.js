@@ -274,6 +274,12 @@
                     },
                     create: function(type, data) {
                         return new DBModel(type, data);
+                    },
+                    push: function(type, id, data) {
+                        var cacheId = type + ':' + id;
+
+                        return (cache.get(cacheId) || cache.put(cacheId, new DBModel(type)))
+                            ._update(data);
                     }
                 };
 

@@ -335,6 +335,48 @@
                     });
                 });
 
+                describe('push(type, id, data)', function() {
+                    var model, result;
+
+                    beforeEach(function() {
+                        model = {
+                            id: 'e-ef9824b6513c46',
+                            name: 'Johnny TestMonkey',
+                            items: {}
+                        };
+
+                        result = cinema6.db.push('user', model.id, model);
+                    });
+
+                    it('should return a decorated record', function() {
+                        expect(result).toEqual(jasmine.objectContaining(model));
+                        expect(result.save).toEqual(jasmine.any(Function));
+                        expect(result.erase).toEqual(jasmine.any(Function));
+                    });
+
+                    it('should put the record in the cache', function() {
+                        var success = jasmine.createSpy('success()');
+
+                        $rootScope.$apply(function() {
+                            cinema6.db.find('user', model.id).then(success);
+                        });
+
+                        expect(success).toHaveBeenCalledWith(result);
+                    });
+
+                    it('should update existing records if they are re-put', function() {
+                        var newModel = {
+                            id: 'e-ef9824b6513c46',
+                            name: 'Mildred TestMonkey',
+                            items: {}
+                        },
+                        newResult = cinema6.db.push('user', newModel.id, newModel);
+
+                        expect(newResult).toEqual(jasmine.objectContaining(newModel));
+                        expect(newResult).toBe(result);
+                    });
+                });
+
                 describe('create(type, data)', function() {
                     var result,
                         data;
