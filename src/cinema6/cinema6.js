@@ -1,8 +1,7 @@
 (function() {
     'use strict';
 
-    var copy = angular.copy,
-        forEach = angular.forEach;
+    var forEach = angular.forEach;
 
     angular.module('c6.ui')
         .provider('cinema6', [function() {
