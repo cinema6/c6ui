@@ -49,7 +49,7 @@
 
                         adapter = this;
                     });
-                AdapterInjectable = ['config', '$q', AdapterConstructor];
+                AdapterInjectable = ['config', '$q', 'cinema6', AdapterConstructor];
 
                 module('c6.ui', function($injector) {
                     cinema6Provider = $injector.get('cinema6Provider');
@@ -74,10 +74,13 @@
                         inject(function($injector) {
                             cinema6 = $injector.get('cinema6');
                         });
+
+                        // Make a request to instantiate the adapter
+                        cinema6.db.findAll('foo');
                     });
 
                     it('should provide that config object to the adapter', function() {
-                        expect(AdapterConstructor).toHaveBeenCalledWith(AdapterInjectable.config, jasmine.any(Object));
+                        expect(AdapterConstructor).toHaveBeenCalledWith(AdapterInjectable.config, jasmine.any(Object), cinema6);
                     });
                 });
 
@@ -86,10 +89,13 @@
                         inject(function($injector) {
                             cinema6 = $injector.get('cinema6');
                         });
+
+                        // Make a request to instantiate the adapter
+                        cinema6.db.findAll('foo');
                     });
 
                     it('should provide an empty object', function() {
-                        expect(AdapterConstructor).toHaveBeenCalledWith({}, jasmine.any(Object));
+                        expect(AdapterConstructor).toHaveBeenCalledWith({}, jasmine.any(Object), cinema6);
                     });
                 });
             });
