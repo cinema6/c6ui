@@ -375,6 +375,10 @@
                         expect(newResult).toEqual(jasmine.objectContaining(newModel));
                         expect(newResult).toBe(result);
                     });
+
+                    it('should be a shallow copy', function() {
+                        expect(result.items).toBe(model.items);
+                    });
                 });
 
                 describe('create(type, data)', function() {
@@ -411,6 +415,10 @@
                         expect(result.save).toEqual(jasmine.any(Function));
                         expect(result.erase).toEqual(jasmine.any(Function));
                     });
+
+                    it('should be a shallow copy', function() {
+                        expect(result.data).toBe(data.data);
+                    });
                 });
 
                 describe('find(type, id)', function() {
@@ -422,7 +430,8 @@
                             {
                                 id: 'e-2ff054584731c6',
                                 type: 'minireel',
-                                user: 'u-38b61e71b25d1e'
+                                user: 'u-38b61e71b25d1e',
+                                data: {}
                             }
                         ];
 
@@ -445,6 +454,14 @@
                         });
                         expect(findSpy).toHaveBeenCalledWith(jasmine.objectContaining(result[0]));
                         assertIsDBModel(findSpy.mostRecentCall.args[0]);
+                    });
+
+                    it('should be a shallow copy', function() {
+                        $rootScope.$apply(function() {
+                            adapter._deferreds.find.resolve(result);
+                        });
+
+                        expect(findSpy.mostRecentCall.args[0].data).toBe(result[0].data);
                     });
 
                     it('should cache the item by type and id', function() {

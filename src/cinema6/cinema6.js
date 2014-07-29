@@ -156,7 +156,7 @@
                 /* @public */
 
                 function DBModel(type, data) {
-                    copy(data, this);
+                    this._update(data);
 
                     this._type = type;
                     this._erased = false;
@@ -216,9 +216,21 @@
                         return pojo;
                     },
                     _update: function(data) {
-                        var type = this._type;
+                        var type = this._type,
+                            prop;
 
-                        copy(data, this);
+                        for (prop in data) {
+                            this[prop] = data[prop];
+                        }
+
+                        if (angular.isObject(data)) {
+                            for (prop in this) {
+                                if (!data.hasOwnProperty(prop)) {
+                                    delete this[prop];
+                                }
+                            }
+                        }
+
                         this._type = type;
 
                         return this;
