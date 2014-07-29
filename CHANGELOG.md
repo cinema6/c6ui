@@ -1,5 +1,10 @@
 # C6UI
 
+## v2.6.6 (July 29, 2014)
+* cinema6.db: Adapters can now list the cinema6 service as a dependency
+* cinema6.db: When creating cinema6.db models, properties are now
+  shallow-copied from the adapter's result
+
 ## v2.6.5 (July 28, 2014)
 * [FIX]: c6Sfx: Improve performance of easing volume in/out
 * [FEATURE]: cinema6.db: JavaScript objects can now be "pushed" into

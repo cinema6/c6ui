@@ -1,8 +1,7 @@
 (function() {
     'use strict';
 
-    var copy = angular.copy,
-        forEach = angular.forEach;
+    var forEach = angular.forEach;
 
     angular.module('c6.ui')
         .provider('cinema6', [function() {
@@ -149,14 +148,19 @@
                         options: undefined
                     };
 
-                var adapter = $injector.instantiate(Adapter, { config: Adapter.config || {} }),
+                var adapter = null,
                     cache = $cacheFactory('cinema6.db');
 
+                function getAdapter() {
+                    return adapter || (adapter = $injector.instantiate(Adapter, {
+                        config: Adapter.config || {}
+                    }));
+                }
 
                 /* @public */
 
                 function DBModel(type, data) {
-                    copy(data, this);
+                    this._update(data);
 
                     this._type = type;
                     this._erased = false;
@@ -181,7 +185,7 @@
                         // stripped from the model, allowing the next call to save() to call the
                         // adapter.
                         return this._pending ||
-                            (this._pending = adapter[this.id ?
+                            (this._pending = getAdapter()[this.id ?
                                 'update' : 'create'](this._type, this.pojoify())
                                 .then(update)
                                 .then(cacheModel));
@@ -197,7 +201,7 @@
 
                         return (
                             this.id ?
-                                adapter.erase(this._type, this.pojoify())
+                                getAdapter().erase(this._type, this.pojoify())
                                     .then(uncacheModel) :
                                 $q.when(null)
                             )
@@ -216,9 +220,21 @@
                         return pojo;
                     },
                     _update: function(data) {
-                        var type = this._type;
+                        var type = this._type,
+                            prop;
 
-                        copy(data, this);
+                        for (prop in data) {
+                            this[prop] = data[prop];
+                        }
+
+                        if (angular.isObject(data)) {
+                            for (prop in this) {
+                                if (!data.hasOwnProperty(prop)) {
+                                    delete this[prop];
+                                }
+                            }
+                        }
+
                         this._type = type;
 
                         return this;
@@ -253,7 +269,7 @@
                         }
 
                         function fetchFromAdapter() {
-                            return adapter.find(type, id)
+                            return getAdapter().find(type, id)
                                 .then(createModels.bind(null, type))
                                 .then(saveToCache.bind(null, type));
                         }
@@ -267,8 +283,8 @@
                             .then(extractSingle);
                     },
                     findAll: function(type, matcher) {
-                        return adapter[matcher ?
-                            'findQuery' : 'findAll'].apply(adapter, arguments)
+                        return getAdapter()[matcher ?
+                            'findQuery' : 'findAll'].apply(getAdapter(), arguments)
                             .then(createModels.bind(null, type))
                             .then(saveToCache.bind(null, type));
                     },
