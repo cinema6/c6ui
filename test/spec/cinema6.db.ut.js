@@ -525,7 +525,7 @@
                         });
 
                         it('should call the adapter\'s findAll method with the type and the meta object', function() {
-                            expect(adapter.findAll).toHaveBeenCalledWith('experience', undefined, {});
+                            expect(adapter.findAll).toHaveBeenCalledWith('experience', {});
                         });
 
                         it('should resolve with the result of the adapter as DBModels', function() {
@@ -545,7 +545,7 @@
                                 adapter._deferreds.findAll.resolve(results);
                             });
 
-                            var meta = adapter.findAll.mostRecentCall.args[2],
+                            var meta = adapter.findAll.mostRecentCall.args[1],
                                 items = findSpy.mostRecentCall.args[0];
 
                             expect(items.meta).toBe(meta);

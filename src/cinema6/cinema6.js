@@ -290,10 +290,11 @@
                             .then(extractSingle);
                     },
                     findAll: function(type, matcher) {
-                        var meta = {};
+                        var args = Array.prototype.slice.call(arguments),
+                            meta = args[args.push({}) - 1];
 
                         return getAdapter()[matcher ?
-                            'findQuery' : 'findAll'](type, matcher, meta)
+                            'findQuery' : 'findAll'].apply(getAdapter(), args)
                             .then(createModels.bind(null, type))
                             .then(saveToCache.bind(null, type))
                             .then(setMeta(meta));
