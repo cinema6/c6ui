@@ -1,5 +1,7 @@
 # C6UI
 
+* cinema6.db: Added support for including meta data with results
+
 ## v2.6.6 (July 29, 2014)
 * cinema6.db: Adapters can now list the cinema6 service as a dependency
 * cinema6.db: When creating cinema6.db models, properties are now

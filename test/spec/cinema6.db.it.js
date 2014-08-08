@@ -79,6 +79,7 @@
                     resultSpy.mostRecentCall.args[0].forEach(function(item, index) {
                         expect(item).toEqual(jasmine.objectContaining(fixtures.experience[index]));
                     });
+                    expect(resultSpy.mostRecentCall.args[0].meta).toEqual({});
 
                     $rootScope.$apply(function() {
                         cinema6.db.findAll('user').then(resultSpy);
@@ -87,6 +88,7 @@
                     resultSpy.mostRecentCall.args[0].forEach(function(item, index) {
                         expect(item).toEqual(jasmine.objectContaining(fixtures.user[index]));
                     });
+                    expect(resultSpy.mostRecentCall.args[0].meta).toEqual({});
                 });
 
                 it('should support finding a single record by id', function() {
@@ -103,22 +105,28 @@
                 });
 
                 it('should support finding records with queries', function() {
-                    var experiences = fixtures.experience;
+                    var experiences = fixtures.experience,
+                        result = [
+                            jasmine.objectContaining(experiences[0]),
+                            jasmine.objectContaining(experiences[1]),
+                            jasmine.objectContaining(experiences[3])
+                        ];
+
+                    result.meta = {};
 
                     cinema6.db.findAll('experience', { type: 'minireel' }).then(resultSpy);
                     $httpBackend.flush();
 
-                    expect(resultSpy).toHaveBeenCalledWith([
-                        jasmine.objectContaining(experiences[0]),
-                        jasmine.objectContaining(experiences[1]),
-                        jasmine.objectContaining(experiences[3])
-                    ]);
+                    expect(resultSpy).toHaveBeenCalledWith(result);
 
                     $rootScope.$apply(function() {
                         cinema6.db.findAll('experience', { type: 'screenjack', user: 'u-38b61e71b25d1e' }).then(resultSpy);
                     });
 
-                    expect(resultSpy).toHaveBeenCalledWith([jasmine.objectContaining(experiences[2])]);
+                    result = [jasmine.objectContaining(experiences[2])];
+                    result.meta = {};
+
+                    expect(resultSpy).toHaveBeenCalledWith(result);
                 });
 
                 it('should support creating, updating and deleting records', function() {
