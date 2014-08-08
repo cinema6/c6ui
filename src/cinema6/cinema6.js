@@ -249,6 +249,13 @@
                     return items;
                 }
 
+                function setMeta(meta) {
+                    return function(item) {
+                        item.meta = meta;
+                        return item;
+                    };
+                }
+
                 function createModels(type, items) {
                     return items.map(function(item) {
                         return (cache.get(type + ':' + item.id) || self.db.create(type))
@@ -283,10 +290,13 @@
                             .then(extractSingle);
                     },
                     findAll: function(type, matcher) {
+                        var meta = {};
+
                         return getAdapter()[matcher ?
-                            'findQuery' : 'findAll'].apply(getAdapter(), arguments)
+                            'findQuery' : 'findAll'](type, matcher, meta)
                             .then(createModels.bind(null, type))
-                            .then(saveToCache.bind(null, type));
+                            .then(saveToCache.bind(null, type))
+                            .then(setMeta(meta));
                     },
                     create: function(type, data) {
                         return new DBModel(type, data);

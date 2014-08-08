@@ -524,8 +524,8 @@
                             });
                         });
 
-                        it('should call the adapter\'s findAll method', function() {
-                            expect(adapter.findAll).toHaveBeenCalledWith('experience');
+                        it('should call the adapter\'s findAll method with the type and the meta object', function() {
+                            expect(adapter.findAll).toHaveBeenCalledWith('experience', undefined, {});
                         });
 
                         it('should resolve with the result of the adapter as DBModels', function() {
@@ -538,6 +538,17 @@
                                 expect(model).toEqual(jasmine.objectContaining(results[index]));
                                 assertIsDBModel(model);
                             });
+                        });
+
+                        it('should include the meta object', function() {
+                            $rootScope.$apply(function() {
+                                adapter._deferreds.findAll.resolve(results);
+                            });
+
+                            var meta = adapter.findAll.mostRecentCall.args[2],
+                                items = findSpy.mostRecentCall.args[0];
+
+                            expect(items.meta).toBe(meta);
                         });
 
                         it('should reuse, but update, existing DB models', function() {
@@ -620,7 +631,7 @@
                         });
 
                         it('should call the adapter\'s findQuery method', function() {
-                            expect(adapter.findQuery).toHaveBeenCalledWith('experience', query);
+                            expect(adapter.findQuery).toHaveBeenCalledWith('experience', query, {});
                         });
 
                         it('should resolve with the result of the adapter as DBModels', function() {
@@ -633,6 +644,17 @@
                                 expect(model).toEqual(jasmine.objectContaining(results[index]));
                                 assertIsDBModel(model);
                             });
+                        });
+
+                        it('should include the meta object', function() {
+                            $rootScope.$apply(function() {
+                                adapter._deferreds.findQuery.resolve(results);
+                            });
+
+                            var meta = adapter.findQuery.mostRecentCall.args[2],
+                                items = findSpy.mostRecentCall.args[0];
+
+                            expect(items.meta).toBe(meta);
                         });
 
                         it('should cache all the items by type and id', function() {
