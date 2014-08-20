@@ -1,5 +1,6 @@
 # C6UI
 
+## v2.7.0 (August 20, 2014)
 * cinema6.db: Added support for including meta data with results
 
 ## v2.6.6 (July 29, 2014)
