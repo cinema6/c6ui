@@ -1,5 +1,10 @@
 # C6UI
 
+## v3.0.0 (August 29, 2014)
+* Removed ```<c6-controls></c6-controls>```, ```c6Journal```,
+   ```c6-mouse-activity=""```, ```c6-resize=""```, ```c6Sfx```,
+   ```c6-playlist=""```, ```c6PlaylistHistoryService```
+
 ## v2.7.0 (August 20, 2014)
 * cinema6.db: Added support for including meta data with results
 
