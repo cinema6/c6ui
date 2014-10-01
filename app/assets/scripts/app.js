@@ -1,9 +1,10 @@
-(function() {
-	'use strict';
+define (['angular','c6ui','modernizr','controllers'],
+function( angular , c6ui , modernizr , controllers ) {
+    'use strict';
 
     window.c6 = {
         kLogLevels: ['log', 'info', 'warn', 'error']
     };
 
-	angular.module('app', ['c6.ui', 'c6.log', 'c6.http']);
-})();
+    return angular.module('app', [c6ui.name, controllers.name]);
+});

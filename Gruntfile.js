@@ -60,7 +60,7 @@ module.exports = function (grunt) {
         watch: {
             build: {
                 files: '<%= settings.src %>/**',
-                tasks: ['copy:app', 'ngtemplates:app']
+                tasks: ['copy:app']
             }
         },
         connect: {
