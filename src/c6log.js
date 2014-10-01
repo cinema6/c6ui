@@ -12,11 +12,11 @@ function( angular , formatForamt  ) {
         }
 
         if (c6Defines.kLogFormats){
-            window$.console.warn('Using formatted logging, disable by setting c6.kLogFormats = false');
+            window.console.warn('Using formatted logging, disable by setting c6.kLogFormats = false');
         }
 
         if ((c6Defines.kLogLevels === null) || (c6Defines.kLogLevels === undefined)){
-            window$.console.warn('c6.kLogLevels is undefined, logging will be disabled.');
+            window.console.warn('c6.kLogLevels is undefined, logging will be disabled.');
         }
 
         $provide.decorator('$log', ['$delegate', function($delegate) {

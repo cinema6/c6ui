@@ -1,4 +1,4 @@
-define(['c6ui'], function(c6uiModule) {
+define(['c6uilib'], function(c6uiModule) {
     'use strict';
 
     describe('c6uiService', function() {

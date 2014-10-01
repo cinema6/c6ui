@@ -19,8 +19,8 @@
   "trailing": true,
   "smarttabs": true,
   "globals": {
-    "angular": false,
     "require" : true,
+    "define": true,
     "module" : true,
     "__dirname" : true,
     "process" : true,
