@@ -1,4 +1,4 @@
-(function(){
+define(['browser/user_agent'], function(browserUserAgent){
     'use strict';
     var userAgent = {
         macOS : {
@@ -296,84 +296,82 @@
         }
     };
     
-    define(['browser/user_agent'], function(){
-        var $window = {}, c6UserAgent;
+    var $window = {}, c6UserAgent;
 
-        Object.keys(userAgent).forEach(function($os){
-            Object.keys(userAgent[$os]).forEach(function($browser){
-                describe('c6UserAgent',function(){
-                    $window.navigator = {};
-                    beforeEach(module('c6.ui',['$provide',function($provide){
-                        $provide.value('$window',$window);
-                    }]));
+    Object.keys(userAgent).forEach(function($os){
+        Object.keys(userAgent[$os]).forEach(function($browser){
+            describe('c6UserAgent',function(){
+                $window.navigator = {};
+                beforeEach(module(browserUserAgent.name,['$provide',function($provide){
+                    $provide.value('$window',$window);
+                }]));
 
-                    describe('with userAgent ' + $os + '.' + $browser,function(){
-                        beforeEach(function(){
-                            $window.navigator.userAgent = userAgent[$os][$browser].agentString;
-                            inject(['c6UserAgent',function(_c6UserAgent) {
-                                c6UserAgent = _c6UserAgent;
-                            }]);
+                describe('with userAgent ' + $os + '.' + $browser,function(){
+                    beforeEach(function(){
+                        $window.navigator.userAgent = userAgent[$os][$browser].agentString;
+                        inject(['c6UserAgent',function(_c6UserAgent) {
+                            c6UserAgent = _c6UserAgent;
+                        }]);
+                    });
+
+                    describe('app',function(){
+                        it('name',function(){
+                            userAgent[$os][$browser].tests.app.name(c6UserAgent);
                         });
-
-                        describe('app',function(){
-                            it('name',function(){
-                                userAgent[$os][$browser].tests.app.name(c6UserAgent);
-                            });
-                            it('version',function(){
-                                userAgent[$os][$browser].tests.app.version(c6UserAgent);
-                            });
-                        });
-                        
-                        describe('device',function(){
-                            it('name',function(){
-                                userAgent[$os][$browser].tests.device.name(c6UserAgent);
-                            });
-
-                            it('version',function(){
-                                userAgent[$os][$browser].tests.device.version(c6UserAgent);
-                            });
-
-                            it('isKindle',function(){
-                            	userAgent[$os][$browser].tests.device.isKindle(c6UserAgent);
-                            });
-                            
-                            it('isAndroid',function(){
-                            	userAgent[$os][$browser].tests.device.isAndroid(c6UserAgent);
-                            });
-                            
-                            it('isIPhone',function(){
-                            	userAgent[$os][$browser].tests.device.isIPhone(c6UserAgent);
-                            });
-                            
-                            it('isIPod',function(){
-                            	userAgent[$os][$browser].tests.device.isIPod(c6UserAgent);
-                            });
-                            
-                            it('isIPad',function(){
-                            	userAgent[$os][$browser].tests.device.isIPad(c6UserAgent);
-                            });
-                            
-                            it('isIOS',function(){
-                            	userAgent[$os][$browser].tests.device.isIOS(c6UserAgent);
-                            });
-                            
-                            it('isMobile',function(){
-                            	userAgent[$os][$browser].tests.device.isMobile(c6UserAgent);
-                            });
-
-                        });
-                        
-                        describe('os',function(){
-                            it('name',function(){
-                                userAgent[$os][$browser].tests.os.name(c6UserAgent);
-                            });
-                            it('version',function(){
-                                userAgent[$os][$browser].tests.os.version(c6UserAgent);
-                            });
+                        it('version',function(){
+                            userAgent[$os][$browser].tests.app.version(c6UserAgent);
                         });
                     });
-                }); 
-            });
+                    
+                    describe('device',function(){
+                        it('name',function(){
+                            userAgent[$os][$browser].tests.device.name(c6UserAgent);
+                        });
+
+                        it('version',function(){
+                            userAgent[$os][$browser].tests.device.version(c6UserAgent);
+                        });
+
+                        it('isKindle',function(){
+                            userAgent[$os][$browser].tests.device.isKindle(c6UserAgent);
+                        });
+                        
+                        it('isAndroid',function(){
+                            userAgent[$os][$browser].tests.device.isAndroid(c6UserAgent);
+                        });
+                        
+                        it('isIPhone',function(){
+                            userAgent[$os][$browser].tests.device.isIPhone(c6UserAgent);
+                        });
+                        
+                        it('isIPod',function(){
+                            userAgent[$os][$browser].tests.device.isIPod(c6UserAgent);
+                        });
+                        
+                        it('isIPad',function(){
+                            userAgent[$os][$browser].tests.device.isIPad(c6UserAgent);
+                        });
+                        
+                        it('isIOS',function(){
+                            userAgent[$os][$browser].tests.device.isIOS(c6UserAgent);
+                        });
+                        
+                        it('isMobile',function(){
+                            userAgent[$os][$browser].tests.device.isMobile(c6UserAgent);
+                        });
+
+                    });
+                    
+                    describe('os',function(){
+                        it('name',function(){
+                            userAgent[$os][$browser].tests.os.name(c6UserAgent);
+                        });
+                        it('version',function(){
+                            userAgent[$os][$browser].tests.os.version(c6UserAgent);
+                        });
+                    });
+                });
+            }); 
         });
     });
-}());
+});

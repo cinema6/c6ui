@@ -1,6 +1,8 @@
-(function(){
+define (['angular'],
+function( angular ) {
     'use strict';
-    angular.module('c6.ui',[])
+
+    return angular.module('c6.ui',[])
         .service('c6ui', [function() {
             this.array = {
                 lastItem: function(array) {
@@ -8,4 +10,4 @@
                 }
             };
         }]);
-}());
+});

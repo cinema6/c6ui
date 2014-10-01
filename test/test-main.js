@@ -29,82 +29,28 @@
     }
 
     requirejs({
-
         baseUrl: '/base/src',
 
-        paths : {
-            "angular"       : libUrl('angular/v1.2.12-0-g5cc5cc1/angular'),
-            "angularMocks"  : libUrl('angular/v1.2.12-0-g5cc5cc1/angular-mocks'),
-            "templates"     : "../.tmp/templates"
+        paths: {
+            angular: libUrl('angular/v1.2.12-0-g5cc5cc1/angular'),
+            ngMock: libUrl('angular/v1.2.12-0-g5cc5cc1/angular-mocks')
         },
 
-        shim : {
-            "angular"   : {
-                "exports" : "angular"
+        shim: {
+            angular: {
+                exports: 'angular'
             },
-            "angularMocks" : {
-                "deps" : [ "angular" ]
-            },
-            "c6ui" : {
-                "deps" : [ "angularMocks" ]
-            },
-            "templates" : {
-                "deps" : [ "c6ui" ]
-            },
-            "browser/user_agent" : {
-                "deps" : [ "c6ui" ]
-            },
-            "browser/info": {
-                "deps": [ "browser/user_agent" ]
-            },
-            "events/emitter" : {
-                "deps" : [ "c6ui" ]
-            },
-            "computed/computed": {
-                "deps": ["c6ui"]
-            },
-            "debounce/debounce": {
-                "deps": ["c6ui"]
-            },
-            "imagepreloader/imagepreloader": {
-                "deps": ["c6ui"]
-            },
-            "videos/video": {
-                "deps": ["c6ui"]
-            },
-            "url/urlmaker": {
-                "deps": ["c6ui"]
-            },
-            "url/urlparser": {
-                "deps": ["c6ui"]
-            },
-            "format/format": {
-                "deps": ["c6ui"]
-            },
-            "postmessage/postmessage": {
-                "deps": ["events/emitter"]
-            },
-            "cinema6/cinema6": {
-                "deps": ["postmessage/postmessage"]
-            },
-            "storage/storage": {
-                "deps": ["c6ui"]
-            },
-            "alias/alias": {
-                "deps": ["c6ui"]
-            },
-            "http/http": {
-                "deps": ["angular"]
+            ngMock: {
+                deps: ['angular'],
+                init: function(angular) {
+                    return angular.module('ngMock');
+                }
             }
-        },
+        }
+    });
 
-        priority : [
-            "angular"
-        ],
-
-        deps : tests ,
-
-        callback: $window.__karma__.start
+    require(['ngMock'], function() {
+        require(tests, $window.__karma__.start);
     });
 
 }(window));

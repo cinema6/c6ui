@@ -1,6 +1,8 @@
-(function() {
+define (['angular'],
+function( angular ) {
     'use strict';
-    angular.module('c6.ui')
+
+    return angular.module('c6.ui.url.urlmaker', [])
     .provider('c6UrlMaker',function(){
         var locationMap = {
             'default' : ''
@@ -40,4 +42,4 @@
         };
 
     });
-}());
+});

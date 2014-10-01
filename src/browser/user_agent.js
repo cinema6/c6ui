@@ -1,7 +1,8 @@
-(function(){
+define (['angular'],
+function( angular ) {
     'use strict';
 
-    angular.module('c6.ui')
+    return angular.module('c6.ui.browser.userAgent', [])
     .service('c6UserAgent',['$window',function($window){
         var ua = $window.navigator.userAgent, match;
 
@@ -100,4 +101,4 @@
 
     }]);
 
-}());
+});

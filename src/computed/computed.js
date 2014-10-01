@@ -1,7 +1,8 @@
-(function() {
+define (['angular'],
+function( angular ) {
     'use strict';
 
-    angular.module('c6.ui')
+    return angular.module('c6.ui.computed.computed', [])
         .factory('c6Computed', [function() {
             return function(scope) {
                 return function(model, prop, fn, deps) {
@@ -95,4 +96,4 @@
                 };
             };
         }]);
-})();
+});

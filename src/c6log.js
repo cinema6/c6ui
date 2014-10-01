@@ -1,9 +1,10 @@
-(function(window$){
+define (['angular','format/format'],
+function( angular , formatForamt  ) {
     'use strict';
 
-
-    angular.module('c6.log',['c6.ui'])
-    .constant('c6Defines', (window$.c6 || {}))
+    return angular.module('c6.log',[
+        formatForamt.name
+    ]).constant('c6Defines', (window.c6 || {}))
     .config(['$provide', 'c6Defines','c6FormatterProvider',
         function($provide, c6Defines, fmtProv ) {
         if (c6Defines.kHasKarma){
@@ -89,5 +90,4 @@
             return $delegate;
         }]);
     }]);
-
-}(window));
+});

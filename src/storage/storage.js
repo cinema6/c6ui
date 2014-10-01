@@ -1,8 +1,10 @@
-(function(){
+define (['angular','events/emitter'],
+function( angular , eventsEmitter  ) {
     'use strict';
 
-    angular.module('c6.ui')
-    .provider('c6LocalStorage',[ function(){
+    return angular.module('c6.ui.storage.storage', [
+        eventsEmitter.name
+    ]).provider('c6LocalStorage',[ function(){
         var config = {
             prefix : 'c6::'
         };
@@ -115,6 +117,4 @@
             return emitter(new C6LocalStorage());
         }];
     }]);
-
-
-}());
+});
