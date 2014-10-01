@@ -1,5 +1,5 @@
-define (['angular','browser/user_agent'],
-function( angular , browserUserAgent   ) {
+define (['angular','../browser/user_agent'],
+function( angular ,    browserUserAgent   ) {
     'use strict';
 
     return angular.module('c6.ui.url.urlparser', [

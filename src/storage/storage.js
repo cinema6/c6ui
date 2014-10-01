@@ -1,5 +1,5 @@
-define (['angular','events/emitter'],
-function( angular , eventsEmitter  ) {
+define (['angular','../events/emitter'],
+function( angular ,    eventsEmitter  ) {
     'use strict';
 
     return angular.module('c6.ui.storage.storage', [

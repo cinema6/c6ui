@@ -1,5 +1,5 @@
-define (['angular','browser/info','url/urlparser'],
-function( angular , browserInfo  , urlUrlparser  ) {
+define (['angular','../browser/info','../url/urlparser'],
+function( angular , browserInfo     ,    urlUrlparser  ) {
     'use strict';
 
     return angular.module('c6.http', [

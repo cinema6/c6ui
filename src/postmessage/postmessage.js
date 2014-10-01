@@ -1,5 +1,5 @@
-define (['angular','events/emitter'],
-function( angular , eventsEmitter  ) {
+define (['angular','../events/emitter'],
+function( angular , eventsEmitter     ) {
     /*jshint -W106 */
     'use strict';
 

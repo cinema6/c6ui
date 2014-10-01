@@ -1,9 +1,9 @@
-define (['angular','browser/user_agent'],
-function( angular , browserUserAgent   ) {
+define (['angular','./user_agent'],
+function( angular , userAgent    ) {
     'use strict';
 
     return angular.module('c6.ui.browser.info', [
-        browserUserAgent.name
+        userAgent.name
     ]).provider('c6BrowserInfo', [function() {
         var providerPrivate = {
                 Modernizr: undefined,

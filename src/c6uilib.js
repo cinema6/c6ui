@@ -1,20 +1,20 @@
 define([
     'angular',
-    'alias/alias',
-    'browser/info',
-    'browser/user_agent',
-    'cinema6/cinema6',
-    'computed/computed',
-    'debounce/debounce',
-    'events/emitter',
-    'format/format',
-    'http/http',
-    'imagepreloader/imagepreloader',
-    'postmessage/postmessage',
-    'storage/storage',
-    'url/urlmaker',
-    'url/urlparser',
-    'videos/video'
+    './alias/alias',
+    './browser/info',
+    './browser/user_agent',
+    './cinema6/cinema6',
+    './computed/computed',
+    './debounce/debounce',
+    './events/emitter',
+    './format/format',
+    './http/http',
+    './imagepreloader/imagepreloader',
+    './postmessage/postmessage',
+    './storage/storage',
+    './url/urlmaker',
+    './url/urlparser',
+    './videos/video'
 ], function(angular) {
     'use strict';
 

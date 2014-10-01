@@ -1,5 +1,5 @@
-define (['angular','format/format'],
-function( angular , formatForamt  ) {
+define (['angular','./format/format'],
+function( angular , formatForamt    ) {
     'use strict';
 
     return angular.module('c6.log',[

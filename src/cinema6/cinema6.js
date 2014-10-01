@@ -1,5 +1,5 @@
-define (['angular','events/emitter','postmessage/postmessage'],
-function( angular , eventsEmitter  , postmessagePostmessage  ) {
+define (['angular','../events/emitter','../postmessage/postmessage'],
+function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
     'use strict';
 
     var forEach = angular.forEach;
