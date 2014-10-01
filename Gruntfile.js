@@ -111,6 +111,9 @@ module.exports = function (grunt) {
                     dir: '<%= settings.dist %>',
                     optimize: 'none',
                     removeCombined: true,
+                    wrap: {
+                        start: '<%= settings.copyNotice(settings.gitLastCommit) %>'
+                    },
                     modules: [
                         {
                             name: 'c6uilib'
@@ -126,7 +129,8 @@ module.exports = function (grunt) {
         uglify: {
             dist: {
                 options: {
-                    banner: '<%= settings.copyNotice(settings.gitLastCommit) %>'
+                    banner: '<%= settings.copyNotice(settings.gitLastCommit) %>',
+                    sourceMap: true
                 },
                 files: [
                     {
