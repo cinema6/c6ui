@@ -1,9 +1,9 @@
 define (['angular','./format/format'],
-function( angular , formatForamt    ) {
+function( angular , formatFormat    ) {
     'use strict';
 
     return angular.module('c6.log',[
-        formatForamt.name
+        formatFormat.name
     ]).constant('c6Defines', (window.c6 || {}))
     .config(['$provide', 'c6Defines','c6FormatterProvider',
         function($provide, c6Defines, fmtProv ) {
