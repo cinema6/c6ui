@@ -33,7 +33,8 @@
 
         paths: {
             angular: libUrl('angular/v1.2.12-0-g5cc5cc1/angular'),
-            ngMock: libUrl('angular/v1.2.12-0-g5cc5cc1/angular-mocks')
+            ngMock: libUrl('angular/v1.2.12-0-g5cc5cc1/angular-mocks'),
+            jquery: libUrl('jquery/2.0.3-0-gf576d00/jquery')
         },
 
         shim: {
