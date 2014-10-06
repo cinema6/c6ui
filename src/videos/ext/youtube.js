@@ -178,7 +178,9 @@ function( angular , eventsEmitter        , youtube       ) {
             return {
                 restrict: 'E',
                 scope: {
-                    videoid: '@'
+                    videoid: '@',
+                    start: '@',
+                    end: '@'
                 },
                 template: [
                     '<iframe width="100%"',
@@ -206,6 +208,14 @@ function( angular , eventsEmitter        , youtube       ) {
                                 publicTime = 0,
                                 state;
 
+                            function start() {
+                                return parseInt(scope.start) || 0;
+                            }
+
+                            function end() {
+                                return parseInt(scope.end) || Infinity;
+                            }
+
                             function setupState() {
                                 return {
                                     currentTime: 0,
@@ -229,6 +239,11 @@ function( angular , eventsEmitter        , youtube       ) {
                                         return state.currentTime;
                                     },
                                     set: function(time) {
+                                        var adjustedTime = Math.min(
+                                            Math.max(start(), start() + time),
+                                            end()
+                                        );
+
                                         if (self.readyState < 1) {
                                             throw new Error(
                                                 'Can\'t seek video. Haven\'t loaded metadata.'
@@ -238,7 +253,7 @@ function( angular , eventsEmitter        , youtube       ) {
                                         seekStartTime = state.currentTime;
                                         state.seeking = true;
                                         self.emit('seeking');
-                                        player.seekTo(time);
+                                        player.seekTo(adjustedTime);
                                     }
                                 },
                                 duration: {
@@ -302,7 +317,7 @@ function( angular , eventsEmitter        , youtube       ) {
 
                                 scope.url = 'https://www.youtube.com/embed/' +
                                     id +
-                                    '?rel=0&enablejsapi=1';
+                                    '?html5=1&wmode=opaque&rel=0&enablejsapi=1';
 
                                 state = setupState();
 
@@ -310,7 +325,11 @@ function( angular , eventsEmitter        , youtube       ) {
                                     id: id,
                                     part: ['status', 'contentDetails']
                                 }).then(function(metaData) {
-                                    state.duration = metaData.contentDetails.duration;
+                                    state.duration = Math.min(
+                                        end(),
+                                        metaData.contentDetails.duration
+                                    ) - start();
+
                                     state.readyState = 1;
                                     self.emit('loadedmetadata');
 
@@ -339,15 +358,30 @@ function( angular , eventsEmitter        , youtube       ) {
 
                                             currentTimeInterval = $interval(
                                                 function pollCurrentTime() {
-                                                    state.currentTime = player.getCurrentTime();
+                                                    var startTime = start(),
+                                                        endTime = end(),
+                                                        currentTime = player.getCurrentTime();
 
-                                                    if (state.currentTime !== publicTime) {
-                                                        publicTime = state.currentTime;
+                                                    state.currentTime = Math.min(
+                                                        Math.max(currentTime - startTime, 0),
+                                                        endTime - startTime
+                                                    );
+
+                                                    if (currentTime < startTime) {
+                                                        return player.seekTo(startTime);
+                                                    } else if (currentTime >= endTime && !state.ended) {
+                                                        state.ended = true;
+                                                        self.emit('ended');
+                                                        return player.pauseVideo();
+                                                    }
+
+                                                    if (currentTime !== publicTime) {
+                                                        publicTime = currentTime;
                                                         self.emit('timeupdate');
                                                     }
 
                                                     if (state.seeking) {
-                                                        if (state.currentTime !== seekStartTime) {
+                                                        if (currentTime !== seekStartTime) {
                                                             state.seeking = false;
                                                             self.emit('seeked');
                                                         }
@@ -365,6 +399,10 @@ function( angular , eventsEmitter        , youtube       ) {
 
                                             switch (event.data) {
                                             case PlayerState.PLAYING:
+                                                if (state.ended) {
+                                                    player.seekTo(start());
+                                                }
+
                                                 state.ended = false;
                                                 state.paused = false;
 

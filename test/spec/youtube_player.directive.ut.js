@@ -109,7 +109,7 @@
                     var $iframe = $player.find('iframe');
 
                     expect($iframe.length).toBe(1);
-                    expect($iframe.attr('src')).toBe('https://www.youtube.com/embed/gy1B3agGNxw?rel=0&enablejsapi=1');
+                    expect($iframe.attr('src')).toBe('https://www.youtube.com/embed/gy1B3agGNxw?html5=1&wmode=opaque&rel=0&enablejsapi=1');
                 });
 
                 it('should create a YouTube player with the iframe', function() {
@@ -171,7 +171,7 @@
                     expect($interval.calls.count()).toBe(2);
                     expect($iframe[0]).not.toBe($newFrame[0]);
                     expect(player).not.toBe(players[0]);
-                    expect($newFrame.attr('src')).toBe('https://www.youtube.com/embed/f9h85495jf?rel=0&enablejsapi=1');
+                    expect($newFrame.attr('src')).toBe('https://www.youtube.com/embed/f9h85495jf?html5=1&wmode=opaque&rel=0&enablejsapi=1');
                 });
 
                 describe('if the autoplay attribute is present', function() {
@@ -188,6 +188,202 @@
 
                         it('should play the video', function() {
                             expect(player.playVideo).toHaveBeenCalled();
+                        });
+                    });
+                });
+            });
+
+            describe('with a start and end time', function() {
+                var iface, listDeferred;
+
+                beforeEach(function() {
+                    listDeferred = $q.defer();
+
+                    spyOn(YouTubeDataService.videos, 'list')
+                        .and.returnValue(listDeferred.promise);
+
+                    $scope.$apply(function() {
+                        $player = $compile('<youtube-player videoid="Mbj7zv9PqIo" start="5" end="30"></youtube-player>')($scope);
+                    });
+                    iface = $player.data('video');
+                    player._trigger('onReady');
+                });
+
+                describe('the interface', function() {
+                    describe('duration', function() {
+                        beforeEach(function() {
+                            $scope.$apply(function() {
+                                listDeferred.resolve({
+                                    contentDetails: {
+                                        duration: 60
+                                    },
+                                    status: {
+                                        embeddable: true
+                                    }
+                                });
+                            });
+                        });
+
+                        it('should be the end - start', function() {
+                            expect(iface.duration).toBe(25);
+                        });
+                    });
+
+                    describe('seeking', function() {
+                        beforeEach(function() {
+                            $scope.$apply(function() {
+                                listDeferred.resolve({
+                                    contentDetails: {
+                                        duration: 60
+                                    },
+                                    status: {
+                                        embeddable: true
+                                    }
+                                });
+                            });
+                        });
+
+                        it('should be adjusted for the start/end times', function() {
+                            iface.currentTime = 1;
+                            expect(player.seekTo).toHaveBeenCalledWith(6);
+
+                            iface.currentTime = 5;
+                            expect(player.seekTo).toHaveBeenCalledWith(10);
+
+                            iface.currentTime = -2;
+                            expect(player.seekTo).toHaveBeenCalledWith(5);
+
+                            iface.currentTime = 26;
+                            expect(player.seekTo).toHaveBeenCalledWith(30);
+                        });
+                    });
+                });
+
+                describe('if the currentTime is in-between the start and end time', function() {
+                    beforeEach(function() {
+                        player.getCurrentTime.and.returnValue(5);
+                    });
+
+                    it('should not do any seeking or pausing', function() {
+                        [5, 10, 15, 20, 25, 29.99].forEach(function(time) {
+                            player.getCurrentTime.and.returnValue(time);
+                            $interval.flush(250);
+                            expect(player.seekTo).not.toHaveBeenCalled();
+                            expect(player.pauseVideo).not.toHaveBeenCalled();
+                        });
+                    });
+
+                    describe('the interface', function() {
+                        describe('currentTime', function() {
+                            it('should take the start/end time into consideration', function() {
+                                $interval.flush(250);
+                                expect(iface.currentTime).toBe(0);
+
+                                player.getCurrentTime.and.returnValue(10);
+                                $interval.flush(250);
+                                expect(iface.currentTime).toBe(5);
+
+                                player.getCurrentTime.and.returnValue(15);
+                                $interval.flush(250);
+                                expect(iface.currentTime).toBe(10);
+                            });
+                        });
+                    });
+                });
+
+                describe('if the currentTime is before the start time', function() {
+                    var timeupdate;
+
+                    beforeEach(function() {
+                        timeupdate = jasmine.createSpy('timeupdate()');
+
+                        iface.on('timeupdate', timeupdate);
+
+                        player.getCurrentTime.and.returnValue(4);
+                        $interval.flush(250);
+                    });
+
+                    it('should seek to the start time', function() {
+                        expect(player.seekTo).toHaveBeenCalledWith(5);
+                        player.seekTo.calls.reset();
+
+                        $interval.flush(250);
+                        expect(player.seekTo).toHaveBeenCalledWith(5);
+                    });
+
+                    it('should not emit any events', function() {
+                        expect(timeupdate).not.toHaveBeenCalled();
+                    });
+
+                    describe('the interface', function() {
+                        describe('currentTime', function() {
+                            it('should never be below 0', function() {
+                                expect(iface.currentTime).toBe(0);
+
+                                player.getCurrentTime.and.returnValue(2);
+                                $interval.flush(250);
+                                expect(iface.currentTime).toBe(0);
+                            });
+                        });
+                    });
+                });
+
+                describe('if the currentTime is/is after the end time', function() {
+                    var ended, timeupdate;
+
+                    beforeEach(function() {
+                        ended = jasmine.createSpy('ended()');
+                        timeupdate = jasmine.createSpy('timeupdate()');
+
+                        iface.on('ended', ended)
+                            .on('timeupdate', timeupdate);
+
+                        player.getCurrentTime.and.returnValue(30);
+                        $interval.flush(250);
+                    });
+
+                    it('should pause the video', function() {
+                        expect(player.pauseVideo).toHaveBeenCalled();
+                    });
+
+                    it('should emit the "ended" event and set the state', function() {
+                        expect(ended).toHaveBeenCalled();
+                        expect(iface.ended).toBe(true);
+                    });
+
+                    it('should not emit the timeupdate event', function() {
+                        expect(timeupdate).not.toHaveBeenCalled();
+                    });
+
+                    it('should not pause the video again', function() {
+                        player.pauseVideo.calls.reset();
+                        $interval.flush(250);
+
+                        expect(player.pauseVideo).not.toHaveBeenCalled();
+                    });
+
+                    describe('the next time the video is played', function() {
+                        beforeEach(function() {
+                            player._trigger('onStateChange', {
+                                data: youtube.PlayerState.PLAYING
+                            });
+                            $interval.flush(250);
+                        });
+
+                        it('should go back to the start', function() {
+                            expect(player.seekTo).toHaveBeenCalledWith(5);
+                        });
+                    });
+
+                    describe('the interface', function() {
+                        describe('currentTime', function() {
+                            it('should never be above the end time', function() {
+                                expect(iface.currentTime).toBe(25);
+
+                                player.getCurrentTime.and.returnValue(32);
+                                $interval.flush(250);
+                                expect(iface.currentTime).toBe(25);
+                            });
                         });
                     });
                 });
