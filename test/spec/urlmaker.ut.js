@@ -94,7 +94,7 @@ define(['url/urlmaker'], function(urlUrlmaker) {
             it('will throw an exception if a bad type is passed',function(){
                 expect(function(){
                     c6UrlMakerProvider.makeUrl('foo1','bad')
-                }).toThrow('unable to find location for type: bad');
+                }).toThrow(new Error('unable to find location for type: bad'));
             });
         });
     });

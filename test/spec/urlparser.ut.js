@@ -73,7 +73,7 @@ define(['url/urlparser'], function(urlUrlparser) {
 
                 doc = {
                     createElement: jasmine.createSpy('document.createElement()')
-                        .andReturn(a)
+                        .and.returnValue(a)
                 };
 
                 c6UrlParser = $injector.invoke(c6UrlParserProvider.$get, c6UrlParserProvider, {

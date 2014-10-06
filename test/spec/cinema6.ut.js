@@ -18,9 +18,9 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
             path;
 
         beforeEach(function() {
-            linker = jasmine.createSpy('linker').andReturn(angular.element('<div>Compiled HTML</div>'));
+            linker = jasmine.createSpy('linker').and.returnValue(angular.element('<div>Compiled HTML</div>'));
 
-            $compile = jasmine.createSpy('$compile').andReturn(linker);
+            $compile = jasmine.createSpy('$compile').and.returnValue(linker);
 
             requestPromise = {
                 then: function(handler) {
@@ -29,7 +29,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
             };
 
             session = {
-                request: jasmine.createSpy('session request').andReturn(requestPromise),
+                request: jasmine.createSpy('session request').and.returnValue(requestPromise),
                 ping: jasmine.createSpy('session ping'),
                 on: jasmine.createSpy('session on')
             };
@@ -41,7 +41,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
             };
 
             postMessage = {
-                createSession: jasmine.createSpy('createSession').andReturn(session)
+                createSession: jasmine.createSpy('createSession').and.returnValue(session)
             };
 
             module(cinema6Cinema6.name, function($provide) {
@@ -120,7 +120,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                         describe('if the setup method doesn\'t return a promise', function() {
                             beforeEach(function() {
                                 initConfig = {
-                                    setup: jasmine.createSpy('cinema6 setup (no promise)').andReturn(true)
+                                    setup: jasmine.createSpy('cinema6 setup (no promise)').and.returnValue(true)
                                 };
 
                                 cinema6.init(initConfig);
@@ -142,7 +142,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                                 _private.session.promise.then(sessionSpy);
 
                                 initConfig = {
-                                    setup: jasmine.createSpy('cinema6 setup (promise)').andReturn({
+                                    setup: jasmine.createSpy('cinema6 setup (promise)').and.returnValue({
                                         then: function(handler) {
                                             setupHandler = handler;
                                         }
@@ -271,7 +271,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                 beforeEach(function() {
                     promise = $q.defer().promise;
 
-                    session.request.andReturn(promise);
+                    session.request.and.returnValue(promise);
 
                     $rootScope.$apply(function() {
                         _private.session.resolve(session);

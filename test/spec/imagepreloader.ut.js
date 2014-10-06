@@ -81,7 +81,7 @@ define(['imagepreloader/imagepreloader'], function(imagepreloaderImagepreloader)
 
                 c6ImagePreloader.load(urlsToLoad);
 
-                expect(imageCreateSpy.callCount).toBe(3);
+                expect(imageCreateSpy.calls.count()).toBe(3);
 
                 urlsToLoad.forEach(function(url) {
                     var matchingSrc,
