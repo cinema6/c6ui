@@ -1,9 +1,10 @@
-(function(window$){
+define (['angular','./format/format'],
+function( angular , formatFormat    ) {
     'use strict';
 
-
-    angular.module('c6.log',['c6.ui'])
-    .constant('c6Defines', (window$.c6 || {}))
+    return angular.module('c6.log',[
+        formatFormat.name
+    ]).constant('c6Defines', (window.c6 || {}))
     .config(['$provide', 'c6Defines','c6FormatterProvider',
         function($provide, c6Defines, fmtProv ) {
         if (c6Defines.kHasKarma){
@@ -11,11 +12,11 @@
         }
 
         if (c6Defines.kLogFormats){
-            window$.console.warn('Using formatted logging, disable by setting c6.kLogFormats = false');
+            window.console.warn('Using formatted logging, disable by setting c6.kLogFormats = false');
         }
 
         if ((c6Defines.kLogLevels === null) || (c6Defines.kLogLevels === undefined)){
-            window$.console.warn('c6.kLogLevels is undefined, logging will be disabled.');
+            window.console.warn('c6.kLogLevels is undefined, logging will be disabled.');
         }
 
         $provide.decorator('$log', ['$delegate', function($delegate) {
@@ -89,5 +90,4 @@
             return $delegate;
         }]);
     }]);
-
-}(window));
+});

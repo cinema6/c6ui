@@ -1,4 +1,4 @@
-/* jshint -W097 */
+/* jshint -W097, devel:true */
 'use strict';
 
 var path = require('path');
@@ -21,58 +21,21 @@ module.exports = function (grunt) {
         return this.gitLastCommit.commit + ', ' + this.gitLastCommit.date;
     };
 
-    initProps.copyNotice = function(){
+    initProps.copyNotice = function(lastCommit){
         return '/*\n' +
             ' * Copyright © Cinema6 2013 All Rights Reserved. No part of this library\n' +
             ' * may be reproduced without Cinema6\'s express consent.\n' +
             ' *\n' +
-            ' * Build Version: ' +  this.gitLastCommit.commit + ', ' +
-                                    this.gitLastCommit.date + '\n' +
-            ' * Build Date: ' +  this.buildDate.toString() + '\n' +
+            ' * Build Version: ' +  lastCommit.commit + ', ' +
+                                    lastCommit.date + '\n' +
+            ' * Build Date: ' +  (new Date()).toString() + '\n' +
             ' */\n' ;
     };
 
 
     grunt.initConfig({
         settings : initProps,
-        clean: {
-            dist: '<%= settings.dist %>'
-        },
         copy: {
-            dist: {
-                files: [
-                    {
-                        expand: true,
-                        dot: true,
-                        cwd: '.tmp/build',
-                        dest: '<%= settings.dist %>',
-                        src: [
-                            '**'
-                        ]
-                    },
-                    {
-                        expand: true,
-                        flatten: true,
-                        dot: true,
-                        cwd: '<%= settings.src %>',
-                        dest: '<%= settings.dist %>/img',
-                        src: [
-                            '**/*.{jpg,png,svg,gif}',
-                            '!style/css/**/*'
-                        ]
-                    },
-                    {
-                        expand: true,
-                        flatten: true,
-                        dot: true,
-                        cwd: '<%= settings.src %>/style/css',
-                        dest: '<%= settings.dist %>/css',
-                        src: [
-                            '**/*.{eot,svg,ttf,woff}'
-                        ]
-                    }
-                ]
-            },
             app: {
                 files: [
                     {
@@ -94,108 +57,10 @@ module.exports = function (grunt) {
                 ]
             }
         },
-        concat: {
-            c6ui: {
-                options: {
-                    banner: '<%= settings.copyNotice() %>'
-                },
-                files: {
-                    '.tmp/build/c6uilib.js' : [
-                        '<%= settings.src %>/c6ui.js',
-                        '<%= settings.src %>/**/*.js',
-                        '!<%= settings.src %>/c6log.js'
-                    ]
-                }
-            },
-            c6log: {
-                options: {
-                    banner: '<%= settings.copyNotice() %>'
-                },
-                files: {
-                    '.tmp/build/c6log.js' : [
-                        '<%= settings.src %>/c6log.js'
-                    ]
-                }
-            }
-        },
-        uglify: {
-            c6ui: {
-                options: {
-                    banner: '<%= settings.copyNotice() %>'
-                },
-                files: {
-                    '.tmp/build/c6uilib.min.js': [
-                        '.tmp/build/c6uilib.js'
-                    ],
-                }
-            },
-            c6log: {
-                options: {
-                    banner: '<%= settings.copyNotice() %>'
-                },
-                files: {
-                    '.tmp/build/c6log.min.js': [
-                        '.tmp/build/c6log.js'
-                    ],
-                }
-            }
-        },
-        cssmin: {
-            normal: {
-                files: {
-                    '<%= settings.dist %>/css/c6uilib.min.css': ['src/**/*.css', '!src/**/*--hover.css']
-                }
-            },
-            hover: {
-                files: {
-                    '<%= settings.dist %>/css/c6uilib--hover.min.css': ['src/**/*--hover.css']
-                }
-            }
-        },
-        ngtemplates: {
-            dist: {
-                cwd: 'src',
-                src: '**/*.html',
-                dest: '.tmp/templates.js',
-                options: {
-                    prefix: 'c6ui/',
-                    module: 'c6.ui',
-                    concat: 'c6ui',
-                    htmlmin: {
-                        collapseBooleanAttributes: true,
-                        collapseWhitespace: true,
-                        removeAttributeQuotes: true,
-                        removeComments: true,
-                        removeEmptyAttributes: true,
-                        removeRedundantAttributes: true,
-                        removeScriptTypeAttributes: true,
-                        removeStyleLinkTypeAttributes: true
-                    }
-                }
-            },
-            app: {
-                cwd: 'src',
-                src: '**/*.html',
-                dest: '<%= settings.app %>/assets/lib/c6ui/templates.js',
-                options: {
-                    prefix: 'c6ui/',
-                    module: 'c6.ui',
-                }
-            },
-            test: {
-                cwd: 'src',
-                src: '**/*.html',
-                dest: '.tmp/templates.js',
-                options: {
-                    prefix: 'c6ui/',
-                    module: 'c6.ui',
-                }
-            }
-        },
         watch: {
             build: {
                 files: '<%= settings.src %>/**',
-                tasks: ['copy:app', 'ngtemplates:app']
+                tasks: ['copy:app']
             }
         },
         connect: {
@@ -235,34 +100,70 @@ module.exports = function (grunt) {
                 configFile: 'test/karma.conf.js',
                 singleRun: false
             }
+        },
+        requirejs: {
+            dist: {
+                options: {
+                    baseUrl: './src',
+                    paths: {
+                        angular: 'empty:'
+                    },
+                    dir: '<%= settings.dist %>',
+                    optimize: 'none',
+                    removeCombined: true,
+                    wrap: {
+                        start: '<%= settings.copyNotice(settings.gitLastCommit) %>'
+                    },
+                    modules: [
+                        {
+                            name: 'c6uilib'
+                        },
+                        {
+                            name: 'c6log',
+                            exclude: ['format/format']
+                        }
+                    ]
+                }
+            }
+        },
+        uglify: {
+            dist: {
+                options: {
+                    banner: '<%= settings.copyNotice(settings.gitLastCommit) %>',
+                    sourceMap: true
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: '<%= settings.dist %>',
+                        src: '**/*.js',
+                        dest: '<%= settings.dist %>',
+                        ext: '.min.js',
+                        extDot: 'last'
+                    }
+                ]
+            }
         }
     });
 
     grunt.registerTask('test', function(){
         grunt.task.run('jshint');
-        grunt.task.run('ngtemplates:test');
         grunt.task.run('karma:unit');
     });
 
     grunt.registerTask('debug', function(){
-        grunt.task.run('ngtemplates:test');
         grunt.task.run('karma:debug');
     });
 
     grunt.registerTask('build',function(){
         grunt.task.run('test');
         grunt.task.run('gitLastCommit');
-        grunt.task.run('clean');
-        grunt.task.run('ngtemplates');
-        grunt.task.run('cssmin');
-        grunt.task.run('concat');
+        grunt.task.run('requirejs');
         grunt.task.run('uglify');
-        grunt.task.run('copy:dist');
     });
 
     grunt.registerTask('server', function() {
         grunt.task.run('copy:app');
-        grunt.task.run('ngtemplates:app');
         grunt.task.run('connect:dev');
         grunt.task.run('watch');
     });

@@ -1,7 +1,8 @@
-(function() {
+define (['angular'],
+function( angular ) {
     'use strict';
 
-    angular.module('c6.ui')
+    return angular.module('c6.ui.alias.alias', [])
         .directive('c6Alias', [function() {
             return {
                 restrict: 'EAC',
@@ -17,4 +18,4 @@
                 }
             };
         }]);
-}());
+});

@@ -1,6 +1,8 @@
-(function() {
+define (['angular'],
+function( angular ) {
     'use strict';
-    angular.module('c6.ui')
+
+    return angular.module('c6.ui.videos.video', [])
     .service('c6VideoService', ['$document', '$window', function($document, $window) {
         // Class method to figure out the best format to use given an array of formats
         // Optionally, provide no formats and use the default formats
@@ -385,4 +387,4 @@
             }
         };
     }]);
-})();
+});

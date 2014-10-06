@@ -1,8 +1,11 @@
-(function() {
+define (['angular','../browser/info','../url/urlparser'],
+function( angular , browserInfo     ,    urlUrlparser  ) {
     'use strict';
 
-    angular.module('c6.http', ['c6.ui'])
-        .config(['$provide',
+    return angular.module('c6.http', [
+        browserInfo.name,
+        urlUrlparser.name
+    ]).config(['$provide',
         function( $provide ) {
             $provide.decorator('$httpBackend', ['$delegate','c6BrowserInfo','$window','c6UrlParser','$location',
             function                           ( $delegate , c6BrowserInfo , $window , c6UrlParser , $location ) {
@@ -44,4 +47,4 @@
                 };
             }]);
         }]);
-}());
+});

@@ -1,7 +1,8 @@
-(function(angular) {
+define (['angular'],
+function( angular ) {
     'use strict';
 
-    angular.module('c6.ui')
+    return angular.module('c6.ui.imagepreloader.imagepreloader', [])
         .service('c6ImagePreloader', ['$window', '$q', '$rootScope',
         function                     ( $window ,  $q ,  $rootScope ) {
             this.load = function(imageUrls) {
@@ -57,4 +58,4 @@
             };
 
         }]);
-})(window.angular);
+});

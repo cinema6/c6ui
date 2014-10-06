@@ -1,7 +1,8 @@
-(function(){
+define (['angular'],
+function( angular ) {
     'use strict';
 
-    angular.module('c6.ui')
+    return angular.module('c6.ui.format.format', [])
     .provider('c6Formatter',function(){
         var enabled         = true,
             enableInterpolation   = true,
@@ -120,4 +121,4 @@
         };
 
     });
-}());
+});

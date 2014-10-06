@@ -1,7 +1,8 @@
-(function(){
-
+define (['angular'],
+function( angular ) {
     'use strict';
-    angular.module('c6.ui')
+
+    return angular.module('c6.ui.events.emitter', [])
     .factory('c6EventEmitter',['$log',function($log){
         var eventEmitter = function(){
             var events       = {},
@@ -133,5 +134,4 @@
         };
 
     }]);
-
-}());
+});
