@@ -94,17 +94,25 @@
             });
 
             describe('initialization', function() {
-                var listDeferred;
+                var listDeferred,
+                    initSpy;
 
                 beforeEach(function() {
+                    initSpy = jasmine.createSpy('<youtube-player>:init');
                     listDeferred = $q.defer();
 
                     spyOn(YouTubeDataService.videos, 'list')
                         .and.returnValue(listDeferred.promise);
 
+                    $rootScope.$on('<youtube-player>:init', initSpy);
+
                     $scope.$apply(function() {
                         $player = $compile('<youtube-player videoid="{{id}}"></youtube-player>')($scope);
                     });
+                });
+
+                it('should $emit an initialization event', function() {
+                    expect(initSpy).toHaveBeenCalledWith(jasmine.any(Object), $player.data('video'));
                 });
 
                 it('should create a youtube iframe', function() {

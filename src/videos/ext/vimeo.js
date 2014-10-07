@@ -138,7 +138,7 @@ function( angular , eventsEmitter        , urlUrlparser        , browserInfo    
                     end: '@'
                 },
                 link: function(scope, $element, attrs) {
-                    var $iframe = $element.find('iframe');
+                    var iface = new VideoPlayer($element.find('iframe'));
 
                     function start() {
                         return parseInt(scope.start) || 0;
@@ -369,7 +369,8 @@ function( angular , eventsEmitter        , urlUrlparser        , browserInfo    
                         c6EventEmitter(this);
                     }
 
-                    $element.data('video', new VideoPlayer($iframe));
+                    $element.data('video', iface);
+                    scope.$emit('<vimeo-player>:init', iface);
                 }
             };
         }]);

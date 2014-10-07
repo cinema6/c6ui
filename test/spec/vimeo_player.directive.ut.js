@@ -14,7 +14,8 @@
                 players,
                 player;
 
-            var $vimeo;
+            var $vimeo,
+                initSpy;
 
             beforeEach(function() {
                 players = [];
@@ -260,10 +261,19 @@
             });
 
             describe('initialization', function() {
+                var initSpy;
+
                 beforeEach(function() {
+                    initSpy = jasmine.createSpy('<vimeo-player>:init');
+
+                    $rootScope.$on('<vimeo-player>:init', initSpy);
                     $scope.$apply(function() {
                         $vimeo = $compile('<vimeo-player id="rc-1" videoid="abc123"></vimeo-player>')($scope);
                     });
+                });
+
+                it('should emit an event on initialization', function() {
+                    expect(initSpy).toHaveBeenCalledWith(jasmine.any(Object), $vimeo.data('video'));
                 });
 
                 it('should create a vimeo iframe', function() {

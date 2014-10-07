@@ -201,6 +201,8 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
                     $element.empty();
 
                     return function postLink(scope, $element, attrs) {
+                        var iface = new VideoPlayer(scope.videoid);
+
                         function VideoPlayer(id) {
                             var self = this,
                                 hasPaused = false,
@@ -449,7 +451,8 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
                             scope.$watch('videoid', load);
                         }
 
-                        $element.data('video', new VideoPlayer(scope.videoid));
+                        $element.data('video', iface);
+                        scope.$emit('<youtube-player>:init', iface);
                     };
                 }
             };

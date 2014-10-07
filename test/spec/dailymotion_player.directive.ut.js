@@ -56,7 +56,11 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
             player,
             addEventListener;
 
+        var initSpy;
+
         beforeEach(function() {
+            initSpy = jasmine.createSpy('<dailymotion-player>:init');
+
             module(videosExtDailymotion.name);
             module(function($provide) {
                 $provide.decorator('DailymotionPlayerService', function($delegate) {
@@ -82,6 +86,8 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
                 c6VideoService = $injector.get('c6VideoService');
                 c6BrowserInfo = $injector.get('c6BrowserInfo');
 
+                $rootScope.$on('<dailymotion-player>:init', initSpy);
+
                 $scope = $rootScope.$new();
                 $scope.videoid = 'abc';
                 $httpBackend.expectGET('https://api.dailymotion.com/video/' + $scope.videoid + '?fields=duration')
@@ -98,6 +104,10 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
 
         afterEach(function() {
             $window.addEventListener = addEventListener;
+        });
+
+        it('should $emit an event with the player interface', function() {
+            expect(initSpy).toHaveBeenCalledWith(jasmine.any(Object), $dailymotionPlayer.data('video'));
         });
 
         describe('if the autoplay attribute is present', function() {

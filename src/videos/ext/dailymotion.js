@@ -105,6 +105,8 @@ function( angular , eventsEmitter        , urlUrlparser        , video    , brow
             }
 
             function link(scope, $element, attrs) {
+                var iface = new VideoPlayer($element.find('iframe'));
+
                 function VideoPlayer($iframe) {
                     var self = this,
                         player = null, state = null;
@@ -257,7 +259,8 @@ function( angular , eventsEmitter        , urlUrlparser        , video    , brow
                     c6EventEmitter(this);
                 }
 
-                $element.data('video', new VideoPlayer($element.find('iframe')));
+                $element.data('video', iface);
+                scope.$emit('<dailymotion-player>:init', iface);
             }
 
             return {
