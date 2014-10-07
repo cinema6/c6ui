@@ -1,11 +1,11 @@
-define (['angular','../../events/emitter','../../url/urlparser'],
-function( angular , eventsEmitter        , urlUrlparser        ) {
+define (['angular','../../events/emitter','../../url/urlparser','../../browser/info'],
+function( angular , eventsEmitter        , urlUrlparser        , browserInfo        ) {
     'use strict';
 
     var fromJson = angular.fromJson,
         isDefined = angular.isDefined;
 
-    return angular.module('c6.ui.videos.ext.vimeo', [eventsEmitter.name, urlUrlparser.name])
+    return angular.module('c6.ui.videos.ext.vimeo', [eventsEmitter.name, urlUrlparser.name, browserInfo.name])
         .service('VimeoPlayerService', ['$q','$window','$rootScope','c6EventEmitter',
                                         'c6UrlParser',
         function                       ( $q , $window , $rootScope , c6EventEmitter ,
@@ -114,8 +114,10 @@ function( angular , eventsEmitter        , urlUrlparser        ) {
             $window.addEventListener('message', delegateMessage, false);
         }])
 
-        .directive('vimeoPlayer', ['VimeoPlayerService','c6EventEmitter',
-        function                  ( VimeoPlayerService , c6EventEmitter ) {
+        .directive('vimeoPlayer', ['VimeoPlayerService','c6EventEmitter','c6BrowserInfo',
+        function                  ( VimeoPlayerService , c6EventEmitter , c6BrowserInfo ) {
+            var profile = c6BrowserInfo.profile;
+
             return {
                 restrict: 'E',
                 template: [
@@ -131,10 +133,20 @@ function( angular , eventsEmitter        , urlUrlparser        ) {
                 ].join('\n'),
                 scope: {
                     videoid: '@',
-                    id: '@'
+                    id: '@',
+                    start: '@',
+                    end: '@'
                 },
                 link: function(scope, $element, attrs) {
                     var $iframe = $element.find('iframe');
+
+                    function start() {
+                        return parseInt(scope.start) || 0;
+                    }
+
+                    function end() {
+                        return parseInt(scope.end) || Infinity;
+                    }
 
                     function VideoPlayer($iframe) {
                         var self = this,
@@ -188,6 +200,10 @@ function( angular , eventsEmitter        , urlUrlparser        ) {
                                     self.emit('pause');
                                 })
                                 .on('play', function() {
+                                    if (state.ended) {
+                                        player.call('seekTo', start());
+                                    }
+
                                     state.ended = false;
                                     state.paused = false;
 
@@ -202,9 +218,23 @@ function( angular , eventsEmitter        , urlUrlparser        ) {
                                     self.emit('seeked');
                                 })
                                 .on('playProgress', function(data) {
-                                    var time = parseFloat(data.seconds);
+                                    var time = parseFloat(data.seconds),
+                                        startTime = start(),
+                                        endTime = end();
 
-                                    state.currentTime = time;
+                                    state.currentTime = Math.min(
+                                        Math.max(time - start(), 0),
+                                        end() - start()
+                                    );
+
+                                    if (time < startTime) {
+                                        return player.call('seekTo', startTime);
+                                    } else if (time >= endTime) {
+                                        state.ended = true;
+                                        self.emit('ended');
+                                        return player.call('pause');
+                                    }
+
                                     self.emit('timeupdate');
                                 });
                         }
@@ -230,6 +260,13 @@ function( angular , eventsEmitter        , urlUrlparser        ) {
                             player.call('pause');
                         };
 
+                        this.reload = function() {
+                            state = setupState();
+                            removeEventListeners(player);
+
+                            $iframe.attr('src', $iframe.attr('src'));
+                        };
+
                         Object.defineProperties(this, {
                             buffered: {
                                 get: function() {
@@ -241,9 +278,14 @@ function( angular , eventsEmitter        , urlUrlparser        ) {
                                     return state.currentTime;
                                 },
                                 set: function(time) {
+                                    var adjustedTime = Math.min(
+                                        Math.max(start() + time, start()),
+                                        end()
+                                    );
+
                                     state.seeking = true;
                                     self.emit('seeking');
-                                    player.call('seekTo', time);
+                                    player.call('seekTo', adjustedTime);
                                 }
                             },
                             duration: {
@@ -307,11 +349,11 @@ function( angular , eventsEmitter        , urlUrlparser        ) {
                                     player.call('getDuration')
                                         .then(function getDuration(duration) {
                                             state.readyState = 1;
-                                            state.duration = duration;
+                                            state.duration = (Math.min(end(), duration) -  start());
                                             self.emit('loadedmetadata');
                                         });
 
-                                    if (isDefined(attrs.autoplay)) {
+                                    if (isDefined(attrs.autoplay) && profile.autoplay) {
                                         player.call('play');
                                     }
                                 });

@@ -7,7 +7,8 @@
                 $scope,
                 c6EventEmitter,
                 $compile,
-                $q;
+                $q,
+                c6BrowserInfo;
 
             var VimeoPlayerService,
                 players,
@@ -54,10 +55,207 @@
                     $compile = $injector.get('$compile');
                     c6EventEmitter = $injector.get('c6EventEmitter');
                     $q = $injector.get('$q');
+                    c6BrowserInfo = $injector.get('c6BrowserInfo');
 
                     VimeoPlayerService = $injector.get('VimeoPlayerService');
 
                     $scope = $rootScope.$new();
+                });
+            });
+
+            describe('with a start/end time', function() {
+                var iface;
+
+                beforeEach(function() {
+                    $scope.$apply(function() {
+                        $vimeo = $compile('<vimeo-player id="rc-2" videoid="12345" start="15" end="30"></vimeo-player>')($scope);
+                    });
+                    player.emit('ready');
+                    iface = $vimeo.data('video');
+                });
+
+                describe('interface', function() {
+                    describe('duration', function() {
+                        beforeEach(function() {
+                            player.call.and.returnValue($q.when(60));
+                            $scope.$apply(function() {
+                                player.emit('ready');
+                            });
+                        });
+
+                        it('should be the end time - the start time', function() {
+                            expect(iface.duration).toBe(15);
+                        });
+                    });
+
+                    describe('currentTime', function() {
+                        describe('setting', function() {
+                            describe('below 0', function() {
+                                beforeEach(function() {
+                                    iface.currentTime = -3;
+                                });
+
+                                it('should seek to the start time', function() {
+                                    expect(player.call).toHaveBeenCalledWith('seekTo', 15);
+                                });
+                            });
+
+                            describe('between 0 and the duration', function() {
+                                beforeEach(function() {
+                                    iface.currentTime = 7;
+                                });
+
+                                it('should take the start time into account', function() {
+                                    expect(player.call).toHaveBeenCalledWith('seekTo', 22);
+                                });
+                            });
+
+                            describe('above the duration', function() {
+                                beforeEach(function() {
+                                    iface.currentTime = 20;
+                                });
+
+                                it('should seek to the end time', function() {
+                                    expect(player.call).toHaveBeenCalledWith('seekTo', 30);
+                                });
+                            });
+                        });
+                    });
+                });
+
+                describe('if the currentTime is in-between the start and end times', function() {
+                    it('should not seek or pause', function() {
+                        [15, 17, 19, 20, 22, 25, 27, 29.999].forEach(function(time) {
+                            player.call.calls.reset();
+                            player.emit('playProgress', {
+                                seconds: time.toString()
+                            });
+                            expect(player.call).not.toHaveBeenCalled();
+                        });
+                    });
+
+                    describe('interface', function() {
+                        describe('currentTime', function() {
+                            it('should subtract the set start time', function() {
+                                player.emit('playProgress', {
+                                    seconds: '15'
+                                });
+                                expect(iface.currentTime).toBe(0);
+
+                                player.emit('playProgress', {
+                                    seconds: '16'
+                                });
+                                expect(iface.currentTime).toBe(1);
+
+                                player.emit('playProgress', {
+                                    seconds: '19'
+                                });
+                                expect(iface.currentTime).toBe(4);
+                            });
+                        });
+                    });
+                });
+
+                describe('if the currentTime is less than the start time', function() {
+                    var timeupdate;
+
+                    beforeEach(function() {
+                        timeupdate = jasmine.createSpy('timeupdate');
+
+                        iface.on('timeupdate', timeupdate);
+
+                        player.emit('playProgress', {
+                            seconds: '0.99'
+                        });
+                    });
+
+                    it('should seek to the start time', function() {
+                        expect(player.call).toHaveBeenCalledWith('seekTo', 15);
+
+                        player.call.calls.reset();
+                        player.emit('playProgress', {
+                            seconds: '3.22'
+                        });
+                        expect(player.call).toHaveBeenCalledWith('seekTo', 15);
+                    });
+
+                    it('should not emit "timeupdate"', function() {
+                        expect(timeupdate).not.toHaveBeenCalled();
+                    });
+
+                    describe('interface', function() {
+                        describe('currentTime', function() {
+                            beforeEach(function() {
+                                player.emit('playProgress', {
+                                    seconds: '20'
+                                });
+                            });
+
+                            it('should be 0', function() {
+                                player.emit('playProgress', {
+                                    seconds: '5'
+                                });
+                                expect(iface.currentTime).toBe(0);
+
+                                player.emit('playProgress', {
+                                    seconds: '14.9'
+                                });
+                                expect(iface.currentTime).toBe(0);
+                            });
+                        });
+                    });
+                });
+
+                describe('if the currentTime is greater than or equal to the end time', function() {
+                    var ended, timeupdate;
+
+                    beforeEach(function() {
+                        ended = jasmine.createSpy('ended()');
+                        timeupdate = jasmine.createSpy('timeupdate()');
+
+                        iface.on('ended', ended)
+                            .on('timeupdate', timeupdate);
+
+                        player.emit('playProgress', {
+                            seconds: '30.14'
+                        });
+                    });
+
+                    it('should pause the player', function() {
+                        expect(player.call).toHaveBeenCalledWith('pause');
+                    });
+
+                    describe('the interface', function() {
+                        it('should emit "ended"', function() {
+                            expect(ended).toHaveBeenCalled();
+                        });
+
+                        it('should not emit timeupdate', function() {
+                            expect(timeupdate).not.toHaveBeenCalled();
+                        });
+
+                        describe('ended', function() {
+                            it('should be true', function() {
+                                expect(iface.ended).toBe(true);
+                            });
+                        });
+
+                        describe('currentTime', function() {
+                            it('should be the duration', function() {
+                                expect(iface.currentTime).toBe(15);
+                            });
+                        });
+                    });
+
+                    describe('the next time the video is played', function() {
+                        beforeEach(function() {
+                            player.emit('play');
+                        });
+
+                        it('should seek to the start time', function() {
+                            expect(player.call).toHaveBeenCalledWith('seekTo', 15);
+                        });
+                    });
                 });
             });
 
@@ -86,14 +284,32 @@
 
                     describe('if the "autoplay" attribute is present', function() {
                         beforeEach(function() {
+                            expect(c6BrowserInfo.profile.autoplay).toBeDefined();
                             $scope.$apply(function() {
                                 $vimeo = $compile('<vimeo-player id="rc-2" videoid="abc1234" autoplay></vimeo-player>')($scope);
                             });
-                            player.emit('ready');
                         });
 
-                        it('should autoplay the video', function() {
-                            expect(player.call).toHaveBeenCalledWith('play');
+                        describe('if the browser can autoplay', function() {
+                            beforeEach(function() {
+                                c6BrowserInfo.profile.autoplay = true;
+                                player.emit('ready');
+                            });
+
+                            it('should autoplay the video', function() {
+                                expect(player.call).toHaveBeenCalledWith('play');
+                            });
+                        });
+
+                        describe('if the browser can\'t autoplay', function() {
+                            beforeEach(function() {
+                                c6BrowserInfo.profile.autoplay = false;
+                                player.emit('ready');
+                            });
+
+                            it('should autoplay the video', function() {
+                                expect(player.call).not.toHaveBeenCalledWith('play');
+                            });
                         });
                     });
                 });
@@ -677,6 +893,50 @@
                             video.play();
 
                             expect(player.call).toHaveBeenCalledWith('play');
+                        });
+                    });
+
+                    describe('reload()', function() {
+                        var setAttribute,
+                            src;
+
+                        beforeEach(function() {
+                            src = $vimeo.find('iframe').attr('src');
+
+                            player.emit('ready');
+                            player.emit('playProgress', {
+                                seconds: '4'
+                            });
+                            player.emit('finish');
+
+                            spyOn(player, 'removeAllListeners').and.callThrough();
+
+                            setAttribute = spyOn($vimeo.find('iframe')[0], 'setAttribute').and.callThrough();
+
+                            video.reload();
+                        });
+
+                        it('should reset the state', function() {
+                            expect(video.readyState).toBe(-1);
+                            expect(video.currentTime).toBe(0);
+                            expect(video.ended).toBe(false);
+                        });
+
+                        it('should remove all the listeners', function() {
+                            [
+                                'loadProgress',
+                                'finish',
+                                'pause',
+                                'play',
+                                'seek',
+                                'playProgress'
+                            ].forEach(function(event) {
+                                expect(player.removeAllListeners).toHaveBeenCalledWith(event);
+                            });
+                        });
+
+                        it('should reload the iframe', function() {
+                            expect(setAttribute).toHaveBeenCalledWith('src', src);
                         });
                     });
                 });

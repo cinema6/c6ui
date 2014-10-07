@@ -1,10 +1,10 @@
-define (['angular','../../events/emitter','../../url/urlparser','../video'],
-function( angular , eventsEmitter        , urlUrlparser        , video    ) {
+define (['angular','../../events/emitter','../../url/urlparser','../video','../../browser/info'],
+function( angular , eventsEmitter        , urlUrlparser        , video    , browserInfo        ) {
     'use strict';
 
     var isDefined = angular.isDefined;
 
-    return angular.module('c6.ui.videos.ext.dailymotion', [eventsEmitter.name, urlUrlparser.name, video.name])
+    return angular.module('c6.ui.videos.ext.dailymotion', [eventsEmitter.name, urlUrlparser.name, video.name, browserInfo.name])
         .service('DailymotionPlayerService', ['c6EventEmitter','c6UrlParser','$window',
                                               '$rootScope',
         function                             ( c6EventEmitter , c6UrlParser , $window ,
@@ -91,10 +91,11 @@ function( angular , eventsEmitter        , urlUrlparser        , video    ) {
         }])
 
         .directive('dailymotionPlayer', ['DailymotionPlayerService','$http','c6EventEmitter',
-                                         'c6VideoService',
+                                         'c6VideoService','c6BrowserInfo',
         function                        ( DailymotionPlayerService , $http , c6EventEmitter ,
-                                          c6VideoService ) {
+                                          c6VideoService , c6BrowserInfo ) {
             var supportsHTML5Video = !!c6VideoService.bestFormat(['video/mp4']),
+                profile = c6BrowserInfo.profile,
                 featureParams = supportsHTML5Video ? [['html']] : [];
 
             function toParams(data) {
@@ -169,13 +170,20 @@ function( angular , eventsEmitter        , urlUrlparser        , video    ) {
                         return player.call('play');
                     };
 
+                    this.reload = function() {
+                        state = setupState();
+
+                        $iframe.attr('src', $iframe.attr('src'));
+                    };
+
                     scope.$watch('videoid', function(videoid, oldVideoid) {
                         state = setupState();
 
                         $iframe.attr('src', '//www.dailymotion.com/embed/video/' + videoid +
                             '?' + toParams([
                                 ['api', 'postMessage'],
-                                ['id', scope.id]
+                                ['id', scope.id],
+                                ['related', 0]
                             ].concat(featureParams))
                         );
 
@@ -196,7 +204,7 @@ function( angular , eventsEmitter        , urlUrlparser        , video    ) {
                                     state.readyState = 0;
 
                                     self.emit('ready');
-                                    if (isDefined(attrs.autoplay)) {
+                                    if (isDefined(attrs.autoplay) && profile.autoplay) {
                                         player.call('play');
                                     }
                                 })

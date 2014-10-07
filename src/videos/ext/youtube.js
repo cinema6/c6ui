@@ -1,5 +1,5 @@
-define (['angular','../../events/emitter','./lib/youtube'],
-function( angular , eventsEmitter        , youtube       ) {
+define (['angular','../../events/emitter','./lib/youtube','../../browser/info'],
+function( angular , eventsEmitter        , youtube       , browserInfo        ) {
     'use strict';
 
     var forEach = angular.forEach,
@@ -7,7 +7,7 @@ function( angular , eventsEmitter        , youtube       ) {
         jqLite = angular.element,
         isDefined = angular.isDefined;
 
-    return angular.module('c6.ui.videos.ext.youtube', [eventsEmitter.name])
+    return angular.module('c6.ui.videos.ext.youtube', [eventsEmitter.name, browserInfo.name])
         .config(['$sceDelegateProvider',
         function( $sceDelegateProvider ) {
             $sceDelegateProvider.resourceUrlWhitelist([
@@ -166,8 +166,10 @@ function( angular , eventsEmitter        , youtube       ) {
             }];
         }])
 
-        .directive('youtubePlayer', ['c6EventEmitter','$interval','$compile','YouTubeDataService',
-        function                    ( c6EventEmitter , $interval , $compile , YouTubeDataService ) {
+        .directive('youtubePlayer', ['c6EventEmitter','$interval','$compile','YouTubeDataService','c6BrowserInfo',
+        function                    ( c6EventEmitter , $interval , $compile , YouTubeDataService , c6BrowserInfo ) {
+            var profile = c6BrowserInfo.profile;
+
             function YouTubePlayerError(code, message) {
                 this.name = 'YouTubePlayerError';
                 this.code = code || null;
@@ -233,86 +235,7 @@ function( angular , eventsEmitter        , youtube       ) {
                                 self.emit('error');
                             }
 
-                            Object.defineProperties(this, {
-                                currentTime: {
-                                    get: function() {
-                                        return state.currentTime;
-                                    },
-                                    set: function(time) {
-                                        var adjustedTime = Math.min(
-                                            Math.max(start(), start() + time),
-                                            end()
-                                        );
-
-                                        if (self.readyState < 1) {
-                                            throw new Error(
-                                                'Can\'t seek video. Haven\'t loaded metadata.'
-                                            );
-                                        }
-
-                                        seekStartTime = state.currentTime;
-                                        state.seeking = true;
-                                        self.emit('seeking');
-                                        player.seekTo(adjustedTime);
-                                    }
-                                },
-                                duration: {
-                                    get: function() {
-                                        return state.duration;
-                                    }
-                                },
-                                ended: {
-                                    get: function() {
-                                        return state.ended;
-                                    }
-                                },
-                                paused: {
-                                    get: function() {
-                                        return state.paused;
-                                    }
-                                },
-                                readyState: {
-                                    get: function() {
-                                        return state.readyState;
-                                    }
-                                },
-                                seeking: {
-                                    get: function() {
-                                        return state.seeking;
-                                    }
-                                },
-                                videoid: {
-                                    get: function() {
-                                        return id;
-                                    }
-                                },
-                                error: {
-                                    get: function() {
-                                        return state.error;
-                                    }
-                                }
-                            });
-
-                            this.pause = function() {
-                                player.pauseVideo();
-                            };
-
-                            this.play = function() {
-                                player.playVideo();
-                            };
-
-                            c6EventEmitter(this);
-
-                            // Whenever the video loaded into the player changes (or is
-                            // initialized,) a few things need to happen:
-                            //
-                            // 1. Set the scope's "url" property to the correct URL to load into
-                            //    the iframe.
-                            // 2. Create a new iframe (using the string template saved during the
-                            //    compile phase.)
-                            // 3. Destroy the previous iframe (if there is one.)
-                            // 4. Create a new YouTube Player object for the new video.
-                            scope.$watch('videoid', function(id) {
+                            function load(id) {
                                 var $iframe;
 
                                 scope.url = 'https://www.youtube.com/embed/' +
@@ -390,7 +313,7 @@ function( angular , eventsEmitter        , youtube       ) {
                                                 250
                                             );
 
-                                            if (isDefined(attrs.autoplay)) {
+                                            if (isDefined(attrs.autoplay) && profile.autoplay) {
                                                 player.playVideo();
                                             }
                                         },
@@ -438,7 +361,92 @@ function( angular , eventsEmitter        , youtube       ) {
                                     $interval.cancel(currentTimeInterval);
                                     self.emit('destroy');
                                 });
+                            }
+
+                            Object.defineProperties(this, {
+                                currentTime: {
+                                    get: function() {
+                                        return state.currentTime;
+                                    },
+                                    set: function(time) {
+                                        var adjustedTime = Math.min(
+                                            Math.max(start(), start() + time),
+                                            end()
+                                        );
+
+                                        if (self.readyState < 1) {
+                                            throw new Error(
+                                                'Can\'t seek video. Haven\'t loaded metadata.'
+                                            );
+                                        }
+
+                                        seekStartTime = state.currentTime;
+                                        state.seeking = true;
+                                        self.emit('seeking');
+                                        player.seekTo(adjustedTime);
+                                    }
+                                },
+                                duration: {
+                                    get: function() {
+                                        return state.duration;
+                                    }
+                                },
+                                ended: {
+                                    get: function() {
+                                        return state.ended;
+                                    }
+                                },
+                                paused: {
+                                    get: function() {
+                                        return state.paused;
+                                    }
+                                },
+                                readyState: {
+                                    get: function() {
+                                        return state.readyState;
+                                    }
+                                },
+                                seeking: {
+                                    get: function() {
+                                        return state.seeking;
+                                    }
+                                },
+                                videoid: {
+                                    get: function() {
+                                        return id;
+                                    }
+                                },
+                                error: {
+                                    get: function() {
+                                        return state.error;
+                                    }
+                                }
                             });
+
+                            this.pause = function() {
+                                player.pauseVideo();
+                            };
+
+                            this.play = function() {
+                                player.playVideo();
+                            };
+
+                            this.reload = function() {
+                                return load(scope.videoid);
+                            };
+
+                            c6EventEmitter(this);
+
+                            // Whenever the video loaded into the player changes (or is
+                            // initialized,) a few things need to happen:
+                            //
+                            // 1. Set the scope's "url" property to the correct URL to load into
+                            //    the iframe.
+                            // 2. Create a new iframe (using the string template saved during the
+                            //    compile phase.)
+                            // 3. Destroy the previous iframe (if there is one.)
+                            // 4. Create a new YouTube Player object for the new video.
+                            scope.$watch('videoid', load);
                         }
 
                         $element.data('video', new VideoPlayer(scope.videoid));

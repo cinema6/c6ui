@@ -39,7 +39,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
 
         it('should add the html5 param to the iframe src', function() {
             expect(c6VideoService.bestFormat).toHaveBeenCalledWith(['video/mp4']);
-            expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/foo?api=postMessage&id=player2&html');
+            expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/foo?api=postMessage&id=player2&related=0&html');
         });
     });
 
@@ -50,6 +50,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
             DailymotionPlayerService,
             $httpBackend,
             c6VideoService,
+            c6BrowserInfo,
             $scope, scope,
             $dailymotionPlayer, $iframe,
             player,
@@ -79,6 +80,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
                 DailymotionPlayerService = $injector.get('DailymotionPlayerService');
                 $httpBackend = $injector.get('$httpBackend');
                 c6VideoService = $injector.get('c6VideoService');
+                c6BrowserInfo = $injector.get('c6BrowserInfo');
 
                 $scope = $rootScope.$new();
                 $scope.videoid = 'abc';
@@ -100,6 +102,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
 
         describe('if the autoplay attribute is present', function() {
             beforeEach(function() {
+                expect(c6BrowserInfo.profile.autoplay).toBeDefined();
                 $httpBackend.expectGET('https://api.dailymotion.com/video/' + $scope.videoid + '?fields=duration')
                     .respond(200, { duration: 199 });
                 $scope.$apply(function() {
@@ -109,12 +112,26 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
             });
 
             describe('after the player is ready', function() {
-                beforeEach(function() {
-                    player.emit('apiready', {});
+                describe('if the device can autoplay', function() {
+                    beforeEach(function() {
+                        c6BrowserInfo.profile.autoplay = true;
+                        player.emit('apiready', {});
+                    });
+
+                    it('should play', function() {
+                        expect(player.call).toHaveBeenCalledWith('play');
+                    });
                 });
 
-                it('should play', function() {
-                    expect(player.call).toHaveBeenCalledWith('play');
+                describe('if the device can\'t autoplay', function() {
+                    beforeEach(function() {
+                        c6BrowserInfo.profile.autoplay = false;
+                        player.emit('apiready', {});
+                    });
+
+                    it('should not play', function() {
+                        expect(player.call).not.toHaveBeenCalledWith('play');
+                    });
                 });
             });
         });
@@ -122,7 +139,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
         describe('$watchers', function() {
             describe('videoid', function() {
                 it('should set the src of the iframe', function() {
-                    expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/abc?api=postMessage&id=player');
+                    expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/abc?api=postMessage&id=player&related=0');
                 });
 
                 it('should create a new DailymotionPlayerService.Player', function() {
@@ -155,7 +172,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
                     });
 
                     it('should update the src', function() {
-                        expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/123?api=postMessage&id=player');
+                        expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/123?api=postMessage&id=player&related=0');
                     });
 
                     it('should fetch the new duration via the data API', function() {
@@ -440,6 +457,35 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
 
                     it('should call the play method on the player', function() {
                         expect(player.call).toHaveBeenCalledWith('play');
+                    });
+                });
+
+                describe('reload()', function() {
+                    var setAttribute,
+                        src;
+
+                    beforeEach(function() {
+                        src = $iframe.attr('src');
+
+                        player.emit('apiready', {});
+                        player.emit('timeupdate', {
+                            time: 20
+                        });
+                        player.emit('ended', {});
+
+                        setAttribute = spyOn($iframe[0], 'setAttribute').and.callThrough();
+
+                        iface.reload();
+                    });
+
+                    it('should reset the state', function() {
+                        expect(iface.readyState).toBe(-1);
+                        expect(iface.currentTime).toBe(0);
+                        expect(iface.ended).toBe(false);
+                    });
+
+                    it('should reload the iframe', function() {
+                        expect(setAttribute).toHaveBeenCalledWith('src', src);
                     });
                 });
             });

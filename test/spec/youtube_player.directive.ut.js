@@ -8,7 +8,8 @@
                 $compile,
                 $q,
                 YouTubeDataService,
-                $interval;
+                $interval,
+                c6BrowserInfo;
 
             var players,
                 player,
@@ -84,6 +85,7 @@
                     $interval = $injector.get('$interval');
                     $q = $injector.get('$q');
                     YouTubeDataService = $injector.get('YouTubeDataService');
+                    c6BrowserInfo = $injector.get('c6BrowserInfo');
 
                     $scope = $rootScope.$new();
                 });
@@ -176,18 +178,31 @@
 
                 describe('if the autoplay attribute is present', function() {
                     beforeEach(function() {
+                        expect(c6BrowserInfo.profile.autoplay).toBeDefined();
                         $scope.$apply(function() {
                             $player = $compile('<youtube-player videoid="TRrL5j3MIvo" autoplay></youtube-player>')($scope);
                         });
                     });
 
-                    describe('after the video is ready', function() {
+                    describe('if the browser can autoplay videos', function() {
                         beforeEach(function() {
+                            c6BrowserInfo.profile.autoplay = true;
                             player._trigger('onReady');
                         });
 
                         it('should play the video', function() {
                             expect(player.playVideo).toHaveBeenCalled();
+                        });
+                    });
+
+                    describe('if the browser can\'t autoplay videos', function() {
+                        beforeEach(function() {
+                            c6BrowserInfo.profile.autoplay = false;
+                            player._trigger('onReady');
+                        });
+
+                        it('should not play the video', function() {
+                            expect(player.playVideo).not.toHaveBeenCalled();
                         });
                     });
                 });
@@ -766,6 +781,46 @@
                             video.play();
 
                             expect(player.playVideo).toHaveBeenCalled();
+                        });
+                    });
+
+                    describe('reload()', function() {
+                        var $origFrame, $frame,
+                            oldPlayer;
+
+                        beforeEach(function() {
+                            oldPlayer = player;
+                            $origFrame = $player.find('iframe');
+                            player._trigger('onReady');
+                            player.getCurrentTime.and.returnValue(20);
+                            $interval.flush(250);
+                            player._trigger('onStateChange', {
+                                data: youtube.PlayerState.ENDED
+                            });
+
+                            $scope.$apply(function() {
+                                video.reload();
+                            });
+
+                            $frame = $player.find('iframe');
+                        });
+
+                        it('should remove the old player', function() {
+                            expect($origFrame.parent().length).toBe(0);
+                        });
+
+                        it('should create a new frame', function() {
+                            expect($frame.attr('src')).toBe($origFrame.attr('src'));
+                        });
+
+                        it('should reset the state', function() {
+                            expect(video.readyState).toBe(-1);
+                            expect(video.currentTime).toBe(0);
+                            expect(video.ended).toBe(false);
+                        });
+
+                        it('should create a new player', function() {
+                            expect(player).not.toBe(oldPlayer);
                         });
                     });
                 });
