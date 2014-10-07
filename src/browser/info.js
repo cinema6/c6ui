@@ -99,7 +99,10 @@ function( angular , userAgent    ) {
                     })();
 
                     profile.device = (function() {
-                        var screen = $window.screen,
+                        var screen = $window.screen || {
+                                width: 0,
+                                height: 0
+                            },
                             width = screen.width,
                             height = screen.height,
                             pixels = width * height,
