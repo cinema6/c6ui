@@ -14,7 +14,8 @@ define([
     './storage/storage',
     './url/urlmaker',
     './url/urlparser',
-    './videos/video'
+    './videos/video',
+    './videos/ext'
 ], function(angular) {
     'use strict';
 

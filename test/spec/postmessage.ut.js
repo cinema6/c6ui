@@ -110,7 +110,7 @@ define(['postmessage/postmessage'], function(postmessagePostmessage) {
                     beforeEach(function() {
                         session.ping('test', 'hello');
 
-                        args = _private.ping.mostRecentCall.args;
+                        args = _private.ping.calls.mostRecent().args;
                     });
 
                     it('should ping the correct window', function() {
@@ -128,7 +128,7 @@ define(['postmessage/postmessage'], function(postmessagePostmessage) {
                     beforeEach(function() {
                         promise = session.request('test', 'okay');
 
-                        args = _private.ping.mostRecentCall.args;
+                        args = _private.ping.calls.mostRecent().args;
                     });
 
                     it('should return a promise', function() {
@@ -178,7 +178,7 @@ define(['postmessage/postmessage'], function(postmessagePostmessage) {
                 });
 
                 it('should format the data sent into a transferable format', function() {
-                    var args = win.postMessage.mostRecentCall.args,
+                    var args = win.postMessage.calls.mostRecent().args,
                         message = args[0];
 
                     expect(typeof message).toBe('string');
@@ -315,7 +315,7 @@ define(['postmessage/postmessage'], function(postmessagePostmessage) {
 
                         _private.handleMessage.call($window, new C6Event(data));
 
-                        args = session.emit.mostRecentCall.args;
+                        args = session.emit.calls.mostRecent().args;
                     });
 
                     it('should emit the received event', function() {
@@ -345,7 +345,7 @@ define(['postmessage/postmessage'], function(postmessagePostmessage) {
 
                             done(data);
 
-                            pingArgs = _private.ping.mostRecentCall.args;
+                            pingArgs = _private.ping.calls.mostRecent().args;
 
                             expect(pingArgs[0]).toBe(win);
                             expect(pingArgs[1]).toBe('test');
@@ -368,7 +368,7 @@ define(['postmessage/postmessage'], function(postmessagePostmessage) {
 
                     it('should resolve the promise for the pending request with the provided data', function() {
                         expect(session._pending[0].resolve).toHaveBeenCalled();
-                        expect(angular.equals(session._pending[0].resolve.mostRecentCall.args[0], {})).toBe(true);
+                        expect(angular.equals(session._pending[0].resolve.calls.mostRecent().args[0], {})).toBe(true);
                     });
                 });
 
@@ -378,7 +378,7 @@ define(['postmessage/postmessage'], function(postmessagePostmessage) {
 
                         _private.handleMessage(new C6Event(data));
 
-                        args = session.emit.mostRecentCall.args;
+                        args = session.emit.calls.mostRecent().args;
                     });
 
                     it('should emit the event with the data and the angular.noop function', function() {

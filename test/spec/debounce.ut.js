@@ -31,7 +31,7 @@ define(['debounce/debounce'], function(debounceDebounce) {
 
             $timeout.flush();
 
-            expect(spy.callCount).toBe(1);
+            expect(spy.calls.count()).toBe(1);
         });
 
         it('should call a function multiple times (but not every time)', function() {
@@ -48,7 +48,7 @@ define(['debounce/debounce'], function(debounceDebounce) {
             }
 
 
-            expect(spy.callCount).toBe(25);
+            expect(spy.calls.count()).toBe(25);
         });
 
         it('should pass along the arguments', function() {
@@ -62,7 +62,7 @@ define(['debounce/debounce'], function(debounceDebounce) {
 
             $timeout.flush();
 
-            expect(spy).toHaveBeenCalledWith(args);
+            expect(spy).toHaveBeenCalledWith(jasmine.objectContaining(args));
         });
     });
 });

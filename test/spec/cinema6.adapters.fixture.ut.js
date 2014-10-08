@@ -102,7 +102,7 @@ define(['cinema6/cinema6','angular'], function(cinema6Cinema6, angular) {
                     $rootScope.$apply(function() {
                         fixture._getJSON('assets/mock/fixtures.json').then(spy);
                     });
-                    expect(spy.mostRecentCall.args[0]).toBe(newFixtures);
+                    expect(spy.calls.mostRecent().args[0]).toBe(newFixtures);
                 });
 
                 it('should resolve to the json', function() {
@@ -115,7 +115,7 @@ define(['cinema6/cinema6','angular'], function(cinema6Cinema6, angular) {
             beforeEach(function() {
                 adapterConfig.jsonSrc = 'assets/mock/fixtures.json';
 
-                spyOn(fixture, '_getJSON').andReturn($q.when(fixtures));
+                spyOn(fixture, '_getJSON').and.returnValue($q.when(fixtures));
             });
 
             describe('findAll(type)', function() {
@@ -228,7 +228,7 @@ define(['cinema6/cinema6','angular'], function(cinema6Cinema6, angular) {
                         age: 22,
                         id: 'fixture0'
                     }]);
-                    expect(fixtures.user[2]).toBe(spy.mostRecentCall.args[0][0]);
+                    expect(fixtures.user[2]).toBe(spy.calls.mostRecent().args[0][0]);
 
                     $rootScope.$apply(function() {
                         fixture.create('user', model2).then(spy);
@@ -238,7 +238,7 @@ define(['cinema6/cinema6','angular'], function(cinema6Cinema6, angular) {
                         age: 23,
                         id: 'fixture1'
                     }]);
-                    expect(fixtures.user[3]).toBe(spy.mostRecentCall.args[0][0]);
+                    expect(fixtures.user[3]).toBe(spy.calls.mostRecent().args[0][0]);
                 });
             });
 

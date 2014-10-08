@@ -69,7 +69,7 @@ define(['storage/storage'], function(storageStorage){
             it('emits setItemError when an error occurs',function(){
                 var setItemErrorSpy = jasmine.createSpy('c6LocalStorage.setItemError'),
                     e = new Error('this is an error');
-                $window.localStorage.setItem.andCallFake(function(){
+                $window.localStorage.setItem.and.callFake(function(){
                     throw e;
                 });
                 c6LocalStorage.on('setItemError',setItemErrorSpy);
@@ -80,13 +80,13 @@ define(['storage/storage'], function(storageStorage){
 
         describe('get method', function(){
             it('gets a string as a string', function(){
-                $window.localStorage.getItem.andReturn('xyz');
+                $window.localStorage.getItem.and.returnValue('xyz');
                 expect(c6LocalStorage.get('abc')).toEqual('xyz');
                 expect($window.localStorage.getItem).toHaveBeenCalledWith('c6::abc');
             });
 
             it('gets a number as a number', function(){
-                $window.localStorage.getItem.andReturn(5);
+                $window.localStorage.getItem.and.returnValue(5);
                 expect(c6LocalStorage.get('abc')).toEqual(5);
             });
 
@@ -94,7 +94,7 @@ define(['storage/storage'], function(storageStorage){
                 var obj = { x : 5, y : 'apple'  },
                     objJson = JSON.stringify(obj);
 
-                $window.localStorage.getItem.andReturn(objJson);
+                $window.localStorage.getItem.and.returnValue(objJson);
                 expect(c6LocalStorage.get('abc')).toEqual(obj);
             });
 
@@ -102,7 +102,7 @@ define(['storage/storage'], function(storageStorage){
                 var obj = [ 1, 4, 'apple', 5],
                     objJson = JSON.stringify(obj);
 
-                $window.localStorage.getItem.andReturn(objJson);
+                $window.localStorage.getItem.and.returnValue(objJson);
                 expect(c6LocalStorage.get('abc')).toEqual(obj);
             });
 
@@ -141,7 +141,7 @@ define(['storage/storage'], function(storageStorage){
                 var removeItemErrorSpy = 
                         jasmine.createSpy('c6LocalStorage.removeItemError'),
                     e = new Error('this is an error');
-                $window.localStorage.removeItem.andCallFake(function(){
+                $window.localStorage.removeItem.and.callFake(function(){
                     throw e;
                 });
                 c6LocalStorage.on('removeItemError',removeItemErrorSpy);
@@ -159,12 +159,12 @@ define(['storage/storage'], function(storageStorage){
                 $window.localStorage['x-key2']      = 1;
                 $window.localStorage['c6::key3']    = 1;
                 c6LocalStorage.removeAll();
-                expect($window.localStorage.removeItem.callCount).toEqual(3);
-                expect($window.localStorage.removeItem.argsForCall[0])
+                expect($window.localStorage.removeItem.calls.count()).toEqual(3);
+                expect($window.localStorage.removeItem.calls.argsFor(0))
                     .toEqual(['c6::key1']);
-                expect($window.localStorage.removeItem.argsForCall[1])
+                expect($window.localStorage.removeItem.calls.argsFor(1))
                     .toEqual(['c6::key2']);
-                expect($window.localStorage.removeItem.argsForCall[2])
+                expect($window.localStorage.removeItem.calls.argsFor(2))
                     .toEqual(['c6::key3']);
             });
 
@@ -191,7 +191,7 @@ define(['storage/storage'], function(storageStorage){
                 var removeAllErrorSpy = 
                         jasmine.createSpy('c6LocalStorage.removeAllError'),
                     e = new Error('this is an error');
-                spyOn(c6LocalStorage,'getKeys').andCallFake(function(){
+                spyOn(c6LocalStorage,'getKeys').and.callFake(function(){
                     throw e;
                 });
                 c6LocalStorage.on('removeAllError',removeAllErrorSpy);
@@ -208,16 +208,16 @@ define(['storage/storage'], function(storageStorage){
                 var removeItemErrorSpy = 
                         jasmine.createSpy('c6LocalStorage.removeItemError'),
                     e = new Error('this is an error');
-                $window.localStorage.removeItem.andCallFake(function(key){
+                $window.localStorage.removeItem.and.callFake(function(key){
                     if (key === 'c6::key2' || key === 'c6::key3'){
                         throw e;
                     }
                 });
                 c6LocalStorage.on('removeItemError',removeItemErrorSpy);
                 c6LocalStorage.removeAll();
-                expect(removeItemErrorSpy.callCount).toEqual(2);
-                expect(removeItemErrorSpy.argsForCall[0]).toEqual([e,'key2']);
-                expect(removeItemErrorSpy.argsForCall[1]).toEqual([e,'key3']);
+                expect(removeItemErrorSpy.calls.count()).toEqual(2);
+                expect(removeItemErrorSpy.calls.argsFor(0)).toEqual([e,'key2']);
+                expect(removeItemErrorSpy.calls.argsFor(1)).toEqual([e,'key3']);
             });
         });
     });

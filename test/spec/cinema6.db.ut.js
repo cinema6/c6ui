@@ -16,7 +16,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
 
         beforeEach(function() {
             AdapterConstructor = jasmine.createSpy('Adapter')
-                .andCallFake(function(config, $q) {
+                .and.callFake(function(config, $q) {
                     this._deferreds = {
                         find: $q.defer(),
                         findAll: $q.defer(),
@@ -27,22 +27,22 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                     };
 
                     this.find = jasmine.createSpy('adapter.find()')
-                        .andReturn(this._deferreds.find.promise);
+                        .and.returnValue(this._deferreds.find.promise);
 
                     this.findAll = jasmine.createSpy('adapter.findAll()')
-                        .andReturn(this._deferreds.findAll.promise);
+                        .and.returnValue(this._deferreds.findAll.promise);
 
                     this.findQuery = jasmine.createSpy('adapter.findQuery()')
-                        .andReturn(this._deferreds.findQuery.promise);
+                        .and.returnValue(this._deferreds.findQuery.promise);
 
                     this.create = jasmine.createSpy('adapter.createRecord()')
-                        .andReturn(this._deferreds.create.promise);
+                        .and.returnValue(this._deferreds.create.promise);
 
                     this.erase = jasmine.createSpy('adapter.erase()')
-                        .andReturn(this._deferreds.erase.promise);
+                        .and.returnValue(this._deferreds.erase.promise);
 
                     this.update = jasmine.createSpy('adapter.update()')
-                        .andReturn(this._deferreds.update.promise);
+                        .and.returnValue(this._deferreds.update.promise);
 
                     adapter = this;
                 });
@@ -280,11 +280,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                                     id: 'u-d83f502c99d226',
                                     name: 'Josh Minzner',
                                     age: 23,
-                                    _type: 'user',
-                                    save: jasmine.any(Function),
-                                    erase: jasmine.any(Function),
-                                    pojoify: jasmine.any(Function),
-                                    _update: jasmine.any(Function)
+                                    _type: 'user'
                                 });
                             });
 
@@ -456,7 +452,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                         adapter._deferreds.find.resolve(result);
                     });
                     expect(findSpy).toHaveBeenCalledWith(jasmine.objectContaining(result[0]));
-                    assertIsDBModel(findSpy.mostRecentCall.args[0]);
+                    assertIsDBModel(findSpy.calls.mostRecent().args[0]);
                 });
 
                 it('should be a shallow copy', function() {
@@ -464,7 +460,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                         adapter._deferreds.find.resolve(result);
                     });
 
-                    expect(findSpy.mostRecentCall.args[0].data).toBe(result[0].data);
+                    expect(findSpy.calls.mostRecent().args[0].data).toBe(result[0].data);
                 });
 
                 it('should cache the item by type and id', function() {
@@ -472,7 +468,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                         adapter._deferreds.find.resolve(result);
                     });
 
-                    expect($cacheFactory.get('cinema6.db').get('experience:e-2ff054584731c6')).toBe(findSpy.mostRecentCall.args[0]);
+                    expect($cacheFactory.get('cinema6.db').get('experience:e-2ff054584731c6')).toBe(findSpy.calls.mostRecent().args[0]);
                 });
 
                 it('should consult the cache before call the adapter', function() {
@@ -531,7 +527,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                         $rootScope.$apply(function() {
                             adapter._deferreds.findAll.resolve(results);
                         });
-                        findSpy.mostRecentCall.args[0].forEach(function(model, index) {
+                        findSpy.calls.mostRecent().args[0].forEach(function(model, index) {
                             expect(model).toEqual(jasmine.objectContaining(results[index]));
                             assertIsDBModel(model);
                         });
@@ -542,8 +538,8 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                             adapter._deferreds.findAll.resolve(results);
                         });
 
-                        var meta = adapter.findAll.mostRecentCall.args[1],
-                            items = findSpy.mostRecentCall.args[0];
+                        var meta = adapter.findAll.calls.mostRecent().args[1],
+                            items = findSpy.calls.mostRecent().args[0];
 
                         expect(items.meta).toBe(meta);
                     });
@@ -568,10 +564,10 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                         $rootScope.$apply(function() {
                             adapter._deferreds.findAll.resolve(results);
                         });
-                        firstModels = findSpy.mostRecentCall.args[0];
+                        firstModels = findSpy.calls.mostRecent().args[0];
 
                         adapter._deferreds.findAll = $q.defer();
-                        adapter.findAll.andReturn(adapter._deferreds.findAll.promise);
+                        adapter.findAll.and.returnValue(adapter._deferreds.findAll.promise);
                         $rootScope.$apply(function() {
                             cinema6.db.findAll('experience').then(findSpy);
                         });
@@ -579,7 +575,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                             adapter._deferreds.findAll.resolve(secondResults);
                         });
 
-                        findSpy.mostRecentCall.args[0].forEach(function(model, index) {
+                        findSpy.calls.mostRecent().args[0].forEach(function(model, index) {
                             expect(model).toBe(firstModels[index]);
                             expect(model).toEqual(jasmine.objectContaining(secondResults[index]));
                         });
@@ -637,7 +633,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                         $rootScope.$apply(function() {
                             adapter._deferreds.findQuery.resolve(results);
                         });
-                        findSpy.mostRecentCall.args[0].forEach(function(model, index) {
+                        findSpy.calls.mostRecent().args[0].forEach(function(model, index) {
                             expect(model).toEqual(jasmine.objectContaining(results[index]));
                             assertIsDBModel(model);
                         });
@@ -648,8 +644,8 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                             adapter._deferreds.findQuery.resolve(results);
                         });
 
-                        var meta = adapter.findQuery.mostRecentCall.args[2],
-                            items = findSpy.mostRecentCall.args[0];
+                        var meta = adapter.findQuery.calls.mostRecent().args[2],
+                            items = findSpy.calls.mostRecent().args[0];
 
                         expect(items.meta).toBe(meta);
                     });

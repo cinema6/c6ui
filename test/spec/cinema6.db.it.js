@@ -75,19 +75,19 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                 cinema6.db.findAll('experience').then(resultSpy);
                 $httpBackend.flush();
 
-                resultSpy.mostRecentCall.args[0].forEach(function(item, index) {
+                resultSpy.calls.mostRecent().args[0].forEach(function(item, index) {
                     expect(item).toEqual(jasmine.objectContaining(fixtures.experience[index]));
                 });
-                expect(resultSpy.mostRecentCall.args[0].meta).toEqual({});
+                expect(resultSpy.calls.mostRecent().args[0].meta).toEqual({});
 
                 $rootScope.$apply(function() {
                     cinema6.db.findAll('user').then(resultSpy);
                 });
 
-                resultSpy.mostRecentCall.args[0].forEach(function(item, index) {
+                resultSpy.calls.mostRecent().args[0].forEach(function(item, index) {
                     expect(item).toEqual(jasmine.objectContaining(fixtures.user[index]));
                 });
-                expect(resultSpy.mostRecentCall.args[0].meta).toEqual({});
+                expect(resultSpy.calls.mostRecent().args[0].meta).toEqual({});
             });
 
             it('should support finding a single record by id', function() {

@@ -39,7 +39,7 @@ define(['computed/computed'], function(computedComputed) {
 
             it('should compute the property with the provided dependencies', function() {
                 var fullName = jasmine.createSpy('full name')
-                    .andCallFake(function() {
+                    .and.callFake(function() {
                         return $scope.first + ' ' + $scope.last;
                     });
 
@@ -68,7 +68,7 @@ define(['computed/computed'], function(computedComputed) {
 
             it('should only run the computing function if the $scope dependencies change', function() {
                 var fullName = jasmine.createSpy('last, first')
-                    .andCallFake(function() {
+                    .and.callFake(function() {
                         return $scope.last + ', ' + $scope.first;
                     });
 
@@ -79,12 +79,12 @@ define(['computed/computed'], function(computedComputed) {
                 $apply(function() {
                     angular.noop(model.fullName);
                 });
-                expect(fullName.callCount).toBe(1);
+                expect(fullName.calls.count()).toBe(1);
 
                 $apply(function() {
                     angular.noop(model.fullname);
                 });
-                expect(fullName.callCount).toBe(1);
+                expect(fullName.calls.count()).toBe(1);
 
                 $apply(function() {
                     $scope.first = 'Dan';
@@ -92,17 +92,17 @@ define(['computed/computed'], function(computedComputed) {
                 $apply(function() {
                     expect(model.fullName).toBe('Minzner, Dan');
                 });
-                expect(fullName.callCount).toBe(2);
+                expect(fullName.calls.count()).toBe(2);
 
                 $apply(function() {
                     angular.noop(model.fullName);
                 });
-                expect(fullName.callCount).toBe(2);
+                expect(fullName.calls.count()).toBe(2);
 
                 $apply(function() {
                     angular.noop(model.fullName);
                 });
-                expect(fullName.callCount).toBe(2);
+                expect(fullName.calls.count()).toBe(2);
             });
 
             it('should be $watchable', function() {
@@ -133,7 +133,7 @@ define(['computed/computed'], function(computedComputed) {
 
             beforeEach(function() {
                 total = jasmine.createSpy('total')
-                    .andCallFake(function() {
+                    .and.callFake(function() {
                         var total = 0;
 
                         angular.forEach($scope.groceries, function(item) {
@@ -166,42 +166,42 @@ define(['computed/computed'], function(computedComputed) {
                 $apply(function() {
                     expect(model.total).toBe(2.75);
                 });
-                expect(total.callCount).toBe(1);
+                expect(total.calls.count()).toBe(1);
 
                 $apply(function() {
                     item2.price = 1;
                 });
                 expect(model.total).toBe(3);
-                expect(total.callCount).toBe(2);
+                expect(total.calls.count()).toBe(2);
 
                 $apply(function() {
                     item3.name = 'Banana';
                 });
-                expect(total.callCount).toBe(2);
+                expect(total.calls.count()).toBe(2);
 
                 $apply(function() {
                     item3.price = 2;
                 });
                 expect(model.total).toBe(3.50);
-                expect(total.callCount).toBe(3);
+                expect(total.calls.count()).toBe(3);
 
                 $apply(function() {
                     item1.foo = 'foo';
                 });
-                expect(total.callCount).toBe(3);
+                expect(total.calls.count()).toBe(3);
 
                 $apply(function() {
                     groceries.splice(0, 1);
                 });
                 expect(model.total).toBe(3);
-                expect(total.callCount).toBe(4);
+                expect(total.calls.count()).toBe(4);
             });
 
             it('should not dirty dirty the property if a collection member is no longer in the collection', function() {
                 $apply(function() {
                     expect(model.total).toBe(2.75);
                 });
-                expect(total.callCount).toBe(1);
+                expect(total.calls.count()).toBe(1);
 
                 $apply(function() {
                     item1.price = 0.75;
@@ -209,7 +209,7 @@ define(['computed/computed'], function(computedComputed) {
                 $apply(function() {
                     angular.noop(model.total);
                 });
-                expect(total.callCount).toBe(2);
+                expect(total.calls.count()).toBe(2);
 
                 $scope.$apply(function() {
                     groceries.splice(0, 1);
@@ -217,17 +217,17 @@ define(['computed/computed'], function(computedComputed) {
                 $scope.$apply(function() {
                     angular.noop(model.total);
                 });
-                expect(total.callCount).toBe(3);
+                expect(total.calls.count()).toBe(3);
 
                 $scope.$apply(function() {
                     item1.price = 0.50;
                 });
-                expect(total.callCount).toBe(3);
+                expect(total.calls.count()).toBe(3);
             });
 
             it('should work with multiple @each', function() {
                 var customers = jasmine.createSpy('customers')
-                    .andCallFake(function() {
+                    .and.callFake(function() {
                         var customers = [];
 
                         angular.forEach(this.groceries, function(item) {
@@ -269,7 +269,7 @@ define(['computed/computed'], function(computedComputed) {
                 $apply(function() {
                     expect($scope.customers).toEqual(['Josh', 'Evan', 'Steph', 'Moo', 'Howard', 'Jason']);
                 });
-                expect(customers.callCount).toBe(1);
+                expect(customers.calls.count()).toBe(1);
 
                 $apply(function() {
                     item2.purchasers[0].name = 'Stephanie';
@@ -277,7 +277,7 @@ define(['computed/computed'], function(computedComputed) {
                 $apply(function() {
                     angular.noop($scope.customers);
                 });
-                expect(customers.callCount).toBe(2);
+                expect(customers.calls.count()).toBe(2);
 
                 $apply(function() {
                     item1.name = 'Kiwi';
@@ -285,7 +285,7 @@ define(['computed/computed'], function(computedComputed) {
                 $apply(function() {
                     angular.noop($scope.customers);
                 });
-                expect(customers.callCount).toBe(2);
+                expect(customers.calls.count()).toBe(2);
 
                 $apply(function() {
                     item3.purchasers[1].name = 'Jason Glickman';
@@ -293,7 +293,7 @@ define(['computed/computed'], function(computedComputed) {
                 $apply(function() {
                     expect($scope.customers).toEqual(['Josh', 'Evan', 'Stephanie', 'Moo', 'Howard', 'Jason Glickman']);
                 });
-                expect(customers.callCount).toBe(3);
+                expect(customers.calls.count()).toBe(3);
             });
 
             it('should work on primitives', function() {
@@ -350,7 +350,7 @@ define(['computed/computed'], function(computedComputed) {
                 $scope.last = 'Minzner';
 
                 full = jasmine.createSpy('full')
-                    .andCallFake(function(value) {
+                    .and.callFake(function(value) {
                         var parts;
 
                         if (arguments.length) {

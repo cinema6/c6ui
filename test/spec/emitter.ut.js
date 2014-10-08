@@ -52,7 +52,7 @@ define(['events/emitter'], function(eventsEmitter){
             });
 
             it('should signal newListener when newListeners are added',function(){
-                expect(newListenerSpy.callCount).toEqual(8);
+                expect(newListenerSpy.calls.count()).toEqual(8);
             });
 
             it('on should return reference to emitter',function(){
@@ -74,7 +74,7 @@ define(['events/emitter'], function(eventsEmitter){
                 // Emitter on returns a ref to the emitter for chaining
                 expect( emitter.removeListener('testEvent2',testFunc_2_0) ).toBe(emitter);
 
-                expect(removeListenerSpy.callCount).toEqual(1);
+                expect(removeListenerSpy.calls.count()).toEqual(1);
                 event1List = emitter.listeners('testEvent1');
                 event2List = emitter.listeners('testEvent2');
                 event3List = emitter.listeners('testEvent3');
@@ -101,7 +101,7 @@ define(['events/emitter'], function(eventsEmitter){
             it('should handle removing another listener for an event in a different handler for that event', function() {
                 var handler1 = jasmine.createSpy('handler1'),
                     handler2 = jasmine.createSpy('handler2')
-                        .andCallFake(function() {
+                        .and.callFake(function() {
                             emitter.removeListener('myEvent', handler3);
                         }),
                     handler3 = jasmine.createSpy('handler3'),
@@ -140,8 +140,8 @@ define(['events/emitter'], function(eventsEmitter){
 
                 expect(emitter.listeners('testRemove').length).toEqual(2);
                 expect(called).toEqual(true);
-                expect(l1.callCount).toEqual(1);
-                expect(l2.callCount).toEqual(1);
+                expect(l1.calls.count()).toEqual(1);
+                expect(l2.calls.count()).toEqual(1);
 
             });
 
@@ -162,8 +162,8 @@ define(['events/emitter'], function(eventsEmitter){
 
                 expect(emitter.listeners('testRemove').length).toEqual(2);
                 expect(called).toEqual(true);
-                expect(l1.callCount).toEqual(1);
-                expect(l2.callCount).toEqual(1);
+                expect(l1.calls.count()).toEqual(1);
+                expect(l2.calls.count()).toEqual(1);
 
             });
 
@@ -183,8 +183,8 @@ define(['events/emitter'], function(eventsEmitter){
 
                 expect(emitter.listeners('testRemove').length).toEqual(2);
                 expect(called).toEqual(true);
-                expect(l1.callCount).toEqual(1);
-                expect(l2.callCount).toEqual(1);
+                expect(l1.calls.count()).toEqual(1);
+                expect(l2.calls.count()).toEqual(1);
 
             });
 
@@ -192,7 +192,7 @@ define(['events/emitter'], function(eventsEmitter){
             it('should enable removal of all listeners for an event', function(){
                 expect( emitter.removeAllListeners('testEvent2') ).toBe(emitter);
                 
-                expect(removeListenerSpy.callCount).toEqual(2);
+                expect(removeListenerSpy.calls.count()).toEqual(2);
 
                 event1List = emitter.listeners('testEvent1');
                 event2List = emitter.listeners('testEvent2');
@@ -250,7 +250,7 @@ define(['events/emitter'], function(eventsEmitter){
 
             it('should not call a handler for an event added in a handler for that event', function() {
                 var handler1 = jasmine.createSpy('handler1')
-                        .andCallFake(function() {
+                        .and.callFake(function() {
                             emitter.on('myEvent', handler2);
                         }),
                     handler2 = jasmine.createSpy('handler2');
@@ -261,8 +261,8 @@ define(['events/emitter'], function(eventsEmitter){
                 expect(handler2).not.toHaveBeenCalled();
 
                 emitter.emit('myEvent');
-                expect(handler1.callCount).toBe(2);
-                expect(handler2.callCount).toBe(1);
+                expect(handler1.calls.count()).toBe(2);
+                expect(handler2.calls.count()).toBe(1);
             });
 
             it('should return false if there are no listeners',function(){
@@ -308,7 +308,7 @@ define(['events/emitter'], function(eventsEmitter){
                     emitter2.on('isolatedEvent',spy);
                     emitter.emit('isolatedEvent');
 
-                    expect(spy.callCount).toEqual(1);
+                    expect(spy.calls.count()).toEqual(1);
             });
         });
     });

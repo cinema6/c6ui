@@ -126,13 +126,13 @@ define(['videos/video'], function(videosVideo) {
                         play: jasmine.createSpy('video.play()'),
                         pause: jasmine.createSpy('video.pause()'),
                         addEventListener: jasmine.createSpy('video.addEventListener()')
-                            .andCallFake(function(event, handler) {
+                            .and.callFake(function(event, handler) {
                                 var handlers = $element[0].handlers[event] = $element[0].handlers[event] || [];
 
                                 handlers.push(handler);
                             }),
                         removeEventListener: jasmine.createSpy('video.removeEventListener()')
-                            .andCallFake(function(event, handler) {
+                            .and.callFake(function(event, handler) {
                                 var handlers = $element[0].handlers[event] = $element[0].handlers[event] || [];
 
                                 handlers.splice(handlers.indexOf(handler), 1);
@@ -222,7 +222,7 @@ define(['videos/video'], function(videosVideo) {
         c6videoController,
         c6video;
 
-        beforeEach(function() {
+        beforeEach(function(done) {
             module(function($provide) {
                 $provide.value('$document', mock$Document);
                 $provide.value('$element', $element);
@@ -233,6 +233,7 @@ define(['videos/video'], function(videosVideo) {
                 $scope = $rootScope.$new();
                 $scope.$on('c6video-ready', function(event, player) {
                     c6video = player;
+                    done();
                 });
                 $scope.$apply(function() {
                     c6videoController = $controller('C6VideoController', { $scope: $scope, $element: $element, $attrs: $attrs, c6videoService: c6videoService });
@@ -241,94 +242,59 @@ define(['videos/video'], function(videosVideo) {
         });
 
         it('should emit an event when a c6video has been created.', function() {
-            waitsFor(function() {
-                return c6video;
-            }, 'never got the player object', 1000);
-            runs(function() {
-                expect(c6video).toBeTruthy();
-            });
+            expect(c6video).toBeTruthy();
         });
 
         it('should set the src to a regular file if given a regular file path, extensionless file, or array of srcs and types', function() {
-            waitsFor(function() {
-                return c6video;
-            }, 'never got the player object', 1000);
-            runs(function() {
-                c6video.src('test/stupid/uppercase.MP4');
-                expect(c6video.player.src).toBe('test/stupid/uppercase.MP4');
+            c6video.src('test/stupid/uppercase.MP4');
+            expect(c6video.player.src).toBe('test/stupid/uppercase.MP4');
 
-                c6video.src('test/another/sTuPiD/video.WEBM');
-                expect(c6video.player.src).toBe('test/another/sTuPiD/video.WEBM');
+            c6video.src('test/another/sTuPiD/video.WEBM');
+            expect(c6video.player.src).toBe('test/another/sTuPiD/video.WEBM');
 
-                c6video.src('test/hey/media.mp4');
-                expect(c6video.player.src).toBe('test/hey/media.mp4');
+            c6video.src('test/hey/media.mp4');
+            expect(c6video.player.src).toBe('test/hey/media.mp4');
 
-                c6video.src('test/hey/hello');
-                expect(c6video.player.src).toBe('test/hey/hello.mp4');
+            c6video.src('test/hey/hello');
+            expect(c6video.player.src).toBe('test/hey/hello.mp4');
 
-                c6video.src([{"type": "video/mp4", "src": "test/hey/hola.mp4"},{"type": "video/webm", "src": "test/hey/hola.webm"},{"type": "video/ogg", "src": "test/hey/hola.ogg"}]);
-                expect(c6video.player.src).toBe('test/hey/hola.mp4');
-            });
+            c6video.src([{"type": "video/mp4", "src": "test/hey/hola.mp4"},{"type": "video/webm", "src": "test/hey/hola.webm"},{"type": "video/ogg", "src": "test/hey/hola.ogg"}]);
+            expect(c6video.player.src).toBe('test/hey/hola.mp4');
         });
 
         it('should not set the src to undefined if you pass in null to the src method.', function() {
-            waitsFor(function() {
-                return c6video;
-            }, 'never got the player object', 1000);
-            runs(function() {
-                c6video.src(null);
-                expect(c6video.player.src).toBe('test/hey/hola.mp4');
+            c6video.src(null);
+            expect(c6video.player.src).toBe('test/hey/hola.mp4');
 
-                c6video.src('test.mp4');
-                expect(c6video.player.src).toBe('test.mp4');
+            c6video.src('test.mp4');
+            expect(c6video.player.src).toBe('test.mp4');
 
-                c6video.src(null);
-                expect(c6video.player.src).toBe('test.mp4');
-            });
+            c6video.src(null);
+            expect(c6video.player.src).toBe('test.mp4');
         });
 
         it('should calculate the % of the video that has been buffered.', function() {
-            waitsFor(function() {
-                return c6video;
-            }, 'never got the player object', 1000);
-            runs(function() {
-                expect(c6video.bufferedPercent()).toBe(0.5);
-            });
+            expect(c6video.bufferedPercent()).toBe(0.5);
         });
 
         it('should resize the player.', function() {
-            waitsFor(function() {
-                return c6video;
-            }, 'never got the player object', 1000);
-            runs(function() {
-                expect(c6video.player.width).toBe(1280);
-                expect(c6video.player.height).toBe(720);
+            expect(c6video.player.width).toBe(1280);
+            expect(c6video.player.height).toBe(720);
 
-                c6video.size(800, 600);
+            c6video.size(800, 600);
 
-                expect(c6video.player.width).toBe(800);
-                expect(c6video.player.height).toBe(600);
-            });
+            expect(c6video.player.width).toBe(800);
+            expect(c6video.player.height).toBe(600);
         });
 
         it('should make the player fullscreen.', function() {
-            waitsFor(function() {
-                return c6video;
-            }, 'never got the player object', 1000);
-            runs(function() {
-                expect(c6video.fullscreen(true)).toBe(true);
-                expect(c6video.player.requestFullscreen).toHaveBeenCalled();
-            });
+            expect(c6video.fullscreen(true)).toBe(true);
+            expect(c6video.player.requestFullscreen).toHaveBeenCalled();
         });
 
         it('should make the player exit fullscreen', function() {
-            waitsFor(function() {
-                return c6video;
-            }, 'never got the player object', 1000);
-            runs(function() {
-                expect(c6video.fullscreen(false)).toBe(true);
-                expect(mock$Document[0].cancelFullScreen).toHaveBeenCalled();
-            });
+            expect(c6video.fullscreen(false)).toBe(true);
+            expect(mock$Document[0].cancelFullScreen).toHaveBeenCalled();
         });
     });
 });

@@ -18,7 +18,7 @@ define(['browser/info'], function(browserInfo) {
                 canvas: 'canvas',
                 localstorage: 'localstorage',
                 cors: true,
-                prefixed: jasmine.createSpy('modernizr prefixed').andReturn(function() {})
+                prefixed: jasmine.createSpy('modernizr prefixed').and.returnValue(function() {})
             };
 
             $window = {
@@ -399,7 +399,7 @@ define(['browser/info'], function(browserInfo) {
                         it('flash should be set to true', function() {
                             expect(profile.flash).toBe(false);
 
-                            spyOn($window, 'ActiveXObject').andReturn(true);
+                            spyOn($window, 'ActiveXObject').and.returnValue(true);
                             profile = c6BrowserInfo.generateProfile();
 
                             expect(profile.flash).toBe(true);
@@ -447,7 +447,7 @@ define(['browser/info'], function(browserInfo) {
                             var augmenter;
 
                             beforeEach(function() {
-                                spyOn($injector, 'invoke').andCallThrough();
+                                spyOn($injector, 'invoke').and.callThrough();
 
                                 augmenter = function() {};
                                 providerPrivate.profileAugmenter = augmenter;

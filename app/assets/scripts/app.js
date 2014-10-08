@@ -6,5 +6,9 @@ function( angular , c6ui , modernizr , controllers ) {
         kLogLevels: ['log', 'info', 'warn', 'error']
     };
 
-    return angular.module('app', [c6ui.name, controllers.name]);
+    return angular.module('app', [c6ui.name, controllers.name])
+        .config(['YouTubeDataServiceProvider',
+        function( YouTubeDataServiceProvider ) {
+            YouTubeDataServiceProvider.apiKey('AIzaSyAoR0-kvy_fIjYOKk0vMU6F2JIb1aCMd1g');
+        }]);
 });
