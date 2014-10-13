@@ -13,6 +13,13 @@
         <youtube-player videoid="dqoPXC60l_s" autoplay style="height: 500px; display: block;" start="15" end="25"></youtube-player>
         <vimeo-player videoid="108018156" autoplay style="height: 500px; display: block;" start="15" end="25"></vimeo-player>
         <dailymotion-player videoid="x279hwy" autoplay style="height: 500px; display: block;"></dailymotion-player>
+        <vpaid-player videoid="12345" autoplay ad-tag="http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvYyD60pQS_90o8grI6Qm2PI=?cb={cachebreaker}&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov" style="height:500px; width:700px; display:block; position:relative;"></vpaid-player>
+        <div ng-show="adReady">
+            <button ng-click="AppCtrl.playAd()">Play Ad</button>
+            <button ng-click="AppCtrl.pauseAd()">Pause Ad</button>
+            <button ng-click="AppCtrl.destroyAd()">Destroy Ad</button>
+            <button ng-click="AppCtrl.reloadAd()">Reload Ad</button>
+        </div>
         <script src="//lib.cinema6.com/require/2.1.5/require.js" data-main="scripts/main"></script>
     </body>
 </html>

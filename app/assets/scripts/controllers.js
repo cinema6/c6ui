@@ -5,7 +5,8 @@ function( angular ) {
     return angular.module('app.controllers', [])
         .controller('AppController', ['$scope','c6ImagePreloader','$log','$http',
         function                     ( $scope , c6ImagePreloader , $log , $http ) {
-            var self = this;
+            var self = this,
+                vpaidPlayer;
 
             c6ImagePreloader.load(['http://farm9.staticflickr.com/8459/8020272673_8478cc3c85_b_d.jpg', 'http://farm9.staticflickr.com/8315/8024081498_35e3d37d1e_b_d.jpg']).then(function() {
                 $log.log('Images preloaded!');
@@ -13,12 +14,36 @@ function( angular ) {
 
             this.vimeo = null;
 
+            this.playAd = function() {
+                vpaidPlayer.play();
+            };
+
+            this.pauseAd = function() {
+                vpaidPlayer.pause();
+            };
+
+            this.destroyAd = function() {
+                vpaidPlayer.destroy();
+            };
+
+            this.reloadAd = function() {
+                vpaidPlayer.reload();
+            };
+
             $http.get('http://vimeo.com/api/v2/video/76579435.json')
                 .then(function(response) {
                     self.vimeo = response.data[0];
                 }, function(error) {
                     $log.error(error);
                 });
+
+            $scope.$on('<vpaid-player>:init', function(event, player) {
+                vpaidPlayer = player;
+
+                player.on('ready', function() {
+                    $scope.adReady = true;
+                });
+            });
 
             $scope.AppCtrl = this;
         }])
