@@ -1,5 +1,7 @@
 # C6UI
 
+* Add VPAID player directive
+
 ## v3.0.0 (August 29, 2014)
 * Removed ```<c6-controls></c6-controls>```, ```c6Journal```,
    ```c6-mouse-activity=""```, ```c6-resize=""```, ```c6Sfx```,
