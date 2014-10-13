@@ -55,7 +55,6 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             var html,
                                 flashvars = '';
 
-                            // html = template.data.replace(/__SWF__/g, 'swf/player.swf');
                             html = template.replace(/__SWF__/g, _swfUrl);
 
                             flashvars += 'adXmlUrl=' + encodeURIComponent(adTag);
