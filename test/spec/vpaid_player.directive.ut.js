@@ -134,6 +134,20 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
             });
 
+            describe('canplay', function() {
+                it('should emit canplay only once when ad starts playing', function() {
+                    spyOn(_player, 'getDuration').and.returnValue(30);
+                    _player.emit('ready');
+                    _player.emit('play');
+
+                    expect(iface.emit).toHaveBeenCalledWith('canplay');
+                    iface.emit.calls.reset();
+                    _player.emit('play');
+
+                    expect(iface.emit).not.toHaveBeenCalledWith('canplay');
+                });
+            });
+
             describe('pause', function() {
                 it('should emit pause', function() {
                     _player.emit('ready');

@@ -309,6 +309,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                     function VpaidPlayer(id, adTag) {
                         var state,
                             emittedMeta,
+                            emittedCanplay,
                             hasLoadAdBeenCalled,
                             currentTimeInterval,
                             publicTime,
@@ -325,6 +326,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             hasLoadAdBeenCalled = false;
                             hasStarted = false;
                             emittedMeta = false;
+                            emittedCanplay = false;
                             publicTime = 0;
                         }
 
@@ -360,7 +362,10 @@ function( angular , eventsEmitter     , browserInfo      ) {
 
                                     iface.emit('play');
                                     state.readyState = 3;
-                                    iface.emit('canplay');
+                                    if (!emittedCanplay) {
+                                        emittedCanplay = true;
+                                        iface.emit('canplay');
+                                    }
 
                                     currentTimeInterval = $interval(
                                         function pollCurrentTime() {
