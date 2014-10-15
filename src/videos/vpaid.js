@@ -93,7 +93,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             },
                             currentTime : {
                                 get: function() {
-                                    return self.player.getAdProperties ?
+                                    return self.player && self.player.getAdProperties ?
                                         self.player.getAdProperties().adCurrentTime : 0;
                                 }
                             }
@@ -258,8 +258,8 @@ function( angular , eventsEmitter     , browserInfo      ) {
         }];
     }])
 
-    .directive('vpaidPlayer', ['c6EventEmitter','$log','VPAIDService','c6BrowserInfo',
-    function                  ( c6EventEmitter , $log , VPAIDService , c6BrowserInfo ) {
+    .directive('vpaidPlayer', ['c6EventEmitter','$log','$interval','VPAIDService','c6BrowserInfo',
+    function                  ( c6EventEmitter , $log , $interval , VPAIDService , c6BrowserInfo ) {
         var profile = c6BrowserInfo.profile;
 
         return {
@@ -308,8 +308,10 @@ function( angular , eventsEmitter     , browserInfo      ) {
 
                     function VpaidPlayer(id, adTag) {
                         var state,
-                            playerReady,
+                            emittedMeta,
                             hasLoadAdBeenCalled,
+                            currentTimeInterval,
+                            publicTime,
                             hasStarted,
                             player;
 
@@ -317,16 +319,19 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             state = {
                                 paused: true,
                                 ended: false,
-                                duration: NaN
+                                duration: 0,
+                                readyState: -1
                             };
-                            playerReady = false;
                             hasLoadAdBeenCalled = false;
                             hasStarted = false;
+                            emittedMeta = false;
+                            publicTime = 0;
                         }
 
                         function load(adTag) {
                             if (player) {
                                 player.destroy();
+                                $interval.cancel(currentTimeInterval);
                             }
 
                             setupState();
@@ -334,28 +339,49 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             player = VPAIDService.createPlayer(id, adTag, vpaidTemplate, $element);
 
                             player.on('ready', function() {
-                                playerReady = true;
+                                state.readyState = 0;
 
                                 iface.emit('ready');
 
                                 player.on('ended', function() {
                                     state.ended = true;
-                                    iface.emit('ended', iface);
+                                    iface.emit('ended');
+                                    $interval.cancel(currentTimeInterval);
                                 });
 
                                 player.on('play', function() {
                                     state.paused = false;
                                     state.duration = player.getDuration();
-                                    iface.emit('play', iface);
+                                    state.readyState = 1;
+                                    if (!emittedMeta) {
+                                        emittedMeta = true;
+                                        iface.emit('loadedmetadata');
+                                    }
+
+                                    iface.emit('play');
+                                    state.readyState = 3;
+                                    iface.emit('canplay');
+
+                                    currentTimeInterval = $interval(
+                                        function pollCurrentTime() {
+                                            var currentTime = player.currentTime;
+
+                                            if (currentTime !== publicTime) {
+                                                publicTime = currentTime;
+                                                iface.emit('timeupdate');
+                                            }
+                                        },
+                                        250
+                                    );
                                 });
 
                                 player.on('pause', function() {
                                     state.paused = true;
-                                    iface.emit('pause', iface);
+                                    iface.emit('pause');
                                 });
 
                                 player.on('companionsReady', function() {
-                                    iface.emit('getCompanions', player);
+                                    iface.emit('companionsReady');
                                 });
 
                                 if (angular.isDefined(attrs.autoplay) && profile.autoplay) {
@@ -367,14 +393,14 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                 $log.info(result);
                             }, function(error) {
                                 $log.error(error);
-                                iface.emit('ended', iface);
+                                iface.emit('error');
                             });
                         }
 
                         Object.defineProperties(this, {
                             currentTime: {
                                 get: function() {
-                                    return playerReady ? player.currentTime : 0;
+                                    return state.readyState > -1 ? player.currentTime : 0;
                                 }
                             },
                             duration: {
@@ -396,17 +422,22 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                 get: function() {
                                     return id;
                                 }
+                            },
+                            readyState: {
+                                get: function() {
+                                    return state.readyState;
+                                }
                             }
                         });
 
-                        this.loadAd = function() {
+                        this.load = function() {
                             hasLoadAdBeenCalled = true;
                             return player.loadAd();
                         };
 
                         this.play = function() {
                             if (!hasLoadAdBeenCalled) {
-                                iface.loadAd();
+                                iface.load();
                             }
 
                             if (hasStarted) {
@@ -421,8 +452,8 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             return player.pause();
                         };
 
-                        this.destroy = function() {
-                            player.destroy();
+                        this.getCompanions = function() {
+                            return player.getDisplayBanners();
                         };
 
                         this.reload = function() {

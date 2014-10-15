@@ -22,10 +22,6 @@ function( angular ) {
                 vpaidPlayer.pause();
             };
 
-            this.destroyAd = function() {
-                vpaidPlayer.destroy();
-            };
-
             this.reloadAd = function() {
                 vpaidPlayer.reload();
             };

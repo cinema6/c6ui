@@ -7,6 +7,7 @@ define(['videos/vpaid'], function(vpaidModule) {
             $player,
             $compile,
             $window,
+            $interval,
             c6BrowserInfo,
             VPAIDService;
 
@@ -21,6 +22,7 @@ define(['videos/vpaid'], function(vpaidModule) {
             inject(function($injector) {
                 $rootScope = $injector.get('$rootScope');
                 $compile = $injector.get('$compile');
+                $interval = $injector.get('$interval');
                 c6BrowserInfo = $injector.get('c6BrowserInfo');
                 VPAIDService = $injector.get('VPAIDService');
 
@@ -73,12 +75,12 @@ define(['videos/vpaid'], function(vpaidModule) {
 
                 it('should not autoplay', function() {
                     spyOn(iface, 'play');
-                    spyOn(iface, 'loadAd');
+                    spyOn(iface, 'load');
 
                     _player.emit('ready');
 
                     expect(iface.play).not.toHaveBeenCalled();
-                    expect(iface.loadAd).not.toHaveBeenCalled();
+                    expect(iface.load).not.toHaveBeenCalled();
                 });
 
                 describe('autoplay attribute', function() {
@@ -115,7 +117,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                     _player.emit('ready');
                     _player.emit('ended');
 
-                    expect(iface.emit).toHaveBeenCalledWith('ended', iface);
+                    expect(iface.emit).toHaveBeenCalledWith('ended');
                     expect(iface.ended).toBe(true);
                 });
             });
@@ -126,7 +128,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                     _player.emit('ready');
                     _player.emit('play');
 
-                    expect(iface.emit).toHaveBeenCalledWith('play', iface);
+                    expect(iface.emit).toHaveBeenCalledWith('play');
                     expect(iface.paused).toBe(false);
                     expect(iface.duration).toBe(30);
                 });
@@ -137,7 +139,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                     _player.emit('ready');
                     _player.emit('pause');
 
-                    expect(iface.emit).toHaveBeenCalledWith('pause', iface);
+                    expect(iface.emit).toHaveBeenCalledWith('pause');
                     expect(iface.paused).toBe(true);
                 });
             });
@@ -147,7 +149,44 @@ define(['videos/vpaid'], function(vpaidModule) {
                     _player.emit('ready');
                     _player.emit('companionsReady');
 
-                    expect(iface.emit).toHaveBeenCalledWith('getCompanions', _player);
+                    expect(iface.emit).toHaveBeenCalledWith('companionsReady');
+                });
+            });
+
+            describe('timeupdate', function() {
+                it('should be emitted every 250ms if the current time has changed', function() {
+                    var currTime = 0,
+                        mockFlashObject = {
+                            getAdProperties: jasmine.createSpy('getAdProperties')
+                                .and.callFake(function() { return { adCurrentTime: currTime, adDuration: 10 }; }),
+                            isCinema6player: function() { return true; }
+                        };
+
+                    spyOn($player[0], 'querySelectorAll').and.returnValue([mockFlashObject]);
+
+                    _player.emit('ready');
+                    _player.emit('play');
+
+                    $interval.flush(250);
+                    expect(iface.emit).not.toHaveBeenCalledWith('timeupdate');
+
+                    currTime = 2;
+                    $interval.flush(250);
+                    expect(iface.emit).toHaveBeenCalledWith('timeupdate');
+                    iface.emit.calls.reset();
+
+                    currTime = 2;
+                    $interval.flush(250);
+                    expect(iface.emit).not.toHaveBeenCalledWith('timeupdate');
+
+                    currTime = 3;
+                    $interval.flush(250);
+                    expect(iface.emit).toHaveBeenCalledWith('timeupdate');
+                    iface.emit.calls.reset();
+
+                    currTime = 4;
+                    $interval.flush(250);
+                    expect(iface.emit).toHaveBeenCalledWith('timeupdate');
                 });
             });
         });
@@ -155,12 +194,13 @@ define(['videos/vpaid'], function(vpaidModule) {
         describe('interface', function() {
             describe('methods', function() {
                 beforeEach(function() {
-                    spyOn(iface, 'loadAd').and.callThrough();
+                    spyOn(iface, 'load').and.callThrough();
                     spyOn(_player, 'loadAd').and.callThrough();
                     spyOn(_player, 'startAd').and.callThrough();
                     spyOn(_player, 'resumeAd').and.callThrough();
                     spyOn(_player, 'pause').and.callThrough();
                     spyOn(_player, 'destroy').and.callThrough();
+                    spyOn(_player, 'getDisplayBanners');
                 });
 
                 it('should be available via jqLite .data()', function() {
@@ -185,15 +225,15 @@ define(['videos/vpaid'], function(vpaidModule) {
                         expect(_player.resumeAd).toHaveBeenCalled();
                     });
 
-                    it('should call loadAd if it has not been called yet', function() {
-                        expect(iface.loadAd).toHaveBeenCalled();
+                    it('should call load if it has not been called yet', function() {
+                        expect(iface.load).toHaveBeenCalled();
                     });
 
-                    it('should not call loadAd if it has already been called', function() {
+                    it('should not call load if it has already been called', function() {
                         iface.play();
                         iface.play();
                         iface.play();
-                        expect(iface.loadAd.calls.count()).toBe(1);
+                        expect(iface.load.calls.count()).toBe(1);
                     });
                 });
 
@@ -205,19 +245,18 @@ define(['videos/vpaid'], function(vpaidModule) {
                     });
                 });
 
-                describe('loadAd', function() {
+                describe('load', function() {
                     it('should call loadAd() if player is ready', function() {
                         _player.emit('ready');
-                        iface.loadAd();
+                        iface.load();
                         expect(_player.loadAd).toHaveBeenCalled();
                     });
                 });
 
-                describe('destroy', function() {
-                    it('should call destroy() on the player if it\'s ready', function() {
-                        _player.emit('ready');
-                        iface.destroy();
-                        expect(_player.destroy).toHaveBeenCalled();
+                describe('getCompanions', function() {
+                    it('should call getCompanions() on the player if it\'s ready', function() {
+                        iface.getCompanions();
+                        expect(_player.getDisplayBanners).toHaveBeenCalled();
                     });
                 });
 
@@ -261,8 +300,8 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
 
                 describe('duration', function() {
-                    it('should return NaN if player is not ready', function() {
-                        expect(iface.duration).toBeNaN();
+                    it('should return 0 if player is not ready', function() {
+                        expect(iface.duration).toBe(0);
                     });
 
                     it('should return the duration once the ad has loaded', function() {
@@ -327,6 +366,34 @@ define(['videos/vpaid'], function(vpaidModule) {
                         expect(function() {
                             iface.videoid = '1231223';
                         }).toThrow();
+                    });
+                });
+
+                describe('readyState', function() {
+                    it('should be -1 by default', function() {
+                        expect(iface.readyState).toBe(-1);
+                    });
+
+                    it('should be 0 when player is ready', function() {
+                        _player.emit('ready');
+                        expect(iface.readyState).toBe(0);
+                    });
+
+                    it('should be 3 when ad starts playing', function() {
+                        spyOn($player[0], 'querySelectorAll').and.returnValue([{
+                            getAdProperties: function() {
+                                return {
+                                    adCurrentTime: 20
+                                };
+                            },
+                            isCinema6player: function() {
+                                return true;
+                            }
+                        }]);
+
+                        _player.emit('ready');
+                        _player.emit('play');
+                        expect(iface.readyState).toBe(3);
                     });
                 });
             });
