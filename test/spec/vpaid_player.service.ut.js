@@ -4,7 +4,7 @@ define(['videos/vpaid'], function(vpaidModule) {
     describe('VPAIDService', function() {
         var VPAIDService,
             c6EventEmitter,
-            $q, $rootScope,
+            $rootScope,
             $interval, $timeout, $log,
             $window, template;
 

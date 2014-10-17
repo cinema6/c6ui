@@ -16,7 +16,8 @@ define([
     './url/urlparser',
     './videos/video',
     './videos/ext',
-    './videos/vpaid'
+    './videos/vpaid',
+    './videos/vast'
 ], function(angular) {
     'use strict';
 
