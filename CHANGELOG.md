@@ -1,6 +1,7 @@
 # C6UI
 
 * Add VPAID player directive
+* Add VAST player directive
 
 ## v3.0.0 (August 29, 2014)
 * Removed ```<c6-controls></c6-controls>```, ```c6Journal```,
