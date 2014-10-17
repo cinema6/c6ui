@@ -7,6 +7,7 @@ define(['videos/vast'], function(vastModule) {
             $player,
             $compile,
             $timeout,
+            $interval,
             $window,
             $http,
             $q,
@@ -152,6 +153,7 @@ define(['videos/vast'], function(vastModule) {
                 $http = $injector.get('$http');
                 $q = $injector.get('$q');
                 $timeout = $injector.get('$timeout');
+                $interval = $injector.get('$interval');
                 $window = $injector.get('$window');
                 c6BrowserInfo = $injector.get('c6BrowserInfo');
                 c6VideoService = $injector.get('c6VideoService');
@@ -464,6 +466,36 @@ define(['videos/vast'], function(vastModule) {
                     it('should call play on the video object', function() {
                         iface.play();
                         expect(_player.player.play).toHaveBeenCalled();
+                    });
+
+                    describe('timer to wait for video object to be ready', function() {
+                        beforeEach(function() {
+                            $scope.$apply(function() {
+                                $player = $compile('<vast-player id="{{id}}" ad-tag="{{adTag}}"></vast-player>')($scope);
+                            });
+                            iface = initSpy.calls.mostRecent().args[1];
+                            spyOn(iface, 'emit');
+                            iface.play();
+                        });
+
+                        it('should emit error on iface after 3 seconds', function() {
+                            $timeout.flush();
+                            expect(iface.emit).toHaveBeenCalledWith('error');
+                        });
+
+                        it('should play the video if loaded before 3 seconds', function() {
+                            $interval.flush(2000);
+                            expect(iface.emit).not.toHaveBeenCalledWith('error');
+
+                            _player = new C6Video();
+                            $scope.$broadcast('c6video-ready', _player);
+
+                            $interval.flush(2500);
+                            expect(_player.player.play).toHaveBeenCalled();
+
+                            $timeout.flush();
+                            expect(iface.emit).not.toHaveBeenCalledWith('error');
+                        });
                     });
                 });
 

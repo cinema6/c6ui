@@ -217,8 +217,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
         /* jshint camelcase:true */
     }])
 
-    .directive('vastPlayer', ['VASTService','c6EventEmitter','c6BrowserInfo','$timeout','$compile','$window',
-    function                 ( VASTService , c6EventEmitter , c6BrowserInfo , $timeout , $compile , $window ) {
+    .directive('vastPlayer', ['VASTService','c6EventEmitter','c6BrowserInfo','$timeout','$compile','$window','$interval',
+    function                 ( VASTService , c6EventEmitter , c6BrowserInfo , $timeout , $compile , $window , $interval ) {
         return {
             restrict: 'E',
             template: '<video ng-click="clickThrough()" c6-video id="{{videoid}}" c6-src="adUrl()""></video>',
@@ -325,8 +325,24 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     });
 
                     iface.play = function() {
-                        if (!c6Video) { return; }
-                        c6Video.player.play();
+                        var check, error;
+
+                        if (!c6Video) {
+                            check = $interval(function() {
+                                if (c6Video) {
+                                    c6Video.player.play();
+                                    $interval.cancel(check);
+                                    $timeout.cancel(error);
+                                }
+                            }, 300);
+
+                            error = $timeout(function() {
+                                iface.emit('error');
+                                $interval.cancel(check);
+                            }, 3000);
+                        } else {
+                            c6Video.player.play();
+                        }
                     };
 
                     iface.pause = function() {
