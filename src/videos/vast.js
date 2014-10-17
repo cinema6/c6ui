@@ -176,7 +176,6 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
             // make an xml container for all the vast responses, including wrappers
             var parser = new $window.DOMParser(),
                 combinedVast = parser.parseFromString('<?xml version="1.0" encoding="UTF-8"?><container></container>', 'text/xml');
-                // url = compileAdTag(_provider.adTags[source]);
 
             function fetchVAST(url) {
                 function recurse(response) {
@@ -300,7 +299,6 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             },
                             set: function(time) {
                                 if (!c6Video) { return; }
-
                                 c6Video.player.currentTime = time;
                             }
                         },
@@ -354,17 +352,11 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         }
                     };
 
-                    scope.$watch('adTag', load);
-
-                    $element.data('video', iface);
-
-                    scope.$emit('<vast-player>:init', iface);
-
                     scope.$on('c6video-ready', function(event, video) {
                         c6Video = video;
                         readyState = 0;
 
-                        if (isDefined(video.player.currentTime) && isDefined(video.player.duration)) {
+                        if (isDefined(c6Video.player.currentTime) && isDefined(c6Video.player.duration)) {
                             readyState = 1;
                             if (!emittedMeta) {
                                 emittedMeta = true;
@@ -372,7 +364,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             }
                         }
 
-                        video.on('play', function() {
+                        c6Video.on('play', function() {
                             if (!hasStarted) {
                                 hasStarted = true;
                                 vastData.firePixels('impression');
@@ -385,20 +377,20 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             readyState = 3;
                         });
 
-                        video.on('pause', function() {
+                        c6Video.on('pause', function() {
                             vastData.firePixels('pause');
                             iface.emit('pause');
                         });
 
-                        video.on('ended', function() {
+                        c6Video.on('ended', function() {
                             vastData.firePixels('complete');
                             iface.emit('ended');
-                            video.fullscreen(false);
+                            c6Video.fullscreen(false);
                         });
 
-                        video.on('timeupdate', function() {
-                            var currTime = Math.round(video.player.currentTime),
-                                duration = video.player.duration;
+                        c6Video.on('timeupdate', function() {
+                            var currTime = Math.round(c6Video.player.currentTime),
+                                duration = c6Video.player.duration;
 
                             if((currTime === Math.round(duration * 0.25)) && !vastEvents.firstQuartile) {
                                 vastData.firePixels('firstQuartile');
@@ -424,6 +416,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             iface.play();
                         }
                     });
+
+                    scope.$watch('adTag', load);
+                    $element.data('video', iface);
+                    scope.$emit('<vast-player>:init', iface);
                 };
             }
         };

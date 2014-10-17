@@ -6,7 +6,6 @@ define(['videos/vast'], function(vastModule) {
             $scope,
             $player,
             $compile,
-            $interval,
             $timeout,
             $window,
             $http,
@@ -150,7 +149,6 @@ define(['videos/vast'], function(vastModule) {
             inject(function($injector) {
                 $rootScope = $injector.get('$rootScope');
                 $compile = $injector.get('$compile');
-                $interval = $injector.get('$interval');
                 $http = $injector.get('$http');
                 $q = $injector.get('$q');
                 $timeout = $injector.get('$timeout');
@@ -238,17 +236,6 @@ define(['videos/vast'], function(vastModule) {
                     expect(iface.emit).toHaveBeenCalledWith('loadedmetadata');
                 });
 
-                it('should autoplay if autoplay attribute is present', function() {
-                    expect(iface.play).not.toHaveBeenCalled();
-                    $scope.$apply(function() {
-                        $player = $compile('<vast-player id="{{id}}" autoplay ad-tag="{{adTag}}"></vast-player>')($scope);
-                    });
-                    iface = initSpy.calls.mostRecent().args[1];
-                    spyOn(iface, 'play');
-                    $scope.$broadcast('c6video-ready', _player);
-                    expect(iface.play).toHaveBeenCalled();
-                });
-
                 it('should set readyState to 0 before currentTime and duration are defined', function() {
                     delete _player.player.currrentTime;
                     delete _player.player.duration;
@@ -260,6 +247,33 @@ define(['videos/vast'], function(vastModule) {
 
                 it('should set readyState to 1 if currentTime and duration are defined', function() {
                     expect(iface.readyState).toBe(1);
+                });
+
+                describe('autoplay attribute', function() {
+                    it('should autoplay if browser profile allows it', function() {
+                        expect(c6BrowserInfo.profile.autoplay).toBeDefined();
+                        expect(iface.play).not.toHaveBeenCalled();
+                        $scope.$apply(function() {
+                            $player = $compile('<vast-player id="{{id}}" autoplay ad-tag="{{adTag}}"></vast-player>')($scope);
+                        });
+                        iface = initSpy.calls.mostRecent().args[1];
+                        spyOn(iface, 'play');
+                        $scope.$broadcast('c6video-ready', _player);
+                        expect(iface.play).toHaveBeenCalled();
+                    });
+
+                    it('should not autoplay if browser profile does not allow it', function() {
+                        expect(c6BrowserInfo.profile.autoplay).toBeDefined();
+                        c6BrowserInfo.profile.autoplay = false;
+                        expect(iface.play).not.toHaveBeenCalled();
+                        $scope.$apply(function() {
+                            $player = $compile('<vast-player id="{{id}}" autoplay ad-tag="{{adTag}}"></vast-player>')($scope);
+                        });
+                        iface = initSpy.calls.mostRecent().args[1];
+                        spyOn(iface, 'play');
+                        $scope.$broadcast('c6video-ready', _player);
+                        expect(iface.play).not.toHaveBeenCalled();
+                    });
                 });
             });
 
