@@ -496,6 +496,20 @@ define(['videos/vast'], function(vastModule) {
                             $timeout.flush();
                             expect(iface.emit).not.toHaveBeenCalledWith('error');
                         });
+
+                        it('should not play the video if it loads after the 3 seconds', function() {
+                            $interval.flush(3000);
+                            $timeout.flush();
+
+                            expect(iface.emit).toHaveBeenCalledWith('error');
+
+                            spyOn(iface, 'play');
+                            _player = new C6Video();
+                            $scope.$broadcast('c6video-ready', _player);
+
+                            expect(iface.play).not.toHaveBeenCalled();
+                            expect(_player.player.play).not.toHaveBeenCalled();
+                        });
                     });
                 });
 

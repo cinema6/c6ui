@@ -240,7 +240,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         companion,
                         vastData,
                         vastEvents,
-                        hasStarted;
+                        hasStarted,
+                        shouldPlay;
 
                     c6EventEmitter(iface);
 
@@ -259,6 +260,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         emittedMeta = false;
                         companion = null;
                         hasStarted = false;
+                        shouldPlay = true;
                     }
 
                     function load(adTag) {
@@ -337,6 +339,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             }, 300);
 
                             error = $timeout(function() {
+                                shouldPlay = false;
                                 iface.emit('error');
                                 $interval.cancel(check);
                             }, 3000);
@@ -369,6 +372,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     };
 
                     scope.$on('c6video-ready', function(event, video) {
+                        if (!shouldPlay) { return; }
+
                         c6Video = video;
                         readyState = 0;
 
