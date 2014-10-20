@@ -14,5 +14,9 @@ function( angular , c6ui , modernizr , controllers ) {
         .config(['VPAIDServiceProvider',
         function(VPAIDServiceProvider) {
             VPAIDServiceProvider.swfUrl('lib/c6ui/videos/swf/player.swf');
+        }])
+        .config(['VASTServiceProvider',
+        function(VASTServiceProvider) {
+            VASTServiceProvider.adTimeout(3);
         }]);
 });

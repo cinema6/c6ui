@@ -69,6 +69,7 @@ function( angular ) {
                 vastPlayer = player;
 
                 player.on('ready', function() {
+                    console.log('READY');
                     $scope.vastAdReady = true;
                 });
             });
