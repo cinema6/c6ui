@@ -4,15 +4,18 @@ define(['videos/vast'], function(vastModule) {
     describe('VASTService', function() {
         var VASTService,
             c6VideoService,
+            VASTServiceProvider,
             $rootScope,
             $q,
+            $timeout,
             $window,
             c6ImagePreloader,
             compileAdTag;
 
         var $httpBackend;
 
-        var _service;
+        var _service,
+            _provider;
 
         var XML,
             wrapperXML;
@@ -175,10 +178,17 @@ define(['videos/vast'], function(vastModule) {
 
             module(vastModule.name);
 
+            module(vastModule.name, function($provide, $injector) {
+                VASTServiceProvider = $injector.get('VASTServiceProvider');
+
+                _provider = VASTServiceProvider._private;
+            });
+
             inject(function($injector) {
                 VASTService = $injector.get('VASTService');
                 $rootScope = $injector.get('$rootScope');
                 $q = $injector.get('$q');
+                $timeout = $injector.get('$timeout');
                 $httpBackend = $injector.get('$httpBackend');
                 $window = $injector.get('$window');
                 spyOn($window.Date, 'now').and.returnValue(Date.now());
@@ -275,6 +285,31 @@ define(['videos/vast'], function(vastModule) {
                                     expect(_service.VAST).toHaveBeenCalled();
                                     expect(promiseSpy).toHaveBeenCalledWith(vast);
                                 });
+                            });
+                        });
+
+                        describe('ad request timer', function() {
+                            var success, failure;
+
+                            beforeEach(function() {
+                                VASTServiceProvider.adTimeout(3);
+                                success = jasmine.createSpy('success');
+                                failure = jasmine.createSpy('failure');
+                                $httpBackend.expectGET('http://adap.tv')
+                                    .respond(200, XML);
+                                VASTService.getVAST('http://adap.tv').then(success, failure);
+                            });
+
+                            it('should reject the promise after timeout', function() {
+                                $timeout.flush();
+                                expect(failure).toHaveBeenCalled();
+                            });
+
+                            it('should not fail if request resolves before timeout', function() {
+                                $httpBackend.flush();
+                                $timeout.flush();
+                                expect(failure).not.toHaveBeenCalled();
+                                expect(success).toHaveBeenCalled();
                             });
                         });
                     });
