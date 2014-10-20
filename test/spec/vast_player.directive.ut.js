@@ -184,7 +184,7 @@ define(['videos/vast'], function(vastModule) {
             $scope.$apply(function() {
                 $player = $compile('<vast-player id="{{id}}" ad-tag="{{adTag}}"></vast-player>')($scope);
             });
-            scope = $player.children().scope();
+            scope = $player.isolateScope();
             iface = initSpy.calls.mostRecent().args[1];
             spyOn(iface, 'emit');
             spyOn(iface, 'play').and.callThrough();
@@ -203,16 +203,20 @@ define(['videos/vast'], function(vastModule) {
                 expect(VASTService.getVAST).toHaveBeenCalled();
             });
 
-            it('should emit ended on the iface if no video source is returned', function() {
+            it('should emit error on the iface if no video source is returned', function() {
                 vastObject.getVideoSrc.and.returnValue(null);
+                _player = new C6Video();
+                $scope.$broadcast('c6video-ready', _player);
                 iface.reload();
                 $scope.$digest();
-                expect(iface.emit).toHaveBeenCalledWith('ended');
+                expect(iface.emit).toHaveBeenCalledWith('error');
             });
 
             it('should emit error on the iface if VASTService rejects promise', function() {
                 var deferred = $q.defer();
                 VASTService.getVAST.and.returnValue(deferred.promise);
+                _player = new C6Video();
+                $scope.$broadcast('c6video-ready', _player);
                 iface.reload();
                 $scope.$apply(function() {
                     deferred.reject();
@@ -235,19 +239,17 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 it('should emit loadedmetadata is currentTime and duration is defined', function() {
+                    _player.trigger('loadedmetadata');
                     expect(iface.emit).toHaveBeenCalledWith('loadedmetadata');
                 });
 
-                it('should set readyState to 0 before currentTime and duration are defined', function() {
-                    delete _player.player.currrentTime;
-                    delete _player.player.duration;
-
-                    $scope.$broadcast('c6video-ready', _player);
-
+                it('should set readyState to 0', function() {
+                    $timeout.flush();
                     expect(iface.readyState).toBe(0);
                 });
 
-                it('should set readyState to 1 if currentTime and duration are defined', function() {
+                it('should set readyState to 1 when loadedmetadata is fired', function() {
+                    _player.trigger('loadedmetadata');
                     expect(iface.readyState).toBe(1);
                 });
 
@@ -442,6 +444,10 @@ define(['videos/vast'], function(vastModule) {
 
                 describe('readyState', function() {
                     it('should return the readyState that is handled by the directive', function() {
+                        expect(iface.readyState).toBe(-1);
+                        $timeout.flush();
+                        expect(iface.readyState).toBe(0);
+                        _player.trigger('loadedmetadata');
                         expect(iface.readyState).toBe(1);
                         _player.trigger('play');
                         expect(iface.readyState).toBe(3);
@@ -466,50 +472,6 @@ define(['videos/vast'], function(vastModule) {
                     it('should call play on the video object', function() {
                         iface.play();
                         expect(_player.player.play).toHaveBeenCalled();
-                    });
-
-                    describe('timer to wait for video object to be ready', function() {
-                        beforeEach(function() {
-                            $scope.$apply(function() {
-                                $player = $compile('<vast-player id="{{id}}" ad-tag="{{adTag}}"></vast-player>')($scope);
-                            });
-                            iface = initSpy.calls.mostRecent().args[1];
-                            spyOn(iface, 'emit');
-                            iface.play();
-                        });
-
-                        it('should emit error on iface after 3 seconds', function() {
-                            $timeout.flush();
-                            expect(iface.emit).toHaveBeenCalledWith('error');
-                        });
-
-                        it('should play the video if loaded before 3 seconds', function() {
-                            $interval.flush(2000);
-                            expect(iface.emit).not.toHaveBeenCalledWith('error');
-
-                            _player = new C6Video();
-                            $scope.$broadcast('c6video-ready', _player);
-
-                            $interval.flush(2500);
-                            expect(_player.player.play).toHaveBeenCalled();
-
-                            $timeout.flush();
-                            expect(iface.emit).not.toHaveBeenCalledWith('error');
-                        });
-
-                        it('should not play the video if it loads after the 3 seconds', function() {
-                            $interval.flush(3000);
-                            $timeout.flush();
-
-                            expect(iface.emit).toHaveBeenCalledWith('error');
-
-                            spyOn(iface, 'play');
-                            _player = new C6Video();
-                            $scope.$broadcast('c6video-ready', _player);
-
-                            expect(iface.play).not.toHaveBeenCalled();
-                            expect(_player.player.play).not.toHaveBeenCalled();
-                        });
                     });
                 });
 
@@ -549,9 +511,11 @@ define(['videos/vast'], function(vastModule) {
                         expect(VASTService.getVAST.calls.count()).toBe(2);
                     });
 
-                    it('should remove event handlers from c6Video object', function() {
+                    it('should fire "complete" pixel, close fullscreen and emit ended', function() {
                         iface.reload();
-                        expect(_player.off).toHaveBeenCalledWith(['play','pause','timeupdate','ended']);
+                        expect(_player.fullscreen).toHaveBeenCalled();
+                        expect(iface.emit).toHaveBeenCalledWith('ended');
+                        expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
                     });
                 });
             });
@@ -582,19 +546,23 @@ define(['videos/vast'], function(vastModule) {
 
         describe('$watch', function() {
             describe('adTag', function() {
+                beforeEach(function() {
+                    _player = new C6Video();
+                    $scope.$broadcast('c6video-ready', _player);
+                });
+
                 it('should reload the player', function() {
                     $scope.adTag = 'http://someadserver.com/ad';
                     $scope.$digest();
                     expect(VASTService.getVAST.calls.count()).toBe(2);
                 });
 
-                it('should reset the video object', function() {
-                    _player = new C6Video();
-                    $scope.$broadcast('c6video-ready', _player);
-
+                it('should reset state', function() {
                     $scope.adTag = 'http://someadserver.com/ad';
                     $scope.$digest();
-                    expect(_player.off).toHaveBeenCalledWith(['play','pause','timeupdate','ended']);
+                    expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
+                    expect(_player.fullscreen).toHaveBeenCalled();
+                    expect(iface.readyState).toBe(-1);
                 });
             });
         });
