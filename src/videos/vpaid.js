@@ -4,12 +4,17 @@ function( angular , eventsEmitter     , browserInfo      ) {
 
     return angular.module('c6.ui.videos.vpaid',[eventsEmitter.name, browserInfo.name])
     .provider('VPAIDService', [function () {
-        var _swfUrl;
+        var _provider = {
+            adTimeout: 3000
+        };
 
         this.swfUrl = function(url) {
-            _swfUrl = url;
-
+            _provider.swfUrl = url;
             return this;
+        };
+
+        this.adTimeout = function(seconds) {
+            _provider.adTimeout = parseFloat(seconds) * 1000;
         };
 
         this.$get = ['$q','$window','$rootScope','$interval','$timeout','$log','c6EventEmitter',
@@ -55,7 +60,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             var html,
                                 flashvars = '';
 
-                            html = template.replace(/__SWF__/g, _swfUrl);
+                            html = template.replace(/__SWF__/g, _provider.swfUrl);
 
                             flashvars += 'adXmlUrl=' + encodeURIComponent(adTag);
                             flashvars += '&playerId=' + encodeURIComponent(id);
@@ -114,7 +119,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                 adDeferred.reject();
                                 actualAdDeferred.reject();
                                 $interval.cancel(check);
-                            }, 3000);
+                            }, _provider.adTimeout);
                         }
 
                         self.insertHTML = function() {
@@ -254,8 +259,16 @@ function( angular , eventsEmitter     , browserInfo      ) {
                 return new _service.VPAIDPlayer(id, adTag, vpaidTemplate, $element, $window);
             };
 
+            /* jshint camelcase:false */
+            if (window.__karma__) { service._private = _service; }
+            /* jshint camelcase:true */
+
             return service;
         }];
+
+        /* jshint camelcase:false */
+        if (window.__karma__) { this._private = _provider; }
+        /* jshint camelcase:true */
     }])
 
     .directive('vpaidPlayer', ['c6EventEmitter','$log','$interval','VPAIDService','c6BrowserInfo',
