@@ -9,7 +9,7 @@
         },
         packages: [
             {
-                name: 'c6ui',
+                name: 'c6uilib',
                 location: '../lib/c6ui',
                 main: 'c6uilib'
             },
