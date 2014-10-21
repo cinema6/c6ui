@@ -120,7 +120,7 @@ module.exports = function (grunt) {
                         },
                         {
                             name: 'c6log',
-                            exclude: ['format/format']
+                            exclude: ['c6uilib']
                         }
                     ]
                 }
