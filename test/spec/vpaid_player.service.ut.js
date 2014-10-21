@@ -6,7 +6,8 @@ define(['videos/vpaid'], function(vpaidModule) {
             c6EventEmitter,
             $q, $rootScope,
             $interval, $timeout, $log,
-            $window, template;
+            $window, template,
+            _provider, VPAIDServiceProvider;
 
         var isCinema6playerMock = true;
 
@@ -65,9 +66,13 @@ define(['videos/vpaid'], function(vpaidModule) {
         ].join('\n');
 
         beforeEach(function() {
-            module(vpaidModule.name);
-            module(function(VPAIDServiceProvider) {
-                VPAIDServiceProvider.swfUrl('lib/c6ui/videos/swf/player.swf')
+            module(vpaidModule.name, function($provide, $injector) {
+                VPAIDServiceProvider = $injector.get('VPAIDServiceProvider');
+
+                _provider = VPAIDServiceProvider._private;
+
+                VPAIDServiceProvider.swfUrl('lib/c6ui/videos/swf/player.swf');
+                VPAIDServiceProvider.adTimeout(3);
             });
 
             inject(function($injector) {
@@ -86,6 +91,36 @@ define(['videos/vpaid'], function(vpaidModule) {
 
         it('should exist', function() {
             expect(VPAIDService).toEqual(jasmine.any(Object));
+        });
+
+        describe('the provider', function() {
+            it('should exist', function() {
+                expect(VPAIDServiceProvider).toEqual(jasmine.any(Object));
+            });
+
+            it('should publish its _private object for testing', function() {
+                expect(_provider).toEqual(jasmine.any(Object));
+            });
+
+            it('should have a default adTimeout', function() {
+                expect(_provider.adTimeout).toBe(3000);
+            });
+
+            describe('methods', function() {
+                describe('swfUrl()', function() {
+                    it('should set the url', function() {
+                        VPAIDServiceProvider.swfUrl('someurl.com');
+                        expect(_provider.swfUrl).toBe('someurl.com');
+                    });
+                });
+
+                describe('adTimeout', function() {
+                    it('should set the timeout value in milliseconds', function() {
+                        VPAIDServiceProvider.adTimeout(3.5);
+                        expect(_provider.adTimeout).toBe(3500);
+                    });
+                });
+            });
         });
 
         describe('createPlayer()', function() {
