@@ -1,5 +1,8 @@
 # C6UI
 
+## v3.1.0 (October 21, 2014)
+* Added ```<youtube-player>```, ```<vimeo-player>```
+  and ```<dailymotion-player>```
 * Add VPAID player directive
 * Add VAST player directive
 
