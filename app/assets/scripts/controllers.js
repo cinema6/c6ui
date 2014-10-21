@@ -6,7 +6,8 @@ function( angular ) {
         .controller('AppController', ['$scope','c6ImagePreloader','$log','$http',
         function                     ( $scope , c6ImagePreloader , $log , $http ) {
             var self = this,
-                vpaidPlayer;
+                vpaidPlayer,
+                vastPlayer;
 
             c6ImagePreloader.load(['http://farm9.staticflickr.com/8459/8020272673_8478cc3c85_b_d.jpg', 'http://farm9.staticflickr.com/8315/8024081498_35e3d37d1e_b_d.jpg']).then(function() {
                 $log.log('Images preloaded!');
@@ -14,17 +15,40 @@ function( angular ) {
 
             this.vimeo = null;
 
-            this.playAd = function() {
+            this.playVpaidAd = function() {
                 vpaidPlayer.play();
             };
 
-            this.pauseAd = function() {
+            this.pauseVpaidAd = function() {
                 vpaidPlayer.pause();
             };
 
-            this.reloadAd = function() {
+            this.reloadVpaidAd = function() {
                 vpaidPlayer.reload();
             };
+
+            this.changeVpaidAdTag = function() {
+                this.vpaidTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvYyD60pQS_90o8grI6Qm2PI=?cb='+ Math.random()*(1000-1)+1 +'&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
+            };
+
+            this.playVastAd = function() {
+                vastPlayer.play();
+            };
+
+            this.pauseVastAd = function() {
+                vastPlayer.pause();
+            };
+
+            this.reloadVastAd = function() {
+                vastPlayer.reload();
+            };
+
+            this.changeVastAdTag = function() {
+                self.vastTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvTfWmlP8j6NQnxBMIgFJa80=?cb='+ Math.random()*(1000-1)+1 +'&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
+            };
+
+            this.vastTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvTfWmlP8j6NQnxBMIgFJa80=?cb={cachebreaker}&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
+            this.vpaidTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvYyD60pQS_90o8grI6Qm2PI=?cb={cachebreaker}&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
 
             $http.get('http://vimeo.com/api/v2/video/76579435.json')
                 .then(function(response) {
@@ -38,6 +62,14 @@ function( angular ) {
 
                 player.on('ready', function() {
                     $scope.adReady = true;
+                });
+            });
+
+            $scope.$on('<vast-player>:init', function(event, player) {
+                vastPlayer = player;
+
+                player.on('ready', function() {
+                    $scope.vastAdReady = true;
                 });
             });
 
