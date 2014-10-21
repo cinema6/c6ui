@@ -5,6 +5,7 @@
   and ```<dailymotion-player>```
 * Add VPAID player directive
 * Add VAST player directive
+* [FIX]: Fix for an issue that broke c6.log
 
 ## v3.0.0 (August 29, 2014)
 * Removed ```<c6-controls></c6-controls>```, ```c6Journal```,
