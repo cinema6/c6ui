@@ -102,6 +102,10 @@ define(['videos/vpaid'], function(vpaidModule) {
                 expect(_provider).toEqual(jasmine.any(Object));
             });
 
+            it('should have a default adTimeout', function() {
+                expect(_provider.adTimeout).toBe(3000);
+            });
+
             describe('methods', function() {
                 describe('swfUrl()', function() {
                     it('should set the url', function() {

@@ -4,7 +4,9 @@ function( angular , eventsEmitter     , browserInfo      ) {
 
     return angular.module('c6.ui.videos.vpaid',[eventsEmitter.name, browserInfo.name])
     .provider('VPAIDService', [function () {
-        var _provider = {};
+        var _provider = {
+            adTimeout: 3000
+        };
 
         this.swfUrl = function(url) {
             _provider.swfUrl = url;
