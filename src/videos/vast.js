@@ -7,7 +7,9 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
     return angular.module('c6.ui.videos.vast', [eventsEmitter.name, browserInfo.name, videoService.name, imagePreloader.name])
     .provider('VASTService', [function() {
-        var _provider = {};
+        var _provider = {
+            adTimeout: 3000
+        };
 
         this.adTimeout = function(seconds) {
             _provider.adTimeout = parseFloat(seconds) * 1000;

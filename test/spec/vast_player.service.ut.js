@@ -199,6 +199,29 @@ define(['videos/vast'], function(vastModule) {
             });
         });
 
+        describe('the provider', function() {
+            it('should exist', function() {
+                expect(VASTServiceProvider).toEqual(jasmine.any(Object));
+            });
+
+            it('should publsih its private property for testing', function() {
+                expect(_provider).toEqual(jasmine.any(Object));
+            });
+
+            it('should have a default adTimeout', function() {
+                expect(_provider.adTimeout).toBe(3000);
+            });
+
+            describe('methods', function() {
+                describe('adTimeout', function() {
+                    it('should set the adTimeout', function() {
+                        VASTServiceProvider.adTimeout(4.5);
+                        expect(_provider.adTimeout).toBe(4500);
+                    });
+                });
+            });
+        });
+
         describe('the service', function() {
             it('should exist', function() {
                 expect(VASTService).toEqual(jasmine.any(Object));
