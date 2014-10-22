@@ -358,6 +358,14 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
 
                 describe('getAdProperties()', function() {
+                    it('should return null if player is not defined', function() {
+                        $element[0].querySelectorAll.and.returnValue([]);
+                        expect(player.getAdProperties()).toBe(null);
+                        expect(function() {
+                            player.getAdProperties();
+                        }).not.toThrow();
+                    });
+
                     it('should call getAdProperties() on the flash object', function() {
                         player.getAdProperties();
                         expect(mockFlashPlayer.getAdProperties).toHaveBeenCalled();
@@ -365,6 +373,14 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
 
                 describe('getDisplayBanners()', function() {
+                    it('should return null if player is not defined', function() {
+                        $element[0].querySelectorAll.and.returnValue([]);
+                        expect(player.getDisplayBanners()).toBe(null);
+                        expect(function() {
+                            player.getDisplayBanners();
+                        }).not.toThrow();
+                    });
+
                     it('should call getDisplayBanners() on the flash object', function() {
                         player.getDisplayBanners();
                         expect(mockFlashPlayer.getDisplayBanners).toHaveBeenCalled();
@@ -372,6 +388,14 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
 
                 describe('setVolume()', function() {
+                    it('should not call setVolume if player is not defined', function() {
+                        $element[0].querySelectorAll.and.returnValue([]);
+                        expect(function() {
+                            player.setVolume();
+                        }).not.toThrow();
+                        expect(mockFlashPlayer.setVolume).not.toHaveBeenCalled();
+                    });
+
                     it('should call setVolume() on the flash object', function() {
                         player.setVolume(100);
                         expect(mockFlashPlayer.setVolume).toHaveBeenCalledWith(100);
@@ -412,13 +436,47 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
 
                 describe('stopAd()', function() {
-                    it('should call stopAd() on the flash object', function() {
+                    it('should return a promise', function() {
+                        expect(player.stopAd().then).toBeDefined();
+                    });
+
+                    it('should reject the promise if the ad timer times out', function() {
+                        player.startAd();
+                        player.stopAd().then(null, failure);
+
+                        $timeout.flush();
+                        expect(failure).toHaveBeenCalled();
+                    });
+
+                    it('should not call stopAd() if AdLoaded has not fired', function() {
                         player.stopAd();
+                        expect(mockFlashPlayer.stopAd).not.toHaveBeenCalled();
+                    });
+
+                    it('should call resumeAd() on the flash object after AdLoaded fires', function() {
+                        player.stopAd();
+                        messageHandler(adLoaded);
+                        expect(mockFlashPlayer.stopAd).toHaveBeenCalled();
+                    });
+
+                    it('should call resumeAd() immediately if AdLoaded has already fired', function() {
+                        messageHandler(adLoaded);
+                        player.stopAd();
+                        $rootScope.$digest();
                         expect(mockFlashPlayer.stopAd).toHaveBeenCalled();
                     });
                 });
 
                 describe('isC6VpaidPlayer()', function() {
+                    it('should return false if player is not defined', function() {
+                        $element[0].querySelectorAll.and.returnValue([]);
+                        spyOn(mockFlashPlayer, 'isCinema6player').and.callThrough();
+                        expect(player.isC6VpaidPlayer()).toBe(false);
+                        expect(function() {
+                            player.isC6VpaidPlayer();
+                        }).not.toThrow();
+                    });
+
                     it('should call isCinema6player() on the flash object', function() {
                         spyOn(mockFlashPlayer, 'isCinema6player').and.callThrough();
                         player.isC6VpaidPlayer();
@@ -427,6 +485,14 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
 
                 describe('getCurrentTime()', function() {
+                    it('should return 0 if player is not defined', function() {
+                        $element[0].querySelectorAll.and.returnValue([]);
+                        expect(player.getCurrentTime()).toBe(0);
+                        expect(function() {
+                            player.getCurrentTime();
+                        }).not.toThrow();
+                    });
+
                     it('should call getAdProperties().adCurrentTime on the flash object', function() {
                         var time = player.getCurrentTime();
                         expect(mockFlashPlayer.getAdProperties).toHaveBeenCalled();
@@ -435,6 +501,14 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
 
                 describe('getDuration()', function() {
+                    it('should return 0 if player is not defined', function() {
+                        $element[0].querySelectorAll.and.returnValue([]);
+                        expect(player.getDuration()).toBe(0);
+                        expect(function() {
+                            player.getDuration();
+                        }).not.toThrow();
+                    });
+
                     it('should call getAdProperties.adDuration on the flash object', function() {
                         var duration = player.getDuration();
                         expect(mockFlashPlayer.getAdProperties).toHaveBeenCalled();

@@ -150,14 +150,15 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         };
 
                         self.getAdProperties = function() {
-                            return self.player.getAdProperties();
+                            return self.player ? self.player.getAdProperties() : null;
                         };
 
                         self.getDisplayBanners = function() {
-                            return self.player.getDisplayBanners();
+                            return self.player ? self.player.getDisplayBanners() : null;
                         };
 
                         self.setVolume = function(volume) {
+                            if (!self.player) { return; }
                             self.player.setVolume(volume);
                         };
 
@@ -169,19 +170,22 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         };
 
                         self.stopAd = function() {
-                            self.player.stopAd();
+                            return adDeferred.promise.then(function() {
+                                self.player.stopAd();
+                                return actualAdDeferred.promise;
+                            });
                         };
 
                         self.isC6VpaidPlayer = function() {
-                            return self.player.isCinema6player();
+                            return self.player ? self.player.isCinema6player() : false;
                         };
 
                         self.getCurrentTime = function() {
-                            return self.player.getAdProperties().adCurrentTime;
+                            return self.player ? self.player.getAdProperties().adCurrentTime : 0;
                         };
 
                         self.getDuration = function() {
-                            return self.player.getAdProperties().adDuration;
+                            return self.player ? self.player.getAdProperties().adDuration : 0;
                         };
 
                         self.destroy = function() {
@@ -344,6 +348,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         }
 
                         function load(adTag) {
+                            if (!adTag) { return; }
                             if (player) {
                                 player.destroy();
                                 $interval.cancel(currentTimeInterval);
@@ -475,10 +480,12 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         };
 
                         this.reload = function() {
-                            load(adTag);
+                            load(scope.adTag);
                         };
 
                         c6EventEmitter(this);
+
+                        setupState();
 
                         scope.$watch('adTag', load);
                     }
