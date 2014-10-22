@@ -34,7 +34,6 @@ define(['videos/vpaid'], function(vpaidModule) {
             spyOn($window,'addEventListener');
 
             $scope.id = '12345';
-            // $scope.adTag = 'http://adap.tv/ads';
 
             _createPlayer = VPAIDService.createPlayer;
             spyOn(VPAIDService, 'createPlayer').and.callFake(function(id, adTag, template, $el) {

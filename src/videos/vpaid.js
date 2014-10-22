@@ -323,7 +323,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                 return function postLink(scope, $element, attrs) {
                     var iface;
 
-                    function VpaidPlayer(id, adTag) {
+                    function VpaidPlayer() {
                         var state,
                             emittedMeta,
                             emittedCanplay,
@@ -356,7 +356,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
 
                             setupState();
 
-                            player = VPAIDService.createPlayer(id, adTag, vpaidTemplate, $element);
+                            player = VPAIDService.createPlayer(scope.videoid, adTag, vpaidTemplate, $element);
 
                             player.on('ready', function() {
                                 state.readyState = 0;
@@ -443,7 +443,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             },
                             videoid: {
                                 get: function() {
-                                    return id;
+                                    return scope.videoid;
                                 }
                             },
                             readyState: {
@@ -490,7 +490,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         scope.$watch('adTag', load);
                     }
 
-                    iface = new VpaidPlayer(scope.videoid, scope.adTag);
+                    iface = new VpaidPlayer();
 
                     $element.data('video', iface);
                     scope.$emit('<vpaid-player>:init', iface);

@@ -257,7 +257,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     vastData,
                     iface;
 
-                function VastPlayer(id, adTag) {
+                function VastPlayer() {
                     var self = this,
                         readyState,
                         companion,
@@ -435,7 +435,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     }
                 };
 
-                iface = new VastPlayer(scope.videoid, scope.adTag);
+                iface = new VastPlayer();
                 $element.data('video', iface);
                 scope.$emit('<vast-player>:init', iface);
             }
