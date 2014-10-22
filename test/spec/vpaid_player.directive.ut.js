@@ -269,6 +269,19 @@ define(['videos/vpaid'], function(vpaidModule) {
                         iface.play();
                         expect(iface.load.calls.count()).toBe(1);
                     });
+
+                    it('should regenerate the player if the ad has already played and completed', function() {
+                        VPAIDService.createPlayer.calls.reset();
+                        VPAIDService.createPlayer.and.returnValue(_player);
+                        _player.emit('ended');
+                        expect(iface.ended).toBe(true);
+                        iface.play();
+                        expect(_player.destroy).toHaveBeenCalled();
+                        expect(VPAIDService.createPlayer).toHaveBeenCalled();
+                        expect(iface.readyState).toBe(-1);
+                        expect(iface.ended).toBe(false);
+                        expect(iface.duration).toBe(0);
+                    });
                 });
 
                 describe('pause', function() {

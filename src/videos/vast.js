@@ -259,8 +259,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                 function VastPlayer() {
                     var self = this,
+                        companion = null,
                         readyState,
-                        companion,
                         vastEvents,
                         hasStarted,
                         shouldPlay;
@@ -281,7 +281,6 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             vastData.firePixels('complete');
                             c6Video.fullscreen(false);
                             self.emit('ended');
-                            companion = null;
                         }
 
                         VASTService.getVAST(adTag).then(function(vast) {
