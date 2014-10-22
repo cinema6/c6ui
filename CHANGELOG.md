@@ -1,5 +1,9 @@
 # C6UI
 
+* Ensure that VAST and VPAID interfaces have defaults before ad tags
+  are provided, and make sure players are ready before accessing
+  properties and methods
+
 ## v3.1.0 (October 21, 2014)
 * Added ```<youtube-player>```, ```<vimeo-player>```
   and ```<dailymotion-player>```
