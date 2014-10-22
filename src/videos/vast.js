@@ -257,7 +257,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     vastData,
                     iface;
 
-                function VastPlayer() {
+                function VastPlayer(id, adTag) {
                     var self = this,
                         readyState,
                         companion,
@@ -279,6 +279,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     }
 
                     function load(adTag) {
+                        if (!adTag) { return; }
+
                         setupState();
 
                         VASTService.getVAST(adTag).then(function(vast) {
@@ -356,6 +358,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     };
 
                     c6EventEmitter(this);
+
+                    setupState();
 
                     scope.$watch('adTag', load);
 
