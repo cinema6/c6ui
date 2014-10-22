@@ -488,6 +488,14 @@ define(['videos/vast'], function(vastModule) {
                         iface.play();
                         expect(_player.player.play).toHaveBeenCalled();
                     });
+
+                    it('should reset the state if the ad has already played and completed', function() {
+                        _player.trigger('loadedmetadata');
+                        expect(iface.readyState).toBe(1);
+                        _player.player.ended = true;
+                        iface.play();
+                        expect(iface.readyState).toBe(-1);
+                    });
                 });
 
                 describe('pause', function() {
