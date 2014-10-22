@@ -322,6 +322,13 @@ define(['videos/vpaid'], function(vpaidModule) {
                             expect(success).toHaveBeenCalled();
                             expect(failure).not.toHaveBeenCalled();
                         });
+
+                        it('should emit an error event', function() {
+                            spyOn(player, 'emit');
+                            player.startAd();
+                            $timeout.flush();
+                            expect(player.emit).toHaveBeenCalledWith('error', jasmine.any(Object));
+                        });
                     });
                 });
 

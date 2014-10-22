@@ -119,6 +119,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                 adDeferred.reject();
                                 actualAdDeferred.reject();
                                 $interval.cancel(check);
+                                self.emit('error', self);
                             }, _provider.adTimeout);
                         }
 
