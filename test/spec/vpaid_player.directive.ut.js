@@ -34,7 +34,6 @@ define(['videos/vpaid'], function(vpaidModule) {
             spyOn($window,'addEventListener');
 
             $scope.id = '12345';
-            $scope.adTag = 'http://adap.tv/ads';
 
             _createPlayer = VPAIDService.createPlayer;
             spyOn(VPAIDService, 'createPlayer').and.callFake(function(id, adTag, template, $el) {
@@ -56,16 +55,34 @@ define(['videos/vpaid'], function(vpaidModule) {
                 expect(initSpy).toHaveBeenCalledWith(jasmine.any(Object), $player.data('video'));
             });
 
-            it('should embed a flash object', function() {
-                var object = $player.find('object');
+            describe('with an adTag', function() {
+                beforeEach(function() {
+                    $scope.$apply(function() {
+                        $scope.adTag = 'http://adap.tv/ads';
+                    });
+                });
 
-                expect(object.length).toBe(2);
-                expect(object[0].id).toBe('c6VPAIDplayer_ie');
-                expect(object[1].id).toBe('c6VPAIDplayer');
+                it('should embed a flash object', function() {
+                    var object = $player.find('object');
+
+                    expect(object.length).toBe(2);
+                    expect(object[0].id).toBe('c6VPAIDplayer_ie');
+                    expect(object[1].id).toBe('c6VPAIDplayer');
+                });
+
+                it('should call VPAIDService.createPlayer', function() {
+                    expect(VPAIDService.createPlayer).toHaveBeenCalled();
+                });
             });
         });
 
         describe('events', function() {
+            beforeEach(function() {
+                $scope.$apply(function() {
+                    $scope.adTag = 'http://adap.tv/ads';
+                });
+            });
+
             describe('ready', function() {
                 it('should emit ready', function() {
                     _player.emit('ready');
@@ -208,6 +225,9 @@ define(['videos/vpaid'], function(vpaidModule) {
         describe('interface', function() {
             describe('methods', function() {
                 beforeEach(function() {
+                    $scope.$apply(function() {
+                        $scope.adTag = 'http://adap.tv/ads';
+                    });
                     spyOn(iface, 'load').and.callThrough();
                     spyOn(_player, 'loadAd').and.callThrough();
                     spyOn(_player, 'startAd').and.callThrough();
@@ -292,6 +312,9 @@ define(['videos/vpaid'], function(vpaidModule) {
                     });
 
                     it('should come from the player when it\'s ready', function() {
+                        $scope.$apply(function() {
+                            $scope.adTag = 'http://adap.tv/ads';
+                        });
                         _player.emit('ready');
                         spyOn($player[0], 'querySelectorAll').and.returnValue([{
                             getAdProperties: function() {
@@ -319,6 +342,9 @@ define(['videos/vpaid'], function(vpaidModule) {
                     });
 
                     it('should return the duration once the ad has loaded', function() {
+                        $scope.$apply(function() {
+                            $scope.adTag = 'http://adap.tv/ads';
+                        });
                         spyOn(_player, 'getDuration').and.returnValue(30);
                         _player.emit('ready');
                         _player.emit('play');
@@ -339,6 +365,9 @@ define(['videos/vpaid'], function(vpaidModule) {
                     });
 
                     it('should be true if the player is ready and has paused', function() {
+                        $scope.$apply(function() {
+                            $scope.adTag = 'http://adap.tv/ads';
+                        });
                         _player.emit('ready');
                         _player.emit('pause');
 
@@ -358,6 +387,9 @@ define(['videos/vpaid'], function(vpaidModule) {
                     });
 
                     it('should be true if the player is ready and has paused', function() {
+                        $scope.$apply(function() {
+                            $scope.adTag = 'http://adap.tv/ads';
+                        });
                         _player.emit('ready');
                         _player.emit('ended');
 
@@ -389,11 +421,17 @@ define(['videos/vpaid'], function(vpaidModule) {
                     });
 
                     it('should be 0 when player is ready', function() {
+                        $scope.$apply(function() {
+                            $scope.adTag = 'http://adap.tv/ads';
+                        });
                         _player.emit('ready');
                         expect(iface.readyState).toBe(0);
                     });
 
                     it('should be 3 when ad starts playing', function() {
+                        $scope.$apply(function() {
+                            $scope.adTag = 'http://adap.tv/ads';
+                        });
                         spyOn($player[0], 'querySelectorAll').and.returnValue([{
                             getAdProperties: function() {
                                 return {

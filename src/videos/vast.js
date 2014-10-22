@@ -279,6 +279,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     }
 
                     function load(adTag) {
+                        if (!adTag) { return; }
+
                         setupState();
 
                         VASTService.getVAST(adTag).then(function(vast) {
@@ -357,6 +359,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                     c6EventEmitter(this);
 
+                    setupState();
+
                     scope.$watch('adTag', load);
 
                     scope.$on('c6video-ready', function(event, video) {
@@ -431,7 +435,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     }
                 };
 
-                iface = new VastPlayer(scope.videoid, scope.adTag);
+                iface = new VastPlayer();
                 $element.data('video', iface);
                 scope.$emit('<vast-player>:init', iface);
             }

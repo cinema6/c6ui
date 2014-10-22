@@ -119,6 +119,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                 adDeferred.reject();
                                 actualAdDeferred.reject();
                                 $interval.cancel(check);
+                                self.emit('error', self);
                             }, _provider.adTimeout);
                         }
 
@@ -150,14 +151,15 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         };
 
                         self.getAdProperties = function() {
-                            return self.player.getAdProperties();
+                            return self.player ? self.player.getAdProperties() : null;
                         };
 
                         self.getDisplayBanners = function() {
-                            return self.player.getDisplayBanners();
+                            return self.player ? self.player.getDisplayBanners() : null;
                         };
 
                         self.setVolume = function(volume) {
+                            if (!self.player) { return; }
                             self.player.setVolume(volume);
                         };
 
@@ -169,19 +171,22 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         };
 
                         self.stopAd = function() {
-                            self.player.stopAd();
+                            return adDeferred.promise.then(function() {
+                                self.player.stopAd();
+                                return actualAdDeferred.promise;
+                            });
                         };
 
                         self.isC6VpaidPlayer = function() {
-                            return self.player.isCinema6player();
+                            return self.player ? self.player.isCinema6player() : false;
                         };
 
                         self.getCurrentTime = function() {
-                            return self.player.getAdProperties().adCurrentTime;
+                            return self.player ? self.player.getAdProperties().adCurrentTime : 0;
                         };
 
                         self.getDuration = function() {
-                            return self.player.getAdProperties().adDuration;
+                            return self.player ? self.player.getAdProperties().adDuration : 0;
                         };
 
                         self.destroy = function() {
@@ -319,7 +324,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                 return function postLink(scope, $element, attrs) {
                     var iface;
 
-                    function VpaidPlayer(id, adTag) {
+                    function VpaidPlayer() {
                         var state,
                             emittedMeta,
                             emittedCanplay,
@@ -344,6 +349,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         }
 
                         function load(adTag) {
+                            if (!adTag) { return; }
                             if (player) {
                                 player.destroy();
                                 $interval.cancel(currentTimeInterval);
@@ -351,7 +357,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
 
                             setupState();
 
-                            player = VPAIDService.createPlayer(id, adTag, vpaidTemplate, $element);
+                            player = VPAIDService.createPlayer(scope.videoid, adTag, vpaidTemplate, $element);
 
                             player.on('ready', function() {
                                 state.readyState = 0;
@@ -438,7 +444,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             },
                             videoid: {
                                 get: function() {
-                                    return id;
+                                    return scope.videoid;
                                 }
                             },
                             readyState: {
@@ -475,15 +481,17 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         };
 
                         this.reload = function() {
-                            load(adTag);
+                            load(scope.adTag);
                         };
 
                         c6EventEmitter(this);
 
+                        setupState();
+
                         scope.$watch('adTag', load);
                     }
 
-                    iface = new VpaidPlayer(scope.videoid, scope.adTag);
+                    iface = new VpaidPlayer();
 
                     $element.data('video', iface);
                     scope.$emit('<vpaid-player>:init', iface);
