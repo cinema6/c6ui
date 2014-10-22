@@ -350,6 +350,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
 
                         function load(adTag) {
                             if (!adTag) { return; }
+
                             if (player) {
                                 player.destroy();
                                 $interval.cancel(currentTimeInterval);
@@ -460,6 +461,10 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         };
 
                         this.play = function() {
+                            if (state.ended) {
+                                load(scope.adTag);
+                            }
+
                             if (!hasLoadAdBeenCalled) {
                                 iface.load();
                             }

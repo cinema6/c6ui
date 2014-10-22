@@ -266,14 +266,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         shouldPlay;
 
                     function setupState() {
-                        if (vastData) {
-                            vastData.firePixels('complete');
-                            c6Video.fullscreen(false);
-                            self.emit('ended');
-                        }
                         vastEvents = {};
                         readyState = -1;
-                        companion = null;
                         hasStarted = false;
                         shouldPlay = true;
                     }
@@ -282,6 +276,13 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         if (!adTag) { return; }
 
                         setupState();
+
+                        if (vastData) {
+                            vastData.firePixels('complete');
+                            c6Video.fullscreen(false);
+                            self.emit('ended');
+                            companion = null;
+                        }
 
                         VASTService.getVAST(adTag).then(function(vast) {
                             var src = vast.getVideoSrc();
@@ -341,6 +342,11 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                     this.play = function() {
                         if (!c6Video) { return; }
+
+                        if (this.ended) {
+                            setupState();
+                        }
+
                         c6Video.player.play();
                     };
 
