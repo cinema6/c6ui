@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.1.3 (October 24, 2014)
 * Add (noop) load() method to ```<vimeo-player>```,
   ```<youtube-player>``` and ```<dailymotion-player>```.
 * [FIX]: Fixed an issue where calling load() on the ```<vpaid-player>```
@@ -8,6 +9,11 @@
   certain dimension
 * ```<vpaid-player>``` and ```<vast-player>``` now have the same API for
   getting companion ads
+* [FIX]: Fixed an issue that caused the ```<vast-player>``` to render to
+  large
+* Added a working load() method to the ```<vast-player>``` interface
+* Added the ability to enable native video controls in the
+  ```<vast-player>```.
 
 ## v3.1.2 (October 22, 2014)
 * VAST/VPAID play method will reset/reload the player if video has completed
