@@ -301,9 +301,53 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
 
                 describe('getCompanions', function() {
+                    beforeEach(function() {
+                        _player.getDisplayBanners.and.returnValue(null);
+                    });
+
                     it('should call getCompanions() on the player if it\'s ready', function() {
                         iface.getCompanions();
                         expect(_player.getDisplayBanners).toHaveBeenCalled();
+                    });
+
+                    describe('if dimmensions are provided', function() {
+                        var banners;
+
+                        beforeEach(function() {
+                            banners = [
+                                {
+                                    width: 300,
+                                    height: 250
+                                },
+                                {
+                                    width: 300,
+                                    height: 60
+                                },
+                                {
+                                    width: 300,
+                                    height: 100
+                                },
+                                {
+                                    width: 468,
+                                    height: 60
+                                },
+                                {
+                                    width: 728,
+                                    height: 90
+                                }
+                            ];
+
+                            _player.getDisplayBanners.and.returnValue(banners);
+                        });
+
+                        it('should return an array of banners at that dimmenions', function() {
+                            banners.forEach(function(banner) {
+                                var result = iface.getCompanions(banner.width, banner.height);
+
+                                expect(result.length).toBe(1);
+                                expect(result[0]).toBe(banner);
+                            });
+                        });
                     });
                 });
 
