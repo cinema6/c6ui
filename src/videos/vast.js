@@ -246,7 +246,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
     function                 ( VASTService , c6EventEmitter , c6BrowserInfo , $window , $timeout ) {
         return {
             restrict: 'E',
-            template: '<video ng-click="clickThrough()" c6-video id="{{videoid}}" c6-src="adUrl"></video>',
+            template: '<video ng-click="clickThrough()" c6-video id="{{videoid}}" c6-src="adUrl" c6-controls="controls"></video>',
             scope: {
                 adTag: '@',
                 videoid: '@'
@@ -427,6 +427,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         }
                     });
                 }
+
+                scope.controls = 'controls' in attrs;
 
                 scope.clickThrough = function() {
                     if (!vastData) { return; }
