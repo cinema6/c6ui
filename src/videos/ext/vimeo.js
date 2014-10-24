@@ -3,7 +3,8 @@ function( angular , eventsEmitter        , urlUrlparser        , browserInfo    
     'use strict';
 
     var fromJson = angular.fromJson,
-        isDefined = angular.isDefined;
+        isDefined = angular.isDefined,
+        noop = angular.noop;
 
     return angular.module('c6.ui.videos.ext.vimeo', [eventsEmitter.name, urlUrlparser.name, browserInfo.name])
         .service('VimeoPlayerService', ['$q','$window','$rootScope','c6EventEmitter',
@@ -259,6 +260,8 @@ function( angular , eventsEmitter        , urlUrlparser        , browserInfo    
                         this.pause = function() {
                             player.call('pause');
                         };
+
+                        this.load = noop;
 
                         this.reload = function() {
                             state = setupState();
