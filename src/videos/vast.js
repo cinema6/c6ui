@@ -364,6 +364,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         load(scope.adTag);
                     };
 
+                    this.load = function() {
+                        c6Video.player.load();
+                    };
+
                     c6EventEmitter(this);
 
                     setupState();

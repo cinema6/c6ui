@@ -529,6 +529,16 @@ define(['videos/vast'], function(vastModule) {
                     });
                 });
 
+                describe('load', function() {
+                    beforeEach(function() {
+                        iface.load();
+                    });
+
+                    it('should call load() on the video', function() {
+                        expect(_player.player.load).toHaveBeenCalled();
+                    });
+                });
+
                 describe('pause', function() {
                     it('should call pause on the video object', function() {
                         iface.pause();
