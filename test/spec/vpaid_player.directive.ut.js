@@ -267,7 +267,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                         iface.play();
                         iface.play();
                         iface.play();
-                        expect(iface.load.calls.count()).toBe(1);
+                        expect(_player.loadAd.calls.count()).toBe(1);
                     });
 
                     it('should regenerate the player if the ad has already played and completed', function() {
@@ -297,6 +297,18 @@ define(['videos/vpaid'], function(vpaidModule) {
                         _player.emit('ready');
                         iface.load();
                         expect(_player.loadAd).toHaveBeenCalled();
+                    });
+
+                    describe('if load has already been called', function() {
+                        beforeEach(function() {
+                            iface.load();
+                            _player.loadAd.calls.reset();
+                            iface.load();
+                        });
+
+                        it('should not call loadAd', function() {
+                            expect(_player.loadAd).not.toHaveBeenCalled();
+                        });
                     });
                 });
 

@@ -456,6 +456,8 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         });
 
                         this.load = function() {
+                            if (hasLoadAdBeenCalled) { return; }
+
                             hasLoadAdBeenCalled = true;
                             return player.loadAd();
                         };
@@ -465,9 +467,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                 load(scope.adTag);
                             }
 
-                            if (!hasLoadAdBeenCalled) {
-                                iface.load();
-                            }
+                            iface.load();
 
                             if (hasStarted) {
                                 return player.resumeAd();
