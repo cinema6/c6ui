@@ -470,6 +470,14 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
                     });
                 });
 
+                describe('load', function() {
+                    it('should exist', function() {
+                        expect(function() {
+                            iface.load();
+                        }).not.toThrow();
+                    });
+                });
+
                 describe('reload()', function() {
                     var setAttribute,
                         src;

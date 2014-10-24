@@ -2,7 +2,8 @@ define (['angular','../../events/emitter','../../url/urlparser','../video','../.
 function( angular , eventsEmitter        , urlUrlparser        , video    , browserInfo        ) {
     'use strict';
 
-    var isDefined = angular.isDefined;
+    var isDefined = angular.isDefined,
+        noop = angular.noop;
 
     return angular.module('c6.ui.videos.ext.dailymotion', [eventsEmitter.name, urlUrlparser.name, video.name, browserInfo.name])
         .service('DailymotionPlayerService', ['c6EventEmitter','c6UrlParser','$window',
@@ -171,6 +172,8 @@ function( angular , eventsEmitter        , urlUrlparser        , video    , brow
                     this.play = function() {
                         return player.call('play');
                     };
+
+                    this.load = noop;
 
                     this.reload = function() {
                         state = setupState();

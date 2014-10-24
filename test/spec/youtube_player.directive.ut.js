@@ -792,6 +792,14 @@
                         });
                     });
 
+                    describe('load', function() {
+                        it('should exist', function() {
+                            expect(function() {
+                                video.load();
+                            }).not.toThrow();
+                        });
+                    });
+
                     describe('reload()', function() {
                         var $origFrame, $frame,
                             oldPlayer;

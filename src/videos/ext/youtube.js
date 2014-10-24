@@ -5,7 +5,8 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
     var forEach = angular.forEach,
         isArray = angular.isArray,
         jqLite = angular.element,
-        isDefined = angular.isDefined;
+        isDefined = angular.isDefined,
+        noop = angular.noop;
 
     return angular.module('c6.ui.videos.ext.youtube', [eventsEmitter.name, browserInfo.name])
         .config(['$sceDelegateProvider',
@@ -432,6 +433,8 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
                             this.play = function() {
                                 player.playVideo();
                             };
+
+                            this.load = noop;
 
                             this.reload = function() {
                                 return load(scope.videoid);

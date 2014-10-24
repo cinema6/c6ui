@@ -1,5 +1,7 @@
 # C6UI
 
+* Add (noop) load() method to ```<vimeo-player>```,
+  ```<youtube-player>``` and ```<dailymotion-player>```.
 * [FIX]: Fixed an issue where calling load() on the ```<vpaid-player>```
   would cause the ad to break
 
