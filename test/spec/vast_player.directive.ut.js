@@ -224,7 +224,13 @@ define(['videos/vast'], function(vastModule) {
             });
 
             describe('with an adTag', function() {
+                var companionsReady;
+
                 beforeEach(function() {
+                    companionsReady = jasmine.createSpy('companionsReady');
+
+                    iface.on('companionsReady', companionsReady);
+
                     $scope.$apply(function() {
                         $scope.adTag = 'http://adap.tv/ads';
                     });
@@ -546,13 +552,13 @@ define(['videos/vast'], function(vastModule) {
                     });
                 });
 
-                describe('getCompanion', function() {
+                describe('getCompanions', function() {
                     it('should return the companion if it exists', function() {
                         $scope.$apply(function() {
                             $scope.adTag = 'http://adap.tv/ads';
                         });
-                        var companionObject = iface.getCompanion();
-                        expect(companionObject.adType).toBe('iframe');
+                        var companionObjects = iface.getCompanions();
+                        expect(companionObjects[0].adType).toBe('iframe');
                     });
 
                     it('should return null if there is no companion', function() {
@@ -561,7 +567,7 @@ define(['videos/vast'], function(vastModule) {
                             $player = $compile('<vast-player id="{{id}}" autoplay ad-tag="{{adTag}}"></vast-player>')($scope);
                         });
                         iface = initSpy.calls.mostRecent().args[1];
-                        expect(iface.getCompanion()).toBe(null);
+                        expect(iface.getCompanions()).toBe(null);
                     });
                 });
 

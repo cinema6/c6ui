@@ -297,7 +297,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             }
 
                             if (companion) {
-                                self.emit('companionReady');
+                                self.emit('companionsReady');
                             }
 
                             vastData = vast;
@@ -359,8 +359,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         c6Video.player.pause();
                     };
 
-                    this.getCompanion = function() {
-                        return companion;
+                    this.getCompanions = function() {
+                        return companion && [companion];
                     };
 
                     this.reload = function() {
