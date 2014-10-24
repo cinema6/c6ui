@@ -97,7 +97,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     }
 
                     self.companions.push(['width', 'height'].reduce(function(result, prop) {
-                        result[prop] = parseInt(companion.getAttribute(prop));
+                        result[prop] = parseInt(companion.getAttribute(prop), 10);
                         return result;
                     },{
                         adType : adType,
