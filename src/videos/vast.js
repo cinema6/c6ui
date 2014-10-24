@@ -96,10 +96,13 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         break;
                     }
 
-                    self.companions.push({
+                    self.companions.push(['width', 'height'].reduce(function(result, prop) {
+                        result[prop] = parseInt(companion.getAttribute(prop));
+                        return result;
+                    },{
                         adType : adType,
                         fileURI : companionNode.firstChild.nodeValue
-                    });
+                    }));
                 });
 
                 forEach($('Error'), function(error) {
