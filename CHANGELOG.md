@@ -1,5 +1,8 @@
 # C6UI
 
+* Add (noop) load() method to ```<vimeo-player>```,
+  ```<youtube-player>``` and ```<dailymotion-player>```.
+
 ## v3.1.2 (October 22, 2014)
 * VAST/VPAID play method will reset/reload the player if video has completed
 
