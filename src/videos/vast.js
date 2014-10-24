@@ -242,11 +242,13 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
         /* jshint camelcase:true */
     }])
 
-    .directive('vastPlayer', ['VASTService','c6EventEmitter','c6BrowserInfo','$window','$timeout',
-    function                 ( VASTService , c6EventEmitter , c6BrowserInfo , $window , $timeout ) {
+    .directive('vastPlayer', ['VASTService','c6EventEmitter','c6BrowserInfo','$window','$timeout','$document',
+    function                 ( VASTService , c6EventEmitter , c6BrowserInfo , $window , $timeout , $document ) {
+        $document.find('head').append('<style>vast-player {display:inline-block;}</style>');
+
         return {
             restrict: 'E',
-            template: '<video ng-click="clickThrough()" c6-video id="{{videoid}}" c6-src="adUrl" c6-controls="controls"></video>',
+            template: '<video ng-click="clickThrough()" c6-video id="{{videoid}}" c6-src="adUrl" c6-controls="controls" style="width: 100%;"></video>',
             scope: {
                 adTag: '@',
                 videoid: '@'
