@@ -195,6 +195,30 @@ define(['videos/vast'], function(vastModule) {
                 expect(initSpy).toHaveBeenCalledWith(jasmine.any(Object), iface);
             });
 
+            describe('if the controls attribute is present', function() {
+                beforeEach(function() {
+                    $scope.$apply(function() {
+                        $player = $compile('<vast-player id="{{id}} ad-tag="{{adTag}}" controls></vast-player>')($scope);
+                    });
+                });
+
+                it('should should set "controls" to true', function() {
+                    expect($player.isolateScope().controls).toBe(true);
+                });
+            });
+
+            describe('if the controls attribute is not present', function() {
+                beforeEach(function() {
+                    $scope.$apply(function() {
+                        $player = $compile('<vast-player id="{{id}} ad-tag="{{adTag}}"></vast-player>')($scope);
+                    });
+                });
+
+                it('should should set "controls" to false', function() {
+                    expect($player.isolateScope().controls).toBe(false);
+                });
+            });
+
             it('should put the iface on the $element', function() {
                 expect($player.data('video')).toEqual(iface);
             });
@@ -502,6 +526,16 @@ define(['videos/vast'], function(vastModule) {
                     it('should call pause on the video object', function() {
                         iface.pause();
                         expect(_player.player.pause).toHaveBeenCalled();
+                    });
+                });
+
+                describe('load', function() {
+                    beforeEach(function() {
+                        iface.load();
+                    });
+
+                    it('should call load() on the video', function() {
+                        expect(_player.player.load).toHaveBeenCalled();
                     });
                 });
 
