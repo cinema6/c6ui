@@ -481,8 +481,14 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             return player.pause();
                         };
 
-                        this.getCompanions = function() {
-                            return player.getDisplayBanners();
+                        this.getCompanions = function(width, height) {
+                            var args = arguments,
+                                banners = player.getDisplayBanners();
+
+                            return banners && banners.filter(function(banner) {
+                                return args.length !== 2 ||
+                                    (banner.width === width && banner.height === height);
+                            });
                         };
 
                         this.reload = function() {

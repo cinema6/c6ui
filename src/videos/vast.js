@@ -96,10 +96,13 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         break;
                     }
 
-                    self.companions.push({
+                    self.companions.push(['width', 'height'].reduce(function(result, prop) {
+                        result[prop] = parseInt(companion.getAttribute(prop), 10);
+                        return result;
+                    },{
                         adType : adType,
                         fileURI : companionNode.firstChild.nodeValue
-                    });
+                    }));
                 });
 
                 forEach($('Error'), function(error) {
@@ -294,7 +297,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             }
 
                             if (companion) {
-                                self.emit('companionReady');
+                                self.emit('companionsReady');
                             }
 
                             vastData = vast;
@@ -356,8 +359,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         c6Video.player.pause();
                     };
 
-                    this.getCompanion = function() {
-                        return companion;
+                    this.getCompanions = function() {
+                        return companion && [companion];
                     };
 
                     this.reload = function() {

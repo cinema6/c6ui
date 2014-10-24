@@ -386,6 +386,8 @@ define(['videos/vast'], function(vastModule) {
 
                                 expect(vast.companions).toEqual([
                                     {
+                                        width: 300,
+                                        height: 250,
                                         adType:'iframe',
                                         fileURI: '//ads.adap.tv/c/companion?cck=cck&creativeId=110497&melaveId=42657&key=tribal360llc&adSourceId=208567&bidId=&afppId=159224&exSId=639284&cb=9874983758324475&pageUrl=http%3A%2F%2Fcinema6.com&eov=eov'
                                     }
@@ -447,6 +449,8 @@ define(['videos/vast'], function(vastModule) {
                                     companion.fileURI = companion.fileURI.replace(/\s/g, '');
 
                                     expect(companion).toEqual({
+                                        width: 300,
+                                        height: 250,
                                         adType:'iframe',
                                         fileURI: '//ads.adap.tv/c/companion?cck=cck&creativeId=110497&melaveId=42657&key=tribal360llc&adSourceId=208567&bidId=&afppId=159224&exSId=639284&cb=9874983758324475&pageUrl=http%3A%2F%2Fcinema6.com&eov=eov'
                                     });

@@ -4,6 +4,10 @@
   ```<youtube-player>``` and ```<dailymotion-player>```.
 * [FIX]: Fixed an issue where calling load() on the ```<vpaid-player>```
   would cause the ad to break
+* [FEATURE]: ```<vpaid-player>``` can now find companion ads at a
+  certain dimension
+* ```<vpaid-player>``` and ```<vast-player>``` now have the same API for
+  getting companion ads
 
 ## v3.1.2 (October 22, 2014)
 * VAST/VPAID play method will reset/reload the player if video has completed
