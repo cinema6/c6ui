@@ -1,5 +1,8 @@
 # C6UI
 
+* [FEATURE]: Added ```<embedded-player>``` for embedding generic video
+  players
+
 ## v3.1.3 (October 24, 2014)
 * Add (noop) load() method to ```<vimeo-player>```,
   ```<youtube-player>``` and ```<dailymotion-player>```.
