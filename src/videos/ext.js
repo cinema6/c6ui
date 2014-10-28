@@ -2,7 +2,8 @@ define([
     'angular',
     './ext/youtube',
     './ext/vimeo',
-    './ext/dailymotion'
+    './ext/dailymotion',
+    './ext/embedded'
 ], function(
     angular
 ) {

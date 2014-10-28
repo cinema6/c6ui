@@ -50,6 +50,33 @@ function( angular ) {
             this.vastTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvTfWmlP8j6NQnxBMIgFJa80=?cb={cachebreaker}&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
             this.vpaidTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvYyD60pQS_90o8grI6Qm2PI=?cb={cachebreaker}&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
 
+            this.yahooCode = [
+                '<iframe width="640"',
+                '    height="360"',
+                '    scrolling="no"',
+                '    frameborder="0"',
+                '    src="https://screen.yahoo.com/videos-for-you/lion-vs-mongoose-mongoose-fends-084000682.html?format=embed"',
+                '    allowfullscreen="true"',
+                '    mozallowfullscreen="true"',
+                '    webkitallowfullscreen="true"',
+                '    allowtransparency="true">',
+                '</iframe>'
+            ].join('\n');
+            this.aolCode = [
+                '<div style="text-align:center">',
+                '    <script type="text/javascript" src="http://pshared.5min.com/Scripts/PlayerSeed.js?sid=281&width=560&height=450&playList=518484157"></script>',
+                '    <br/>',
+                '</div>'
+            ].join('\n');
+            this.rumbleCode = [
+                '<iframe width="640"',
+                '    height="360"',
+                '    src="https://rumble.com/embed/8.2zcps/"',
+                '    frameborder="0"',
+                '    allowfullscreen>',
+                '</iframe>'
+            ].join('\n');
+
             $http.get('http://vimeo.com/api/v2/video/76579435.json')
                 .then(function(response) {
                     self.vimeo = response.data[0];
