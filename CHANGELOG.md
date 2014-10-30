@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.2.0 (October 30, 2014)
 * [FEATURE]: Added ```<embedded-player>``` for embedding generic video
   players
 
