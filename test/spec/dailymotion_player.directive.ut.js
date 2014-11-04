@@ -451,12 +451,56 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
 
             describe('methods', function() {
                 describe('pause()', function() {
-                    beforeEach(function() {
-                        iface.pause();
+                    var result;
+
+                    describe('if the player hasn\'t started playing', function() {
+                        it('should return an error', function() {
+                            expect(iface.pause()).toEqual(jasmine.any(Error));
+                        });
                     });
 
-                    it('should call the pause method on the player', function() {
-                        expect(player.call).toHaveBeenCalledWith('pause');
+                    describe('if the player has started playing', function() {
+                        beforeEach(function() {
+                            player.emit('playing', {});
+
+                            result = iface.pause();
+                        });
+
+                        it('should not return an error', function() {
+                            expect(result).not.toEqual(jasmine.any(Error));
+                        });
+
+                        it('should call pause on the player', function() {
+                            expect(player.call).toHaveBeenCalledWith('pause');
+                        });
+                    });
+
+                    describe('if the player is reloaded', function() {
+                        beforeEach(function() {
+                            player.emit('playing', {});
+                            iface.reload();
+                        });
+
+                        it('should reset keeping track of the video playing', function() {
+                            expect(iface.pause()).toEqual(jasmine.any(Error));
+                        });
+                    });
+
+                    describe('if the player is playing and then pauses', function() {
+                        beforeEach(function() {
+                            player.emit('playing', {});
+                            player.emit('pause', {});
+
+                            result = iface.pause();
+                        });
+
+                        it('should not return an error', function() {
+                            expect(result).not.toEqual(jasmine.any(Error));
+                        });
+
+                        it('should call pause on the player', function() {
+                            expect(player.call).toHaveBeenCalledWith('pause');
+                        });
                     });
                 });
 

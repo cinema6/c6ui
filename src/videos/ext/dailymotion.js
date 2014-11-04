@@ -120,7 +120,8 @@ function( angular , eventsEmitter        , urlUrlparser        , video    , brow
                             error: null,
                             paused: true,
                             readyState: -1,
-                            seeking: false
+                            seeking: false,
+                            hasPlayed: false
                         };
                     }
 
@@ -166,6 +167,12 @@ function( angular , eventsEmitter        , urlUrlparser        , video    , brow
                     });
 
                     this.pause = function() {
+                        if (!state.hasPlayed) {
+                            return new Error(
+                                'The video cannot be paused until it has started playing.'
+                            );
+                        }
+
                         return player.call('pause');
                     };
 
@@ -237,6 +244,7 @@ function( angular , eventsEmitter        , urlUrlparser        , video    , brow
                                     state.readyState = 3;
                                     state.ended = false;
                                     state.paused = false;
+                                    state.hasPlayed = true;
 
                                     self.emit('play');
                                     self.emit('canplay');
