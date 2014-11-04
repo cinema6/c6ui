@@ -1,5 +1,8 @@
 # C6UI
 
+* The ```<dailymotion-player>``` interface pause() method now returns an
+  error if it is called before the video starts playing
+
 ## v3.2.0 (October 30, 2014)
 * [FEATURE]: Added ```<embedded-player>``` for embedding generic video
   players
