@@ -1,7 +1,5 @@
 # C6UI
 
-* The VAST service now handles vast from Adtech, which violates standards
-
 * The ```<dailymotion-player>``` interface pause() method now returns an
   error if it is called before the video starts playing
 

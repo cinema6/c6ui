@@ -21,16 +21,12 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
             var service = {},
                 _service = {};
 
-            function getNodeValue(node) {
-                return node.firstChild.nodeValue || node.firstChild.firstChild.nodeValue;
-            }
-
             _service.VAST = function(xml) {
                 var $ = xml.querySelectorAll.bind(xml),
                     self = this;
 
                 this.video = {
-                    duration: _service.getSecondsFromTimestamp( ($('Linear Duration')[0] || $('Video Duration')[0]).childNodes[0].nodeValue),
+                    duration: _service.getSecondsFromTimestamp($('Linear Duration')[0].childNodes[0].nodeValue),
                     mediaFiles: []
                 };
 
@@ -75,7 +71,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         file[attribute.name] = attribute.value;
                     });
 
-                    file.url = getNodeValue(mediaFile);
+                    file.url = mediaFile.firstChild.nodeValue;
 
                     self.video.mediaFiles.push(file);
                 });
@@ -105,19 +101,19 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         return result;
                     },{
                         adType : adType,
-                        fileURI : getNodeValue(companionNode)
+                        fileURI : companionNode.firstChild.nodeValue
                     }));
                 });
 
                 forEach($('Error'), function(error) {
-                    self.pixels.errorPixel.push(getNodeValue(error));
+                    self.pixels.errorPixel.push(error.firstChild.nodeValue);
                 });
 
                 forEach($('Impression'), function(impression) {
-                    self.pixels.impression.push(getNodeValue(impression));
+                    self.pixels.impression.push(impression.firstChild.nodeValue);
                 });
 
-                forEach(($('Linear Tracking')[0] ? $('Linear Tracking') : $('Tracking')), function(tracking) {
+                forEach($('Linear Tracking'), function(tracking) {
                     var eventName;
 
                     forEach(tracking.attributes, function(attribute) {
@@ -126,27 +122,26 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         }
                     });
 
-                    if (self.pixels[eventName]) {
-                        self.pixels[eventName].push(getNodeValue(tracking));
-                    }
+                    self.pixels[eventName].push(tracking.firstChild.nodeValue);
                 });
 
                 forEach($('VideoClicks ClickThrough'), function(clickThrough) {
-                    self.clickThrough.push(getNodeValue(clickThrough));
+                    self.clickThrough.push(clickThrough.firstChild.nodeValue);
                 });
 
                 forEach($('VideoClicks ClickTracking'), function(clickTracking) {
-                    self.pixels.videoClickTracking.push(getNodeValue(clickTracking));
+                    self.pixels.videoClickTracking.push(clickTracking.firstChild.nodeValue);
                 });
 
                 forEach($('VideoClicks CustomClick'), function(customClick) {
-                    self.pixels.videoCustomClick.push(getNodeValue(customClick));
+                    self.pixels.videoCustomClick.push(customClick.firstChild.nodeValue);
                 });
 
                 forEach($('Companion Tracking'), function(companionTracking) {
                     // creativeView is the only event supported for companion tracking, so no need to read the event attr
-                    self.pixels.companionCreativeView.push(getNodeValue(companionTracking));
+                    self.pixels.companionCreativeView.push(companionTracking.firstChild.nodeValue);
                 });
+
             };
 
             _service.VAST.prototype = {
@@ -202,7 +197,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             uriNodes = vast.querySelectorAll('VASTAdTagURI');
 
                         // append the VAST node to the xml container
-                        combinedVast.firstChild.appendChild(vast.querySelectorAll('VAST')[0] || vast.querySelectorAll('VideoAdServingTemplate')[0]);
+                        combinedVast.firstChild.appendChild(vast.querySelectorAll('VAST')[0]);
 
                         if (uriNodes.length > 0) {
                             return fetchVAST(uriNodes[0].firstChild.nodeValue);

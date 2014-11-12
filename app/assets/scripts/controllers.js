@@ -47,8 +47,7 @@ function( angular ) {
                 self.vastTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvTfWmlP8j6NQnxBMIgFJa80=?cb='+ Math.random()*(1000-1)+1 +'&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
             };
 
-            // this.vastTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvTfWmlP8j6NQnxBMIgFJa80=?cb={cachebreaker}&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
-            this.vastTag = 'http://adserver.adtechus.com/?advideo/3.0/5473.1/3389416/0//cc=2;vidAS=pre_roll;cors=yes';
+            this.vastTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvTfWmlP8j6NQnxBMIgFJa80=?cb={cachebreaker}&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
             this.vpaidTag = 'http://u-ads.adap.tv/a/h/DCQzzI0K2rv1k0TZythPvYyD60pQS_90o8grI6Qm2PI=?cb={cachebreaker}&pageUrl=http%3A%2F%2Fmutantplayground.com&eov=eov';
 
             this.yahooCode = [
