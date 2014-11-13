@@ -14,7 +14,7 @@
         <!-- <vimeo-player videoid="108018156" autoplay style="height: 500px; display: block;" start="15" end="25"></vimeo-player> -->
         <!-- <dailymotion-player videoid="x279hwy" autoplay style="height: 500px; display: block;"></dailymotion-player> -->
 
-        <vast-player videoid="1234" ad-tag="{{AppCtrl.vastTag}}"></vast-player>
+        <vast-player videoid="1234" ad-tag="{{AppCtrl.vastTag}}" controls></vast-player>
         <div ng-show="vastAdReady">
             <button ng-click="AppCtrl.playVastAd()">Play Ad</button>
             <button ng-click="AppCtrl.pauseVastAd()">Pause Ad</button>

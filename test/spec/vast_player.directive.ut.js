@@ -616,6 +616,13 @@ define(['videos/vast'], function(vastModule) {
                 scope.clickThrough();
                 expect(_player.player.play).toHaveBeenCalled();
             });
+
+            it('should do nothing if click through url is null.com', function() {
+                vastObject.clickThrough[0] = 'http://null.com';
+
+                scope.clickThrough();
+                expect($window.open).not.toHaveBeenCalled();
+            });
         });
 
         describe('$watch', function() {
