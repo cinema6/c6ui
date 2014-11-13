@@ -623,6 +623,13 @@ define(['videos/vast'], function(vastModule) {
                 scope.clickThrough();
                 expect($window.open).not.toHaveBeenCalled();
             });
+
+            it('should do nothing if click through url is not defined', function() {
+                vastObject.clickThrough = [];
+
+                scope.clickThrough();
+                expect($window.open).not.toHaveBeenCalled();
+            });
         });
 
         describe('$watch', function() {

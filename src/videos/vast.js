@@ -447,7 +447,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                 scope.clickThrough = function() {
                     if (!vastData ||
                         (vastData.clickThrough &&
-                        (/null.com/).test(vastData.clickThrough[0]))) { return; }
+                            (vastData.clickThrough.length === 0 ||
+                            (/null.com/).test(vastData.clickThrough[0])))) { return; }
 
                     if (c6Video.player.paused) {
                         c6Video.player.play();
