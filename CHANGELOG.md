@@ -1,5 +1,8 @@
 # C6UI
 
+* The <vast-player> directive will not have a click through if the
+  click through url is null.com
+
 ## v3.3.0 (November 12, 2014)
 * The VAST service now handles vast from Adtech, which violates standards
 * The ```<dailymotion-player>``` interface pause() method now returns an
