@@ -270,8 +270,6 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                 function VastPlayer() {
                     var self = this,
                         companion = null,
-                        pauseWasCalled,
-                        playWasCalled,
                         readyState,
                         vastEvents,
                         hasStarted,
@@ -282,8 +280,6 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         readyState = -1;
                         hasStarted = false;
                         shouldPlay = true;
-                        playWasCalled = false;
-                        pauseWasCalled = false;
                     }
 
                     function load(adTag) {
@@ -295,6 +291,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             vastData.firePixels('complete');
                             c6Video.fullscreen(false);
                             self.emit('ended');
+                            vastData = null;
                         }
 
                         VASTService.getVAST(adTag).then(function(vast) {
@@ -313,8 +310,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             scope.adUrl = src;
 
                             $timeout(function() {
-                                readyState = 0;
-                                self.emit('ready');
+                                if (c6Video) {
+                                    readyState = 0;
+                                    self.emit('ready');
+                                }
                             });
                         }, function() {
                             self.emit('error');
@@ -354,10 +353,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     });
 
                     this.play = function() {
-                        if (!c6Video) {
-                            playWasCalled = true;
-                            return;
-                        }
+                        if (!c6Video) { return; }
 
                         if (this.ended) {
                             setupState();
@@ -367,10 +363,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     };
 
                     this.pause = function() {
-                        if (!c6Video) {
-                            pauseWasCalled = true;
-                            return;
-                        }
+                        if (!c6Video) { return; }
 
                         c6Video.player.pause();
                     };
@@ -447,12 +440,13 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             self.emit('timeupdate');
                         });
 
-                        if ((isDefined(attrs.autoplay) && profile.autoplay) || playWasCalled) {
+                        if (isDefined(attrs.autoplay) && profile.autoplay) {
                             self.play();
                         }
 
-                        if (pauseWasCalled) {
-                            self.pause();
+                        if (vastData) {
+                            readyState = 0;
+                            self.emit('ready');
                         }
                     });
                 }
