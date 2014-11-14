@@ -163,7 +163,6 @@ define(['videos/vast'], function(vastModule) {
 
             $scope = $rootScope.$new();
             $scope.id = '12345';
-            // $scope.adTag = 'http://adap.tv/ads';
 
             spyOn(c6VideoService, 'bestFormat').and.returnValue('video/mp4');
             spyOn($window, 'open');
@@ -178,7 +177,6 @@ define(['videos/vast'], function(vastModule) {
             vastObject = vastSpy.calls.mostRecent().args[0];
             vastDeferred = $q.defer();
             spyOn(VASTService, 'getVAST').and.returnValue(vastDeferred.promise);
-            // spyOn(VASTService, 'getVAST').and.returnValue($q.when(vastObject));
             spyOn(vastObject, 'firePixels');
             spyOn(vastObject, 'getVideoSrc').and.callThrough();
 
@@ -271,8 +269,6 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 _player = new C6Video();
-
-                // $scope.$broadcast('c6video-ready', _player);
             });
 
             describe('ready', function() {

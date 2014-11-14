@@ -364,7 +364,6 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                     this.pause = function() {
                         if (!c6Video) { return; }
-
                         c6Video.player.pause();
                     };
 
