@@ -270,6 +270,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                 function VastPlayer() {
                     var self = this,
                         companion = null,
+                        pauseWasCalled,
+                        playWasCalled,
                         readyState,
                         vastEvents,
                         hasStarted,
@@ -280,6 +282,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         readyState = -1;
                         hasStarted = false;
                         shouldPlay = true;
+                        playWasCalled = false;
+                        pauseWasCalled = false;
                     }
 
                     function load(adTag) {
@@ -350,7 +354,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     });
 
                     this.play = function() {
-                        if (!c6Video) { return; }
+                        if (!c6Video) {
+                            playWasCalled = true;
+                            return;
+                        }
 
                         if (this.ended) {
                             setupState();
@@ -360,7 +367,11 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     };
 
                     this.pause = function() {
-                        if (!c6Video) { return; }
+                        if (!c6Video) {
+                            pauseWasCalled = true;
+                            return;
+                        }
+
                         c6Video.player.pause();
                     };
 
@@ -436,8 +447,12 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             self.emit('timeupdate');
                         });
 
-                        if (isDefined(attrs.autoplay) && profile.autoplay) {
+                        if ((isDefined(attrs.autoplay) && profile.autoplay) || playWasCalled) {
                             self.play();
+                        }
+
+                        if (pauseWasCalled) {
+                            self.pause();
                         }
                     });
                 }

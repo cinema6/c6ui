@@ -509,17 +509,24 @@ define(['videos/vast'], function(vastModule) {
             describe('methods', function() {
                 beforeEach(function() {
                     _player = new C6Video();
-
-                    $scope.$broadcast('c6video-ready', _player);
                 });
 
                 describe('play', function() {
+                    it('should queue a play() call for when c6video is ready', function() {
+                        iface.play();
+                        expect(_player.player.play).not.toHaveBeenCalled();
+                        $scope.$broadcast('c6video-ready', _player);
+                        expect(_player.player.play).toHaveBeenCalled();
+                    });
+
                     it('should call play on the video object', function() {
+                        $scope.$broadcast('c6video-ready', _player);
                         iface.play();
                         expect(_player.player.play).toHaveBeenCalled();
                     });
 
                     it('should reset the state if the ad has already played and completed', function() {
+                        $scope.$broadcast('c6video-ready', _player);
                         _player.trigger('loadedmetadata');
                         expect(iface.readyState).toBe(1);
                         _player.player.ended = true;
@@ -529,7 +536,15 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 describe('pause', function() {
+                    it('should queue a pause() call for when c6video is ready', function() {
+                        iface.pause();
+                        expect(_player.player.pause).not.toHaveBeenCalled();
+                        $scope.$broadcast('c6video-ready', _player);
+                        expect(_player.player.pause).toHaveBeenCalled();
+                    });
+
                     it('should call pause on the video object', function() {
+                        $scope.$broadcast('c6video-ready', _player);
                         iface.pause();
                         expect(_player.player.pause).toHaveBeenCalled();
                     });
@@ -537,6 +552,7 @@ define(['videos/vast'], function(vastModule) {
 
                 describe('load', function() {
                     beforeEach(function() {
+                        $scope.$broadcast('c6video-ready', _player);
                         iface.load();
                     });
 
@@ -547,6 +563,7 @@ define(['videos/vast'], function(vastModule) {
 
                 describe('pause', function() {
                     it('should call pause on the video object', function() {
+                        $scope.$broadcast('c6video-ready', _player);
                         iface.pause();
                         expect(_player.player.pause).toHaveBeenCalled();
                     });
@@ -554,6 +571,8 @@ define(['videos/vast'], function(vastModule) {
 
                 describe('getCompanions', function() {
                     it('should return the companion if it exists', function() {
+                        $scope.$broadcast('c6video-ready', _player);
+
                         $scope.$apply(function() {
                             $scope.adTag = 'http://adap.tv/ads';
                         });
@@ -562,6 +581,8 @@ define(['videos/vast'], function(vastModule) {
                     });
 
                     it('should return null if there is no companion', function() {
+                        $scope.$broadcast('c6video-ready', _player);
+
                         spyOn(vastObject, 'getCompanion').and.returnValue(null);
                         $scope.$apply(function() {
                             $player = $compile('<vast-player id="{{id}}" autoplay ad-tag="{{adTag}}"></vast-player>')($scope);
@@ -573,6 +594,8 @@ define(['videos/vast'], function(vastModule) {
 
                 describe('reload', function() {
                     beforeEach(function() {
+                        $scope.$broadcast('c6video-ready', _player);
+
                         $scope.$apply(function() {
                             $scope.adTag = 'http://adap.tv/ads';
                         });
