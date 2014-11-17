@@ -293,7 +293,7 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
                                                         endTime - startTime
                                                     );
 
-                                                    if (currentTime < startTime) {
+                                                    if (currentTime < startTime && !state.paused) {
                                                         return player.seekTo(startTime);
                                                     } else if (currentTime >= endTime && !state.ended) {
                                                         state.ended = true;

@@ -322,6 +322,8 @@
 
                         iface.on('timeupdate', timeupdate);
 
+                        player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
+
                         player.getCurrentTime.and.returnValue(4);
                         $interval.flush(250);
                     });
@@ -336,6 +338,20 @@
 
                     it('should not emit any events', function() {
                         expect(timeupdate).not.toHaveBeenCalled();
+                    });
+
+                    describe('if the video is not playing', function() {
+                        beforeEach(function() {
+                            player.seekTo.calls.reset();
+
+                            player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
+
+                            $interval.flush(250);
+                        });
+
+                        it('should not seek the player', function() {
+                            expect(player.seekTo).not.toHaveBeenCalled();
+                        });
                     });
 
                     describe('the interface', function() {

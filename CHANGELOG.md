@@ -2,6 +2,8 @@
 
 * Ensure that when play or pause is called on a <vast-player> it is
   executed when the video player is ready
+* [FIX]: Fix for an issue that could cause a YouTube video to play
+  automatically if a start time was specified
 
 ## v3.3.1 (November 13, 2014)
 * The <vast-player> directive will not have a click through if the
