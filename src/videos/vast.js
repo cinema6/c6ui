@@ -291,6 +291,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             vastData.firePixels('complete');
                             c6Video.fullscreen(false);
                             self.emit('ended');
+                            vastData = null;
                         }
 
                         VASTService.getVAST(adTag).then(function(vast) {
@@ -309,8 +310,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             scope.adUrl = src;
 
                             $timeout(function() {
-                                readyState = 0;
-                                self.emit('ready');
+                                if (c6Video) {
+                                    readyState = 0;
+                                    self.emit('ready');
+                                }
                             });
                         }, function() {
                             self.emit('error');
@@ -438,6 +441,11 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                         if (isDefined(attrs.autoplay) && profile.autoplay) {
                             self.play();
+                        }
+
+                        if (vastData) {
+                            readyState = 0;
+                            self.emit('ready');
                         }
                     });
                 }
