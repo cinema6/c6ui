@@ -964,24 +964,45 @@
                     });
 
                     describe('pause', function() {
-                        it('should be emitted when the player is paused', function() {
-                            var pauseSpy = jasmine.createSpy('pause');
+                        var pauseSpy;
+
+                        beforeEach(function() {
+                            pauseSpy = jasmine.createSpy('pause');
 
                             video.on('pause', pauseSpy);
+                        });
 
+                        it('should be emitted when the player is paused', function() {
                             player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
                             player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
 
                             expect(pauseSpy).toHaveBeenCalled();
                         });
+
+                        it('should not be emitted if the paused state is interrupted by the buffering state', function() {
+                            player._trigger('onStateChange', { data: youtube.PlayerState.UNSTARTED });
+                            player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
+                            player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
+
+                            expect(pauseSpy.calls.count()).toBe(1);
+
+                            player._trigger('onStateChange', { data: youtube.PlayerState.BUFFERING });
+                            player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
+
+                            expect(pauseSpy.calls.count()).toBe(1);
+                        });
                     });
 
                     describe('play', function() {
-                        it('should be emitted after the video plays, no matter what', function() {
-                            var playSpy = jasmine.createSpy('play');
+                        var playSpy;
+
+                        beforeEach(function() {
+                            playSpy = jasmine.createSpy('play');
 
                             video.on('play', playSpy);
+                        });
 
+                        it('should be emitted after the video plays, no matter what', function() {
                             player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
                             expect(playSpy).toHaveBeenCalled();
 
@@ -989,6 +1010,18 @@
                             player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
 
                             expect(playSpy.calls.count()).toBe(2);
+                        });
+
+                        it('should not be emitted if the playing state is interrupted by the buffering state', function() {
+                            player._trigger('onStateChange', { data: youtube.PlayerState.UNSTARTED });
+                            player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
+
+                            expect(playSpy.calls.count()).toBe(1);
+
+                            player._trigger('onStateChange', { data: youtube.PlayerState.BUFFERING });
+                            player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
+
+                            expect(playSpy.calls.count()).toBe(1);
                         });
                     });
 

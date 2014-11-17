@@ -6,7 +6,8 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
         isArray = angular.isArray,
         jqLite = angular.element,
         isDefined = angular.isDefined,
-        noop = angular.noop;
+        noop = angular.noop,
+        equals = angular.equals;
 
     return angular.module('c6.ui.videos.ext.youtube', [eventsEmitter.name, browserInfo.name])
         .config(['$sceDelegateProvider',
@@ -228,13 +229,18 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
                                     paused: true,
                                     seeking: false,
                                     readyState: -1,
-                                    error: null
+                                    error: null,
+                                    states: []
                                 };
                             }
 
                             function setError(err) {
                                 state.error = err;
                                 self.emit('error');
+                            }
+
+                            function interruptedByBuffer(playerState) {
+                                return equals([3, playerState], state.states.slice(0, 2));
                             }
 
                             function load(id) {
@@ -336,7 +342,9 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
                                                     self.emit('canplay');
                                                 }
 
-                                                self.emit('play');
+                                                if (!interruptedByBuffer(event.data)) {
+                                                    self.emit('play');
+                                                }
                                                 break;
 
                                             case PlayerState.ENDED:
@@ -347,9 +355,14 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
 
                                             case PlayerState.PAUSED:
                                                 state.paused = true;
-                                                self.emit('pause');
+
+                                                if (!interruptedByBuffer(event.data)) {
+                                                    self.emit('pause');
+                                                }
                                                 break;
                                             }
+
+                                            state.states.unshift(event.data);
                                         }
                                     }
                                 });
