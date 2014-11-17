@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.3.2 (November 17, 2014)
 * Ensure that when play or pause is called on a <vast-player> it is
   executed when the video player is ready
 * [FIX]: Fix for an issue that could cause a YouTube video to play
