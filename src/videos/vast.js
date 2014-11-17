@@ -21,12 +21,16 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
             var service = {},
                 _service = {};
 
+            function getNodeValue(node) {
+                return node.firstChild.nodeValue || node.firstChild.firstChild.nodeValue;
+            }
+
             _service.VAST = function(xml) {
                 var $ = xml.querySelectorAll.bind(xml),
                     self = this;
 
                 this.video = {
-                    duration: _service.getSecondsFromTimestamp($('Linear Duration')[0].childNodes[0].nodeValue),
+                    duration: _service.getSecondsFromTimestamp( ($('Linear Duration')[0] || $('Video Duration')[0]).childNodes[0].nodeValue),
                     mediaFiles: []
                 };
 
@@ -71,7 +75,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         file[attribute.name] = attribute.value;
                     });
 
-                    file.url = mediaFile.firstChild.nodeValue;
+                    file.url = getNodeValue(mediaFile);
 
                     self.video.mediaFiles.push(file);
                 });
@@ -101,19 +105,19 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         return result;
                     },{
                         adType : adType,
-                        fileURI : companionNode.firstChild.nodeValue
+                        fileURI : getNodeValue(companionNode)
                     }));
                 });
 
                 forEach($('Error'), function(error) {
-                    self.pixels.errorPixel.push(error.firstChild.nodeValue);
+                    self.pixels.errorPixel.push(getNodeValue(error));
                 });
 
                 forEach($('Impression'), function(impression) {
-                    self.pixels.impression.push(impression.firstChild.nodeValue);
+                    self.pixels.impression.push(getNodeValue(impression));
                 });
 
-                forEach($('Linear Tracking'), function(tracking) {
+                forEach(($('Linear Tracking')[0] ? $('Linear Tracking') : $('Tracking')), function(tracking) {
                     var eventName;
 
                     forEach(tracking.attributes, function(attribute) {
@@ -122,26 +126,27 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         }
                     });
 
-                    self.pixels[eventName].push(tracking.firstChild.nodeValue);
+                    if (self.pixels[eventName]) {
+                        self.pixels[eventName].push(getNodeValue(tracking));
+                    }
                 });
 
                 forEach($('VideoClicks ClickThrough'), function(clickThrough) {
-                    self.clickThrough.push(clickThrough.firstChild.nodeValue);
+                    self.clickThrough.push(getNodeValue(clickThrough));
                 });
 
                 forEach($('VideoClicks ClickTracking'), function(clickTracking) {
-                    self.pixels.videoClickTracking.push(clickTracking.firstChild.nodeValue);
+                    self.pixels.videoClickTracking.push(getNodeValue(clickTracking));
                 });
 
                 forEach($('VideoClicks CustomClick'), function(customClick) {
-                    self.pixels.videoCustomClick.push(customClick.firstChild.nodeValue);
+                    self.pixels.videoCustomClick.push(getNodeValue(customClick));
                 });
 
                 forEach($('Companion Tracking'), function(companionTracking) {
                     // creativeView is the only event supported for companion tracking, so no need to read the event attr
-                    self.pixels.companionCreativeView.push(companionTracking.firstChild.nodeValue);
+                    self.pixels.companionCreativeView.push(getNodeValue(companionTracking));
                 });
-
             };
 
             _service.VAST.prototype = {
@@ -197,7 +202,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             uriNodes = vast.querySelectorAll('VASTAdTagURI');
 
                         // append the VAST node to the xml container
-                        combinedVast.firstChild.appendChild(vast.querySelectorAll('VAST')[0]);
+                        combinedVast.firstChild.appendChild(vast.querySelectorAll('VAST')[0] || vast.querySelectorAll('VideoAdServingTemplate')[0]);
 
                         if (uriNodes.length > 0) {
                             return fetchVAST(uriNodes[0].firstChild.nodeValue);
@@ -286,6 +291,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             vastData.firePixels('complete');
                             c6Video.fullscreen(false);
                             self.emit('ended');
+                            vastData = null;
                         }
 
                         VASTService.getVAST(adTag).then(function(vast) {
@@ -304,8 +310,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             scope.adUrl = src;
 
                             $timeout(function() {
-                                readyState = 0;
-                                self.emit('ready');
+                                if (c6Video) {
+                                    readyState = 0;
+                                    self.emit('ready');
+                                }
                             });
                         }, function() {
                             self.emit('error');
@@ -434,13 +442,21 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         if (isDefined(attrs.autoplay) && profile.autoplay) {
                             self.play();
                         }
+
+                        if (vastData) {
+                            readyState = 0;
+                            self.emit('ready');
+                        }
                     });
                 }
 
                 scope.controls = 'controls' in attrs;
 
                 scope.clickThrough = function() {
-                    if (!vastData) { return; }
+                    if (!vastData ||
+                        (vastData.clickThrough &&
+                            (vastData.clickThrough.length === 0 ||
+                            (/null.com/).test(vastData.clickThrough[0])))) { return; }
 
                     if (c6Video.player.paused) {
                         c6Video.player.play();

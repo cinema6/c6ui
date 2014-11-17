@@ -1,5 +1,14 @@
 # C6UI
 
+* Ensure that when play or pause is called on a <vast-player> it is
+  executed when the video player is ready
+
+## v3.3.1 (November 13, 2014)
+* The <vast-player> directive will not have a click through if the
+  click through url is null.com
+
+## v3.3.0 (November 12, 2014)
+* The VAST service now handles vast from Adtech, which violates standards
 * The ```<dailymotion-player>``` interface pause() method now returns an
   error if it is called before the video starts playing
 

@@ -19,7 +19,8 @@ define(['videos/vast'], function(vastModule) {
             _player,
             scope,
             vastSpy,
-            vastObject;
+            vastObject,
+            vastDeferred;
 
         var VAST = [
             '<?xml version="1.0" encoding="UTF-8"?>',
@@ -162,7 +163,6 @@ define(['videos/vast'], function(vastModule) {
 
             $scope = $rootScope.$new();
             $scope.id = '12345';
-            // $scope.adTag = 'http://adap.tv/ads';
 
             spyOn(c6VideoService, 'bestFormat').and.returnValue('video/mp4');
             spyOn($window, 'open');
@@ -175,7 +175,8 @@ define(['videos/vast'], function(vastModule) {
                 VASTService.getVAST('http://adap.tv/ads').then(vastSpy);
             });
             vastObject = vastSpy.calls.mostRecent().args[0];
-            spyOn(VASTService, 'getVAST').and.returnValue($q.when(vastObject));
+            vastDeferred = $q.defer();
+            spyOn(VASTService, 'getVAST').and.returnValue(vastDeferred.promise);
             spyOn(vastObject, 'firePixels');
             spyOn(vastObject, 'getVideoSrc').and.callThrough();
 
@@ -242,6 +243,7 @@ define(['videos/vast'], function(vastModule) {
 
                 it('should emit error on the iface if no video source is returned', function() {
                     vastObject.getVideoSrc.and.returnValue(null);
+                    vastDeferred.resolve(vastObject);
                     _player = new C6Video();
                     $scope.$broadcast('c6video-ready', _player);
                     iface.reload();
@@ -250,14 +252,11 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 it('should emit error on the iface if VASTService rejects promise', function() {
-                    var deferred = $q.defer();
-                    VASTService.getVAST.and.returnValue(deferred.promise);
+                    vastDeferred.reject();
                     _player = new C6Video();
                     $scope.$broadcast('c6video-ready', _player);
                     iface.reload();
-                    $scope.$apply(function() {
-                        deferred.reject();
-                    });
+                    $scope.$digest();
                     expect(iface.emit).toHaveBeenCalledWith('error');
                 });
             });
@@ -270,27 +269,57 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 _player = new C6Video();
-
-                $scope.$broadcast('c6video-ready', _player);
             });
 
             describe('ready', function() {
-                it('should emit ready from iface', function() {
+                it('should not emit ready from iface if no vast response has been received', function() {
+                    $scope.$broadcast('c6video-ready', _player);
+                    expect(iface.emit).not.toHaveBeenCalledWith('ready');
+                });
+
+                it('should not emit ready from iface if c6video is not ready', function() {
+                    vastDeferred.resolve(vastObject);
+                    $scope.$digest();
+                    expect(iface.emit).not.toHaveBeenCalledWith('ready');
+                });
+
+                it('should emit ready event when c6Video was ready AND vast is returned', function() {
+                    $scope.$broadcast('c6video-ready', _player);
+                    expect(iface.emit).not.toHaveBeenCalledWith('ready');
+
+                    vastDeferred.resolve(vastObject);
+                    $scope.$digest();
                     $timeout.flush();
                     expect(iface.emit).toHaveBeenCalledWith('ready');
                 });
 
+                it('should emit ready event when vast has been returned and c6video ready is fired', function() {
+                    vastDeferred.resolve(vastObject);
+                    $scope.$digest();
+                    $timeout.flush();
+                    expect(iface.emit).not.toHaveBeenCalledWith('ready');
+
+                    $scope.$broadcast('c6video-ready', _player);
+                    expect(iface.emit).toHaveBeenCalledWith('ready');
+                });
+
                 it('should emit loadedmetadata is currentTime and duration is defined', function() {
+                    $scope.$broadcast('c6video-ready', _player);
                     _player.trigger('loadedmetadata');
                     expect(iface.emit).toHaveBeenCalledWith('loadedmetadata');
                 });
 
                 it('should set readyState to 0', function() {
+                    vastDeferred.resolve(vastObject);
+                    $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
                     $timeout.flush();
+
                     expect(iface.readyState).toBe(0);
                 });
 
                 it('should set readyState to 1 when loadedmetadata is fired', function() {
+                    $scope.$broadcast('c6video-ready', _player);
                     _player.trigger('loadedmetadata');
                     expect(iface.readyState).toBe(1);
                 });
@@ -324,6 +353,13 @@ define(['videos/vast'], function(vastModule) {
             });
 
             describe('play', function() {
+                beforeEach(function() {
+                    vastDeferred.resolve(vastObject);
+                    $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
+                    $timeout.flush();
+                });
+
                 it('should emit play on the iface', function() {
                     _player.trigger('play');
                     expect(iface.emit).toHaveBeenCalledWith('play');
@@ -349,6 +385,13 @@ define(['videos/vast'], function(vastModule) {
             });
 
             describe('pause', function() {
+                beforeEach(function() {
+                    vastDeferred.resolve(vastObject);
+                    $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
+                    $timeout.flush();
+                });
+
                 it('should emit pause on the iface', function() {
                     _player.trigger('pause');
                     expect(iface.emit).toHaveBeenCalledWith('pause');
@@ -364,6 +407,11 @@ define(['videos/vast'], function(vastModule) {
 
             describe('ended', function() {
                 it('should emit ended on the iface', function() {
+                    vastDeferred.resolve(vastObject);
+                    $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
+                    $timeout.flush();
+
                     _player.trigger('ended');
                     expect(iface.emit).toHaveBeenCalledWith('ended');
                     expect(_player.fullscreen).toHaveBeenCalledWith(false);
@@ -371,6 +419,13 @@ define(['videos/vast'], function(vastModule) {
             });
 
             describe('timeupdate', function() {
+                beforeEach(function() {
+                    vastDeferred.resolve(vastObject);
+                    $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
+                    $timeout.flush();
+                });
+
                 it('should emit timeupdate on the iface', function() {
                     _player.trigger('timeupdate');
                     expect(iface.emit).toHaveBeenCalledWith('timeupdate');
@@ -429,7 +484,10 @@ define(['videos/vast'], function(vastModule) {
                 beforeEach(function() {
                     _player = new C6Video();
 
+                    vastDeferred.resolve(vastObject);
                     $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
+                    $timeout.flush();
                 });
 
                 describe('currentTime', function() {
@@ -509,8 +567,10 @@ define(['videos/vast'], function(vastModule) {
             describe('methods', function() {
                 beforeEach(function() {
                     _player = new C6Video();
-
+                    vastDeferred.resolve(vastObject);
                     $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
+                    $timeout.flush();
                 });
 
                 describe('play', function() {
@@ -598,7 +658,10 @@ define(['videos/vast'], function(vastModule) {
                     $scope.adTag = 'http://adap.tv/ads';
                 });
                 _player = new C6Video();
+                vastDeferred.resolve(vastObject);
                 $scope.$broadcast('c6video-ready', _player);
+                $scope.$digest();
+                $timeout.flush();
             });
 
             it('should pause the player if video is playing and open a new window and fire click pixel', function() {
@@ -616,6 +679,20 @@ define(['videos/vast'], function(vastModule) {
                 scope.clickThrough();
                 expect(_player.player.play).toHaveBeenCalled();
             });
+
+            it('should do nothing if click through url is null.com', function() {
+                vastObject.clickThrough[0] = 'http://null.com';
+
+                scope.clickThrough();
+                expect($window.open).not.toHaveBeenCalled();
+            });
+
+            it('should do nothing if click through url is not defined', function() {
+                vastObject.clickThrough = [];
+
+                scope.clickThrough();
+                expect($window.open).not.toHaveBeenCalled();
+            });
         });
 
         describe('$watch', function() {
@@ -625,7 +702,10 @@ define(['videos/vast'], function(vastModule) {
                         $scope.adTag = 'http://adap.tv/ads';
                     });
                     _player = new C6Video();
+                    vastDeferred.resolve(vastObject);
                     $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
+                    $timeout.flush();
                 });
 
                 it('should reload the player', function() {

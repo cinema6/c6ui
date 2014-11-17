@@ -18,7 +18,8 @@ define(['videos/vast'], function(vastModule) {
             _provider;
 
         var XML,
-            wrapperXML;
+            wrapperXML,
+            adTechXML;
 
         beforeEach(function() {
             XML = [
@@ -174,6 +175,90 @@ define(['videos/vast'], function(vastModule) {
                 '        </Wrapper>',
                 '    </Ad>',
                 '</VAST>'
+            ].join('\n');
+
+            adTechXML = [
+                '<?xml version="1.0" encoding="UTF-8"?>',
+                '',
+                '<VideoAdServingTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vast.xsd">',
+                '    <Ad id="6125296">',
+                '        <InLine>',
+                '            <AdSystem>ADTECH</AdSystem>',
+                '            <AdTitle>ADTECH AD AdId=6125296, CreativeId=109194, AssetId=23963374</AdTitle>',
+                '            <Impression>',
+                '                <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_START;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '            </Impression>',
+                '            <TrackingEvents>',
+                '                <Tracking event="acceptInvitation">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_ACCEPTINVITATION;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="close">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_CLOSE;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="collapse">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_COLLAPSE;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="complete">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_END;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="creativeView">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_CREATIVEVIEW;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="expand">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_EXPAND;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="firstQuartile">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_25;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="fullscreen">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_FULLSCREEN;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="midpoint">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_MID;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="mute">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_MUTE;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="pause">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_PAUSE;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="replay">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_REPLAY;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="resume">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_RESUME;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="rewind">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_REWIND;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="skip">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_SKIP;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="stop">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_STOP;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="thirdQuartile">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_75;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '                <Tracking event="unmute">',
+                '                    <URL id="Adtech"><![CDATA[http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_UNMUTE;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA]]></URL>',
+                '                </Tracking>',
+                '            </TrackingEvents>',
+                '            <Video>',
+                '                <Duration>00:02:29</Duration>',
+                '                <AdParameters></AdParameters>',
+                '                <VideoClicks>',
+                '                    <ClickThrough><URL id="ADTECH"><![CDATA[http://adserver.adtechus.com/adlink/5473/3389416/0/3579/AdId=6125296;BnId=1;itime=813211182;nodecode=yes;link=]]></URL></ClickThrough>',
+                '                </VideoClicks>',
+                '                <MediaFiles>',
+                '                    <MediaFile delivery="progressive" bitrate="849" width="1280" height="720" type="video/mp4">',
+                '                        <URL><![CDATA[http://aka-cdn-ns.adtechus.com/apps/240/Ad6125296Tr36681V2Id0/Army_TourOps_Cruz_E1_v1_c6.mp4]]></URL>',
+                '                    </MediaFile>',
+                '                </MediaFiles>',
+                '            </Video>',
+                '        </InLine>',
+                '    </Ad>',
+                '</VideoAdServingTemplate>'
             ].join('\n');
 
             module(vastModule.name);
@@ -344,11 +429,13 @@ define(['videos/vast'], function(vastModule) {
                     describe('VAST', function() {
                         var vast,
                             parser,
-                            combinedVast;
+                            combinedVast,
+                            adTechVast;
 
                         beforeEach(function() {
                             parser = new $window.DOMParser(),
                             combinedVast = parser.parseFromString('<?xml version="1.0" encoding="UTF-8"?><container></container>', 'text/xml');
+                            adTechVast = _service.getXML(adTechXML);
 
                             angular.forEach([wrapperXML, XML], function(xml) {
                                 vast = _service.getXML(xml);
@@ -356,6 +443,7 @@ define(['videos/vast'], function(vastModule) {
                             });
 
                             vast = new _service.VAST(combinedVast);
+                            adTechVast = new _service.VAST(adTechVast);
                         });
 
                         describe('properties', function() {
@@ -382,6 +470,8 @@ define(['videos/vast'], function(vastModule) {
                                     ],
                                 });
 
+
+
                                 vast.companions[0].fileURI = vast.companions[0].fileURI.replace(/\s/g, '');
 
                                 expect(vast.companions).toEqual([
@@ -398,6 +488,26 @@ define(['videos/vast'], function(vastModule) {
 
                                 expect(vast.pixels.errorPixel[0]).toEqual('http://log.adap.tv/log?event=error&lastBid=&errNo=&pricingInfo=&nF=&adSourceTime=&adSourceId=115439&bidId=&afppId=115440&exSId=113540&adSpotId=&pet=preroll&pod=-2&position=-2&marketplaceId=&adPlanId=-2&adaptag=&nap=true&key=alexorlovstestpublisher&buyerId=&campaignId=14168&pageUrl=test.com&adapDetD=&sellRepD=test.com&urlDetMeth=&targDSellRep=1&zid=&url=&id=&duration=&a.geostrings=&uid=3922791298847480813&htmlEnabled=false&width=&height=&context=&categories=&sessionId=&serverRev=402051622&playerRev=&a.rid=&a.cluster=0&rtype=ah&a.ssc=1&a.asn=m2-31&a.profile_id=&p.vw.viewable=-1&a.sdk=&a.sdkType=&a.appReq=0&a.sscCap=0&a.carrier_mcc=&a.carrier_mnc=&a.platformDevice=ONLINE_VIDEO&ipAddressOverride=23.31.224.169&p.vw.active=-1&eov=14818764');
                                 expect(vast.pixels.errorPixel[1]).toEqual('http://log.adap.tv/log?event=error&lastBid=&errNo=&pricingInfo=&nF=&adSourceTime=&adSourceId=73833&bidId=&afppId=73834&exSId=57916&adSpotId=&pet=preroll&pod=-2&position=-2&marketplaceId=&adPlanId=-2&adaptag=&nap=true&key=alexorlovstestpublisher&buyerId=&campaignId=14168&pageUrl=test.com&adapDetD=&sellRepD=test.com&urlDetMeth=&targDSellRep=1&zid=&url=&id=&duration=&a.geostrings=&uid=3922791298847480813&htmlEnabled=false&width=&height=&context=&categories=&sessionId=&serverRev=402051622&playerRev=&a.rid=&a.cluster=0&rtype=ah&a.ssc=1&a.asn=m1-58&a.profile_id=&p.vw.viewable=-1&a.sdk=&a.sdkType=&a.appReq=0&a.sscCap=0&a.carrier_mcc=&a.carrier_mnc=&a.platformDevice=ONLINE_VIDEO&ipAddressOverride=23.31.224.169&p.vw.active=-1&eov=86007638');
+
+                                expect(adTechVast.video).toEqual({
+                                    duration: 149,
+                                    mediaFiles: [
+                                        {
+                                            delivery: 'progressive',
+                                            width: '1280',
+                                            height: '720',
+                                            bitrate: '849',
+                                            type: 'video/mp4',
+                                            url: 'http://aka-cdn-ns.adtechus.com/apps/240/Ad6125296Tr36681V2Id0/Army_TourOps_Cruz_E1_v1_c6.mp4'
+                                        }
+                                    ],
+                                });
+
+                                expect(adTechVast.companions).toEqual([]);
+
+                                expect(adTechVast.pixels.impression[0]).toEqual('http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_START;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA');
+                                expect(adTechVast.pixels.complete[0]).toEqual('http://adserver.adtechus.com/rmevent/3/5473/3389416/0/0/AdId=6125296;CreativeId=109194;BnId=1;rmeventtype=VID_END;imptype=2;refsequenceid=2154990909;refseqid2=5J/HRAgAgFA');
+                                expect(adTechVast.clickThrough[0]).toEqual('http://adserver.adtechus.com/adlink/5473/3389416/0/3579/AdId=6125296;BnId=1;itime=813211182;nodecode=yes;link=');
                             });
                         });
 
@@ -406,38 +516,45 @@ define(['videos/vast'], function(vastModule) {
                                 it('should get the url for the specified type', function() {
                                     expect(vast.getVideoSrc('video/x-flv')).toBe('http://cdn.adap.tv/integration_test/Vincent-081110124715584-13503_1-122011141453375-82609.flv');
                                     expect(vast.getVideoSrc('video/mp4')).toBe('http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_640x360_16-9-040512100356192-12398_9-071813123000638-11481.MP4');
+                                    expect(adTechVast.getVideoSrc('video/mp4')).toBe('http://aka-cdn-ns.adtechus.com/apps/240/Ad6125296Tr36681V2Id0/Army_TourOps_Cruz_E1_v1_c6.mp4');
                                 });
 
                                 it('should return null if the type is not found', function() {
                                     expect(vast.getVideoSrc('video/webm')).toBeNull();
+                                    expect(adTechVast.getVideoSrc('video/webm')).toBeNull();
                                 });
 
                                 describe('if a type is not provided', function() {
-                                    var result;
+                                    var result, adTechResult;
 
                                     beforeEach(function() {
                                         spyOn(c6VideoService, 'bestFormat')
                                             .and.returnValue('video/mp4');
 
                                         result = vast.getVideoSrc();
+                                        adTechResult = adTechVast.getVideoSrc();
                                     });
 
                                     it('should check for the best video format', function() {
                                         expect(c6VideoService.bestFormat).toHaveBeenCalledWith(['video/mp4', 'video/x-flv']);
+                                        expect(c6VideoService.bestFormat.calls.count()).toBe(2);
                                     });
 
                                     it('should return the src of that best format', function() {
                                         expect(result).toBe(vast.video.mediaFiles[0].url);
+                                        expect(adTechResult).toBe(adTechVast.video.mediaFiles[0].url);
                                     });
 
                                     describe('if no best format is provided', function() {
                                         beforeEach(function() {
                                             c6VideoService.bestFormat.and.returnValue(undefined);
                                             result = vast.getVideoSrc();
+                                            adTechResult = adTechVast.getVideoSrc();
                                         });
 
                                         it('should return null', function() {
                                             expect(result).toBeNull();
+                                            expect(adTechResult).toBeNull();
                                         });
                                     });
                                 });
@@ -468,6 +585,12 @@ define(['videos/vast'], function(vastModule) {
 
                                     vast.firePixels('errorPixel');
                                     expect(c6ImagePreloader.load).toHaveBeenCalledWith(vast.pixels.errorPixel);
+
+                                    adTechVast.firePixels('complete');
+                                    expect(c6ImagePreloader.load).toHaveBeenCalledWith(adTechVast.pixels.complete);
+
+                                    adTechVast.firePixels('impression');
+                                    expect(c6ImagePreloader.load).toHaveBeenCalledWith(adTechVast.pixels.impression);
                                 })
                             });
                         });
