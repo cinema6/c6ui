@@ -206,7 +206,6 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
 
                         function VideoPlayer(id) {
                             var self = this,
-                                hasPaused = false,
                                 currentTimeInterval = null,
                                 player = null,
                                 seekStartTime = null,
@@ -337,11 +336,7 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
                                                     self.emit('canplay');
                                                 }
 
-                                                if (hasPaused) {
-                                                    self.emit('play');
-                                                }
-
-                                                self.emit('playing');
+                                                self.emit('play');
                                                 break;
 
                                             case PlayerState.ENDED:
@@ -353,7 +348,6 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
                                             case PlayerState.PAUSED:
                                                 state.paused = true;
                                                 self.emit('pause');
-                                                hasPaused = true;
                                                 break;
                                             }
                                         }

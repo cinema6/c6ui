@@ -977,34 +977,18 @@
                     });
 
                     describe('play', function() {
-                        it('should be emitted after the video is resumed', function() {
+                        it('should be emitted after the video plays, no matter what', function() {
                             var playSpy = jasmine.createSpy('play');
 
                             video.on('play', playSpy);
 
                             player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
-                            expect(playSpy).not.toHaveBeenCalled();
-
-                            player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
-                            player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
-
                             expect(playSpy).toHaveBeenCalled();
-                        });
-                    });
-
-                    describe('playing', function() {
-                        it('should be emitted after the video plays, no matter what', function() {
-                            var playingSpy = jasmine.createSpy('playing');
-
-                            video.on('playing', playingSpy);
-
-                            player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
-                            expect(playingSpy).toHaveBeenCalled();
 
                             player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
                             player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
 
-                            expect(playingSpy.calls.count()).toBe(2);
+                            expect(playSpy.calls.count()).toBe(2);
                         });
                     });
 
