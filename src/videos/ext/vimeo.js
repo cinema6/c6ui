@@ -152,7 +152,6 @@ function( angular , eventsEmitter        , urlUrlparser        , browserInfo    
                     function VideoPlayer($iframe) {
                         var self = this,
                             player = null,
-                            hasPaused = false,
                             state;
 
                         function setupState() {
@@ -195,7 +194,6 @@ function( angular , eventsEmitter        , urlUrlparser        , browserInfo    
                                     self.emit('ended');
                                 })
                                 .on('pause', function() {
-                                    hasPaused = true;
                                     state.paused = true;
 
                                     self.emit('pause');
@@ -208,11 +206,7 @@ function( angular , eventsEmitter        , urlUrlparser        , browserInfo    
                                     state.ended = false;
                                     state.paused = false;
 
-                                    if (hasPaused) {
-                                        self.emit('play');
-                                    }
-
-                                    self.emit('playing');
+                                    self.emit('play');
                                 })
                                 .on('seek', function() {
                                     state.seeking = false;

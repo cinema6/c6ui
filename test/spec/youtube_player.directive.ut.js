@@ -964,47 +964,64 @@
                     });
 
                     describe('pause', function() {
-                        it('should be emitted when the player is paused', function() {
-                            var pauseSpy = jasmine.createSpy('pause');
+                        var pauseSpy;
+
+                        beforeEach(function() {
+                            pauseSpy = jasmine.createSpy('pause');
 
                             video.on('pause', pauseSpy);
+                        });
 
+                        it('should be emitted when the player is paused', function() {
                             player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
                             player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
 
                             expect(pauseSpy).toHaveBeenCalled();
                         });
-                    });
 
-                    describe('play', function() {
-                        it('should be emitted after the video is resumed', function() {
-                            var playSpy = jasmine.createSpy('play');
-
-                            video.on('play', playSpy);
-
+                        it('should not be emitted if the paused state is interrupted by the buffering state', function() {
+                            player._trigger('onStateChange', { data: youtube.PlayerState.UNSTARTED });
                             player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
-                            expect(playSpy).not.toHaveBeenCalled();
-
                             player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
-                            player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
 
-                            expect(playSpy).toHaveBeenCalled();
+                            expect(pauseSpy.calls.count()).toBe(1);
+
+                            player._trigger('onStateChange', { data: youtube.PlayerState.BUFFERING });
+                            player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
+
+                            expect(pauseSpy.calls.count()).toBe(1);
                         });
                     });
 
-                    describe('playing', function() {
+                    describe('play', function() {
+                        var playSpy;
+
+                        beforeEach(function() {
+                            playSpy = jasmine.createSpy('play');
+
+                            video.on('play', playSpy);
+                        });
+
                         it('should be emitted after the video plays, no matter what', function() {
-                            var playingSpy = jasmine.createSpy('playing');
-
-                            video.on('playing', playingSpy);
-
                             player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
-                            expect(playingSpy).toHaveBeenCalled();
+                            expect(playSpy).toHaveBeenCalled();
 
                             player._trigger('onStateChange', { data: youtube.PlayerState.PAUSED });
                             player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
 
-                            expect(playingSpy.calls.count()).toBe(2);
+                            expect(playSpy.calls.count()).toBe(2);
+                        });
+
+                        it('should not be emitted if the playing state is interrupted by the buffering state', function() {
+                            player._trigger('onStateChange', { data: youtube.PlayerState.UNSTARTED });
+                            player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
+
+                            expect(playSpy.calls.count()).toBe(1);
+
+                            player._trigger('onStateChange', { data: youtube.PlayerState.BUFFERING });
+                            player._trigger('onStateChange', { data: youtube.PlayerState.PLAYING });
+
+                            expect(playSpy.calls.count()).toBe(1);
                         });
                     });
 

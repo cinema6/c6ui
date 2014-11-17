@@ -509,38 +509,16 @@
                             player.emit('ready');
                         });
 
-                        it('should be emitted after the video resumes', function() {
+                        it('should be emitted on every play', function() {
                             var play = jasmine.createSpy('play');
 
                             video.on('play', play);
 
                             player.emit('play');
-                            expect(play).not.toHaveBeenCalled();
-
-                            player.emit('pause');
-                            player.emit('play');
                             expect(play).toHaveBeenCalled();
 
                             player.emit('play');
                             expect(play.calls.count()).toBe(2);
-                        });
-                    });
-
-                    describe('playing', function() {
-                        beforeEach(function() {
-                            player.emit('ready');
-                        });
-
-                        it('should be emitted on every play', function() {
-                            var playing = jasmine.createSpy('playing');
-
-                            video.on('playing', playing);
-
-                            player.emit('play');
-                            expect(playing).toHaveBeenCalled();
-
-                            player.emit('play');
-                            expect(playing.calls.count()).toBe(2);
                         });
                     });
 

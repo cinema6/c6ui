@@ -5,6 +5,10 @@
   executed when the video player is ready
 * [FIX]: Fix for an issue that could cause a YouTube video to play
   automatically if a start time was specified
+* [FIX]: Fix for an issue that caused the 'play' event not to be emitted
+  the first time the video played (YouTube, vimeo)
+* [FIX]: (YouTube) fix for an issue that could cause the 'play' or
+  'pause' event to be emitted twice in a row
 
 ## v3.3.1 (November 13, 2014)
 * The <vast-player> directive will not have a click through if the
