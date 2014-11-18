@@ -303,6 +303,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             }
 
                             if (companion) {
+                                // these events need to be emitted AFTER ready event
                                 self.emit('companionsReady');
                             }
 
