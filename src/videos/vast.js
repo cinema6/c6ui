@@ -282,6 +282,19 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         shouldPlay = true;
                     }
 
+                    function emitReady() {
+                        readyState = 0;
+                        self.emit('ready');
+
+                        if (!scope.adUrl) {
+                            self.emit('error');
+                        }
+
+                        if (companion) {
+                            self.emit('companionsReady');
+                        }
+                    }
+
                     function load(adTag) {
                         if (!adTag) { return; }
 
@@ -295,28 +308,17 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         }
 
                         VASTService.getVAST(adTag).then(function(vast) {
-                            var src = vast.getVideoSrc();
+                            scope.adUrl = vast.getVideoSrc();
                             companion = vast.getCompanion();
-
-                            if (!src) {
-                                return self.emit('error');
-                            }
-
-                            if (companion) {
-                                // these events need to be emitted AFTER ready event
-                                self.emit('companionsReady');
-                            }
-
                             vastData = vast;
-                            scope.adUrl = src;
 
                             $timeout(function() {
                                 if (c6Video) {
-                                    readyState = 0;
-                                    self.emit('ready');
+                                    emitReady();
                                 }
                             });
                         }, function() {
+                            self.emit('ready');
                             self.emit('error');
                         });
                     }
@@ -445,8 +447,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         }
 
                         if (vastData) {
-                            readyState = 0;
-                            self.emit('ready');
+                            emitReady();
                         }
                     });
                 }
