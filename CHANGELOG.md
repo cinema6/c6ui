@@ -1,5 +1,9 @@
 # C6UI
 
+## v3.3.3 (November 19, 2014)
+* Fire Ready event from vast/vpaid player before any other events are sent
+* Ensure that Error events are properly sent from vast/vpaid player
+
 ## v3.3.2 (November 17, 2014)
 * Ensure that when play or pause is called on a <vast-player> it is
   executed when the video player is ready
