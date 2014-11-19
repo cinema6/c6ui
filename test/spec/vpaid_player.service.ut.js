@@ -322,13 +322,6 @@ define(['videos/vpaid'], function(vpaidModule) {
                             expect(success).toHaveBeenCalled();
                             expect(failure).not.toHaveBeenCalled();
                         });
-
-                        it('should emit an error event', function() {
-                            spyOn(player, 'emit');
-                            player.startAd();
-                            $timeout.flush();
-                            expect(player.emit).toHaveBeenCalledWith('error', jasmine.any(Object));
-                        });
                     });
                 });
 
@@ -646,11 +639,54 @@ define(['videos/vpaid'], function(vpaidModule) {
                     });
                 });
 
+                describe('error', function() {
+                    it('should emit when AdError is postMessaged', function() {
+                        var message = {
+                            data: '{ "__vpaid__" : { "type" : "AdError", "id" : "12345" } }',
+                        };
+
+                        messageHandler(message);
+
+                        expect(player.emit).toHaveBeenCalledWith('error', player);
+                    });
+
+                    it('should not emit when id doesn\'t match', function() {
+                        var message = {
+                            data: '{ "__vpaid__" : { "type" : "AdError", "id" : "wrongId" } }',
+                        };
+
+                        messageHandler(message);
+
+                        expect(player.emit).not.toHaveBeenCalledWith('error', player);
+                    });
+
+                    it('should not emit when event type is wrong', function() {
+                        var message = {};
+
+                        message.data = '{ "__vpaid__" : { "type" : "AdLoaded", "id" : "12345" } }';
+                        messageHandler(message);
+
+                        expect(player.emit).not.toHaveBeenCalledWith('error', player);
+
+                        message.data = '{ "__vpaid__" : { "type" : "AdClickThru", "id" : "12345" } }';
+                        messageHandler(message);
+
+                        expect(player.emit).not.toHaveBeenCalledWith('error', player);
+
+                        message.data = '{ "__vpaid__" : { "type" : "SomethingRandom", "id" : "12345" } }';
+                        messageHandler(message);
+
+                        expect(player.emit).not.toHaveBeenCalledWith('error', player);
+
+                        message.data = '{ "__vpaid__" : { "type" : "AdStopped", "id" : "12345" } }';
+                        messageHandler(message);
+
+                        expect(player.emit).not.toHaveBeenCalledWith('error', player);
+                    });
+                });
+
                 describe('ended', function() {
                     [
-                        {
-                            data: '{ "__vpaid__" : { "type" : "AdError", "id" : "12345" } }',
-                        },
                         {
                             data: '{ "__vpaid__" : { "type" : "AdStopped", "id" : "12345" } }',
                         },

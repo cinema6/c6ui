@@ -119,7 +119,6 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                 adDeferred.reject();
                                 actualAdDeferred.reject();
                                 $interval.cancel(check);
-                                self.emit('error', self);
                             }, _provider.adTimeout);
                         }
 
@@ -245,6 +244,8 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                     self.emit('companionsReady', self);
                                     break;
                                 case 'AdError':
+                                    self.emit('error', self);
+                                    break;
                                 case 'AdStopped':
                                 case 'AdVideoComplete':
                                 case 'onAllAdsCompleted':
@@ -409,6 +410,10 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                     iface.emit('companionsReady');
                                 });
 
+                                player.on('error', function() {
+                                    iface.emit('error');
+                                });
+
                                 if (angular.isDefined(attrs.autoplay) && profile.autoplay) {
                                     iface.play();
                                 }
@@ -473,7 +478,10 @@ function( angular , eventsEmitter     , browserInfo      ) {
                                 return player.resumeAd();
                             } else {
                                 hasStarted = true;
-                                return player.startAd();
+                                return player.startAd()
+                                    .catch(function() {
+                                        iface.emit('error');
+                                    });
                             }
                         };
 

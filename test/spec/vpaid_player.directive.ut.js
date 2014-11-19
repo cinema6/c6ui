@@ -8,6 +8,7 @@ define(['videos/vpaid'], function(vpaidModule) {
             $compile,
             $window,
             $interval,
+            $q,
             c6BrowserInfo,
             VPAIDService;
 
@@ -23,6 +24,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                 $rootScope = $injector.get('$rootScope');
                 $compile = $injector.get('$compile');
                 $interval = $injector.get('$interval');
+                $q = $injector.get('$q');
                 c6BrowserInfo = $injector.get('c6BrowserInfo');
                 VPAIDService = $injector.get('VPAIDService');
 
@@ -151,6 +153,15 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
             });
 
+            describe('error', function() {
+                it('should emit error', function() {
+                    _player.emit('ready');
+                    _player.emit('error');
+
+                    expect(iface.emit).toHaveBeenCalledWith('error');
+                });
+            });
+
             describe('canplay', function() {
                 it('should emit canplay only once when ad starts playing', function() {
                     spyOn(_player, 'getDuration').and.returnValue(30);
@@ -242,7 +253,11 @@ define(['videos/vpaid'], function(vpaidModule) {
                 });
 
                 describe('play', function() {
+                    var deferred;
+
                     beforeEach(function() {
+                        deferred = $q.defer();
+                        _player.startAd.and.returnValue(deferred.promise);
                         _player.emit('ready');
                         iface.play();
                     });
@@ -281,6 +296,12 @@ define(['videos/vpaid'], function(vpaidModule) {
                         expect(iface.readyState).toBe(-1);
                         expect(iface.ended).toBe(false);
                         expect(iface.duration).toBe(0);
+                    });
+
+                    it('should emit error if player times out', function() {
+                        deferred.reject();
+                        $scope.$digest();
+                        expect(iface.emit).toHaveBeenCalledWith('error');
                     });
                 });
 

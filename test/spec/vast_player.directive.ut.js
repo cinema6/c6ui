@@ -231,32 +231,35 @@ define(['videos/vast'], function(vastModule) {
                     companionsReady = jasmine.createSpy('companionsReady');
 
                     iface.on('companionsReady', companionsReady);
-
-                    $scope.$apply(function() {
-                        $scope.adTag = 'http://adap.tv/ads';
-                    });
                 });
 
                 it('should call the VASTService', function() {
+                    $scope.$apply(function() {
+                        $scope.adTag = 'http://adap.tv/ads';
+                    });
                     expect(VASTService.getVAST).toHaveBeenCalled();
                 });
 
                 it('should emit error on the iface if no video source is returned', function() {
                     vastObject.getVideoSrc.and.returnValue(null);
                     vastDeferred.resolve(vastObject);
+                    $scope.$apply(function() {
+                        $scope.adTag = 'http://adap.tv/ads';
+                    });
                     _player = new C6Video();
                     $scope.$broadcast('c6video-ready', _player);
-                    iface.reload();
                     $scope.$digest();
+                    expect(iface.emit).toHaveBeenCalledWith('ready');
                     expect(iface.emit).toHaveBeenCalledWith('error');
                 });
 
                 it('should emit error on the iface if VASTService rejects promise', function() {
+                    $scope.$apply(function() {
+                        $scope.adTag = 'http://adap.tv/ads';
+                    });
                     vastDeferred.reject();
-                    _player = new C6Video();
-                    $scope.$broadcast('c6video-ready', _player);
-                    iface.reload();
                     $scope.$digest();
+                    expect(iface.emit).toHaveBeenCalledWith('ready');
                     expect(iface.emit).toHaveBeenCalledWith('error');
                 });
             });
