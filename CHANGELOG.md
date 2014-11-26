@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.4.0 (November 26, 2014)
 * [FEATURE]: Added ```<rumble-player>```
 
 ## v3.3.3 (November 19, 2014)
