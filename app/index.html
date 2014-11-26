@@ -10,17 +10,18 @@
         <div>
             <img alt="vimeo thumb" ng-src="{{AppCtrl.vimeo.thumbnail_small}}">
         </div>
-        <youtube-player videoid="dqoPXC60l_s"  style="height: 500px; display: block;" start="15" end="25"></youtube-player>
-        <!-- <vimeo-player videoid="108018156" autoplay style="height: 500px; display: block;" start="15" end="25"></vimeo-player> -->
+        <!--<youtube-player videoid="dqoPXC60l_s"  style="height: 500px; display: block;" start="15" end="25"></youtube-player>-->
+        <rumble-player id="rumble" videoid="8.2zf97" autoplay start="15" end="25"></rumble-player>
+        <vimeo-player videoid="108018156" autoplay style="height: 500px; display: block;" start="15" end="25"></vimeo-player>
         <!--<dailymotion-player videoid="x279hwy" style="height: 500px; display: block;"></dailymotion-player>-->
 
-        <vast-player videoid="1234" ad-tag="{{AppCtrl.vastTag}}" controls></vast-player>
+        <!--<vast-player videoid="1234" ad-tag="{{AppCtrl.vastTag}}" controls></vast-player>
         <div ng-show="vastAdReady">
             <button ng-click="AppCtrl.playVastAd()">Play Ad</button>
             <button ng-click="AppCtrl.pauseVastAd()">Pause Ad</button>
             <button ng-click="AppCtrl.reloadVastAd()">Reload Ad</button>
             <button ng-click="AppCtrl.changeVastAdTag()">Change Ad Tag</button>
-        </div>
+        </div>-->
 
         <!-- <vpaid-player videoid="12345" ad-tag="{{AppCtrl.vpaidTag}}" style="height:500px; width:700px; display:block; position:relative;"></vpaid-player>
         <div ng-show="adReady">

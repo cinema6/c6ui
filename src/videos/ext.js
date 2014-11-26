@@ -3,7 +3,8 @@ define([
     './ext/youtube',
     './ext/vimeo',
     './ext/dailymotion',
-    './ext/embedded'
+    './ext/embedded',
+    './ext/rumble'
 ], function(
     angular
 ) {

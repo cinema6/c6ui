@@ -4,15 +4,15 @@ function( angular , eventsEmitter        , urlUrlparser        , browserInfo    
           vimeoInterfaceDirective         , vimeoInterfaceService         ) {
     'use strict';
 
-    return angular.module('c6.ui.videos.ext.vimeo', [
+    return angular.module('c6.ui.videos.ext.rumble', [
         eventsEmitter.name,
         urlUrlparser.name,
         browserInfo.name
     ])
-        .service('VimeoPlayerService', vimeoInterfaceService('player.vimeo.com'))
-        .directive('vimeoPlayer', vimeoInterfaceDirective(
-            'vimeo',
-            '//player.vimeo.com/video/{videoid}?api=1&player_id={id}',
-            'VimeoPlayerService'
+        .service('RumblePlayerService', vimeoInterfaceService('rumble.com'))
+        .directive('rumblePlayer', vimeoInterfaceDirective(
+            'rumble',
+            '//rumble.com/embed/{videoid}/?api=1&player_id={id}',
+            'RumblePlayerService'
         ));
 });
