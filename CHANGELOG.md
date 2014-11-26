@@ -1,5 +1,7 @@
 # C6UI
 
+* [FEATURE]: Added ```<rumble-player>```
+
 ## v3.3.3 (November 19, 2014)
 * Fire Ready event from vast/vpaid player before any other events are sent
 * Ensure that Error events are properly sent from vast/vpaid player
