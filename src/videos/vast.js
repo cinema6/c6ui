@@ -152,9 +152,13 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
             _service.VAST.prototype = {
                 getVideoSrc: function(_type) {
                     var type = _type || c6VideoService.bestFormat(
-                        this.video.mediaFiles.map(function(mediaFile) {
-                            return mediaFile.type;
-                        })
+                        this.video.mediaFiles
+                            .filter(function(mediaFile) {
+                                return (/mp4|webm/).test(mediaFile.type);
+                            })
+                            .map(function(mediaFile) {
+                                return mediaFile.type;
+                            })
                     );
 
                     return this.video.mediaFiles.reduce(function(result, mediaFile) {

@@ -531,12 +531,17 @@ define(['videos/vast'], function(vastModule) {
                                         spyOn(c6VideoService, 'bestFormat')
                                             .and.returnValue('video/mp4');
 
+                                        vast.video.mediaFiles.push({type: 'video/3gpp'});
+                                        adTechVast.video.mediaFiles.push({type: 'video/3gpp'});
+
                                         result = vast.getVideoSrc();
                                         adTechResult = adTechVast.getVideoSrc();
                                     });
 
-                                    it('should check for the best video format', function() {
-                                        expect(c6VideoService.bestFormat).toHaveBeenCalledWith(['video/mp4', 'video/x-flv']);
+                                    it('should check for the best video format, but only mp4 and webm format', function() {
+                                        expect(c6VideoService.bestFormat).toHaveBeenCalledWith(['video/mp4']);
+                                        expect(c6VideoService.bestFormat).not.toHaveBeenCalledWith(['video/x-flv']);
+                                        expect(c6VideoService.bestFormat).not.toHaveBeenCalledWith(['video/3gpp']);
                                         expect(c6VideoService.bestFormat.calls.count()).toBe(2);
                                     });
 
