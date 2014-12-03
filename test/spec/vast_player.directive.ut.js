@@ -655,7 +655,7 @@ define(['videos/vast'], function(vastModule) {
             });
         });
 
-        describe('scope.clickThrough()', function() {
+        xdescribe('scope.clickThrough()', function() {
             beforeEach(function() {
                 $scope.$apply(function() {
                     $scope.adTag = 'http://adap.tv/ads';

@@ -459,6 +459,11 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                 scope.controls = 'controls' in attrs;
 
                 scope.clickThrough = function() {
+                    // We are temporarily disabling the click through on all vast players.
+                    // We will re-enable when we have a fix for the issue where clicking
+                    // on the native controls in Safari and Firefox triggers the click through
+                    if (true) { return; }
+
                     if (!vastData ||
                         (vastData.clickThrough &&
                             (vastData.clickThrough.length === 0 ||
