@@ -1,5 +1,8 @@
 # C6UI
 
+## v3.4.2 (December 3, 2014)
+* [FIX]: Temporarily disable the click through link on all vast players
+
 ## v3.4.1 (December 3, 2014)
 * [FIX]: Only use mp4 or webm videos in vast player
 
