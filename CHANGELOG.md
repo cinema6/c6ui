@@ -1,5 +1,8 @@
 # C6UI
 
+## v3.4.1 (December 3, 2014)
+* [FIX]: Only use mp4 or webm videos in vast player
+
 ## v3.4.0 (November 26, 2014)
 * [FEATURE]: Added ```<rumble-player>```
 
