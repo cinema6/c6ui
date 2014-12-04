@@ -305,9 +305,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         setupState();
 
                         if (vastData) {
-                            vastData.firePixels('complete');
                             c6Video.fullscreen(false);
-                            self.emit('ended');
                             vastData = null;
                         }
 

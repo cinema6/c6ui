@@ -648,8 +648,6 @@ define(['videos/vast'], function(vastModule) {
                     it('should fire "complete" pixel, close fullscreen and emit ended', function() {
                         iface.reload();
                         expect(_player.fullscreen).toHaveBeenCalled();
-                        expect(iface.emit).toHaveBeenCalledWith('ended');
-                        expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
                     });
                 });
 
@@ -730,7 +728,6 @@ define(['videos/vast'], function(vastModule) {
                 it('should reset state', function() {
                     $scope.adTag = 'http://someadserver.com/ad';
                     $scope.$digest();
-                    expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
                     expect(_player.fullscreen).toHaveBeenCalled();
                     expect(iface.readyState).toBe(-1);
                 });
