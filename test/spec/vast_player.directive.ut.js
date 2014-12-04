@@ -468,6 +468,56 @@ define(['videos/vast'], function(vastModule) {
                         expect(vastObject.firePixels.calls.count()).toBe(1);
                     });
                 });
+
+                describe('firing "complete" pixel', function() {
+                    beforeEach(function() {
+                        _player.player.duration = 60;
+                        vastObject.firePixels.calls.reset();
+                    });
+
+                    describe('before one second before the end of the video', function() {
+                        beforeEach(function() {
+                            [1, 4, 7, 19, 34, 55, 58.99999].forEach(function(time) {
+                                _player.player.currentTime = time;
+                                _player.trigger('timeupdate');
+                            });
+                        });
+
+                        it('should not fire the complete pixel', function() {
+                            expect(vastObject.firePixels).not.toHaveBeenCalledWith('complete');
+                        });
+                    });
+
+                    describe('one second before the video ends', function() {
+                        beforeEach(function() {
+                            _player.player.currentTime = 59;
+                            _player.trigger('timeupdate');
+                        });
+
+                        it('should fire the complete pixel', function() {
+                            expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
+                        });
+                    });
+
+                    describe('after one second before the video ends', function() {
+                        beforeEach(function() {
+                            _player.player.currentTime = 59.2;
+                            _player.trigger('timeupdate');
+                        });
+
+                        it('should fire the complete pixel', function() {
+                            expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
+                        });
+
+                        it('should fire the pixel once', function() {
+                            vastObject.firePixels.calls.reset();
+                            _player.player.currentTime = 59.5;
+                            _player.trigger('timeupdate');
+
+                            expect(vastObject.firePixels).not.toHaveBeenCalledWith('complete');
+                        });
+                    });
+                });
             });
         });
 
@@ -648,14 +698,22 @@ define(['videos/vast'], function(vastModule) {
                     it('should fire "complete" pixel, close fullscreen and emit ended', function() {
                         iface.reload();
                         expect(_player.fullscreen).toHaveBeenCalled();
-                        expect(iface.emit).toHaveBeenCalledWith('ended');
-                        expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
+                    });
+                });
+
+                describe('minimize()', function() {
+                    beforeEach(function() {
+                        iface.minimize();
+                    });
+
+                    it('should call fullscreen(false)', function() {
+                        expect(_player.fullscreen).toHaveBeenCalledWith(false);
                     });
                 });
             });
         });
 
-        xdescribe('scope.clickThrough()', function() {
+        describe('scope.clickThrough()', function() {
             beforeEach(function() {
                 $scope.$apply(function() {
                     $scope.adTag = 'http://adap.tv/ads';
@@ -665,11 +723,11 @@ define(['videos/vast'], function(vastModule) {
                 $scope.$broadcast('c6video-ready', _player);
                 $scope.$digest();
                 $timeout.flush();
+
+                _player.player.paused = false;
             });
 
             it('should pause the player if video is playing and open a new window and fire click pixel', function() {
-                _player.player.paused = false;
-
                 scope.clickThrough();
                 expect(_player.player.pause).toHaveBeenCalled();
                 expect($window.open).toHaveBeenCalled();
@@ -683,18 +741,32 @@ define(['videos/vast'], function(vastModule) {
                 expect(_player.player.play).toHaveBeenCalled();
             });
 
-            it('should do nothing if click through url is null.com', function() {
-                vastObject.clickThrough[0] = 'http://null.com';
-
-                scope.clickThrough();
-                expect($window.open).not.toHaveBeenCalled();
-            });
-
             it('should do nothing if click through url is not defined', function() {
                 vastObject.clickThrough = [];
 
                 scope.clickThrough();
                 expect($window.open).not.toHaveBeenCalled();
+            });
+
+            describe('if controls are present', function() {
+                beforeEach(function() {
+                    $scope.$apply(function() {
+                        $player = $compile('<vast-player id="{{id}}" ad-tag="{{adTag}}" controls></vast-player>')($scope);
+                    });
+                    scope = $player.isolateScope();
+                    _player = new C6Video();
+                    vastDeferred.resolve(vastObject);
+                    $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
+                    $timeout.flush();
+
+                    _player.player.paused = false;
+                    scope.clickThrough();
+                });
+
+                it('should not open the clickThrough link', function() {
+                    expect($window.open).not.toHaveBeenCalled();
+                });
             });
         });
 
@@ -720,7 +792,6 @@ define(['videos/vast'], function(vastModule) {
                 it('should reset state', function() {
                     $scope.adTag = 'http://someadserver.com/ad';
                     $scope.$digest();
-                    expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
                     expect(_player.fullscreen).toHaveBeenCalled();
                     expect(iface.readyState).toBe(-1);
                 });

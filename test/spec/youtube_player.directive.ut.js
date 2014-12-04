@@ -855,6 +855,12 @@
                             expect(player).not.toBe(oldPlayer);
                         });
                     });
+
+                    describe('minimize()', function() {
+                        it('should return an error', function() {
+                            expect(video.minimize()).toEqual(jasmine.any(Error));
+                        });
+                    });
                 });
 
                 describe('events', function() {

@@ -2,10 +2,6 @@ define (['angular','c6uilib','c6log','modernizr','controllers'],
 function( angular , c6uilib , c6log , modernizr , controllers ) {
     'use strict';
 
-    window.c6 = {
-        kLogLevels: ['log', 'info', 'warn', 'error']
-    };
-
     return angular.module('app', [c6uilib.name, c6log.name, controllers.name])
         .config(['YouTubeDataServiceProvider',
         function( YouTubeDataServiceProvider ) {

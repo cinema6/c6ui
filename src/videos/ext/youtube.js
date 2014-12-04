@@ -447,6 +447,10 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
                                 return load(scope.videoid);
                             };
 
+                            this.minimize = function() {
+                                return new Error('The video cannot be minimized.');
+                            };
+
                             c6EventEmitter(this);
 
                             // Whenever the video loaded into the player changes (or is

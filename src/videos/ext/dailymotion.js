@@ -188,6 +188,10 @@ function( angular , eventsEmitter        , urlUrlparser        , video    , brow
                         $iframe.attr('src', $iframe.attr('src'));
                     };
 
+                    this.minimize = function() {
+                        return new Error('The video cannot be minimized.');
+                    };
+
                     scope.$watch('videoid', function(videoid, oldVideoid) {
                         state = setupState();
 

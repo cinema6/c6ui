@@ -155,6 +155,10 @@ function( angular ) {
                             $iframe.attr('src', $iframe.attr('src'));
                         };
 
+                        this.minimize = function() {
+                            return new Error('The video cannot be minimized.');
+                        };
+
                         Object.defineProperties(this, {
                             buffered: {
                                 get: function() {

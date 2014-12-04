@@ -3,7 +3,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
     'use strict';
 
     var forEach = angular.forEach,
-        isDefined = angular.isDefined;
+        isDefined = angular.isDefined,
+        noop = angular.noop;
 
     return angular.module('c6.ui.videos.vast', [eventsEmitter.name, browserInfo.name, videoService.name, imagePreloader.name])
     .provider('VASTService', [function() {
@@ -299,15 +300,20 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         }
                     }
 
+                    function firePixelsOnce(pixel, predicate) {
+                        if (predicate() && !vastEvents[pixel]) {
+                            vastData.firePixels(pixel);
+                            vastEvents[pixel] = true;
+                        }
+                    }
+
                     function load(adTag) {
                         if (!adTag) { return; }
 
                         setupState();
 
                         if (vastData) {
-                            vastData.firePixels('complete');
                             c6Video.fullscreen(false);
-                            self.emit('ended');
                             vastData = null;
                         }
 
@@ -386,6 +392,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         c6Video.player.load();
                     };
 
+                    this.minimize = function() {
+                        return c6Video.fullscreen(false);
+                    };
+
                     c6EventEmitter(this);
 
                     setupState();
@@ -421,27 +431,30 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         });
 
                         c6Video.on('ended', function() {
-                            vastData.firePixels('complete');
                             self.emit('ended');
                             c6Video.fullscreen(false);
                         });
 
                         c6Video.on('timeupdate', function() {
-                            var currTime = Math.round(c6Video.player.currentTime),
-                                duration = c6Video.player.duration;
+                            var player = c6Video.player,
+                                currTime = Math.round(player.currentTime),
+                                duration = player.duration;
 
-                            if((currTime === Math.round(duration * 0.25)) && !vastEvents.firstQuartile) {
-                                vastData.firePixels('firstQuartile');
-                                vastEvents.firstQuartile = true;
-                            }
-                            if((currTime === Math.round(duration * 0.5)) && !vastEvents.midpoint) {
-                                vastData.firePixels('midpoint');
-                                vastEvents.midpoint = true;
-                            }
-                            if((currTime === Math.round(duration * 0.75)) && !vastEvents.thirdQuartile) {
-                                vastData.firePixels('thirdQuartile');
-                                vastEvents.thirdQuartile = true;
-                            }
+                            firePixelsOnce('firstQuartile', function() {
+                                return currTime === Math.round(duration * 0.25);
+                            });
+
+                            firePixelsOnce('midpoint', function() {
+                                return currTime === Math.round(duration * 0.5);
+                            });
+
+                            firePixelsOnce('thirdQuartile', function() {
+                                return currTime === Math.round(duration * 0.75);
+                            });
+
+                            firePixelsOnce('complete', function() {
+                                return player.currentTime >= (duration - 1);
+                            });
 
                             self.emit('timeupdate');
                         });
@@ -458,16 +471,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                 scope.controls = 'controls' in attrs;
 
-                scope.clickThrough = function() {
-                    // We are temporarily disabling the click through on all vast players.
-                    // We will re-enable when we have a fix for the issue where clicking
-                    // on the native controls in Safari and Firefox triggers the click through
-                    if (true) { return; }
-
-                    if (!vastData ||
-                        (vastData.clickThrough &&
-                            (vastData.clickThrough.length === 0 ||
-                            (/null.com/).test(vastData.clickThrough[0])))) { return; }
+                scope.clickThrough = scope.controls ? noop : function() {
+                    if (!(vastData && vastData.clickThrough && vastData.clickThrough.length > 0)) {
+                        return;
+                    }
 
                     if (c6Video.player.paused) {
                         c6Video.player.play();

@@ -252,6 +252,12 @@ define(['videos/vpaid'], function(vpaidModule) {
                     expect($player.data('video')).toEqual(iface);
                 });
 
+                describe('minimize()', function() {
+                    it('should return an error', function() {
+                        expect(iface.minimize()).toEqual(jasmine.any(Error));
+                    });
+                });
+
                 describe('play', function() {
                     var deferred;
 
