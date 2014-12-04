@@ -1,6 +1,10 @@
 (function() {
     'use strict';
 
+    window.c6 = {
+        kLogLevels: ['log', 'info', 'warn', 'error']
+    };
+
     requirejs.config({
         baseUrl: 'scripts',
         paths: {
