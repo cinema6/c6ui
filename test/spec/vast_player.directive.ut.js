@@ -468,6 +468,56 @@ define(['videos/vast'], function(vastModule) {
                         expect(vastObject.firePixels.calls.count()).toBe(1);
                     });
                 });
+
+                describe('firing "complete" pixel', function() {
+                    beforeEach(function() {
+                        _player.player.duration = 60;
+                        vastObject.firePixels.calls.reset();
+                    });
+
+                    describe('before one second before the end of the video', function() {
+                        beforeEach(function() {
+                            [1, 4, 7, 19, 34, 55, 58.99999].forEach(function(time) {
+                                _player.player.currentTime = time;
+                                _player.trigger('timeupdate');
+                            });
+                        });
+
+                        it('should not fire the complete pixel', function() {
+                            expect(vastObject.firePixels).not.toHaveBeenCalledWith('complete');
+                        });
+                    });
+
+                    describe('one second before the video ends', function() {
+                        beforeEach(function() {
+                            _player.player.currentTime = 59;
+                            _player.trigger('timeupdate');
+                        });
+
+                        it('should fire the complete pixel', function() {
+                            expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
+                        });
+                    });
+
+                    describe('after one second before the video ends', function() {
+                        beforeEach(function() {
+                            _player.player.currentTime = 59.2;
+                            _player.trigger('timeupdate');
+                        });
+
+                        it('should fire the complete pixel', function() {
+                            expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
+                        });
+
+                        it('should fire the pixel once', function() {
+                            vastObject.firePixels.calls.reset();
+                            _player.player.currentTime = 59.5;
+                            _player.trigger('timeupdate');
+
+                            expect(vastObject.firePixels).not.toHaveBeenCalledWith('complete');
+                        });
+                    });
+                });
             });
         });
 

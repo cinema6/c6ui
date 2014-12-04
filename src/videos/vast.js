@@ -299,6 +299,13 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         }
                     }
 
+                    function firePixelsOnce(pixel, predicate) {
+                        if (predicate() && !vastEvents[pixel]) {
+                            vastData.firePixels(pixel);
+                            vastEvents[pixel] = true;
+                        }
+                    }
+
                     function load(adTag) {
                         if (!adTag) { return; }
 
@@ -423,27 +430,30 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         });
 
                         c6Video.on('ended', function() {
-                            vastData.firePixels('complete');
                             self.emit('ended');
                             c6Video.fullscreen(false);
                         });
 
                         c6Video.on('timeupdate', function() {
-                            var currTime = Math.round(c6Video.player.currentTime),
-                                duration = c6Video.player.duration;
+                            var player = c6Video.player,
+                                currTime = Math.round(player.currentTime),
+                                duration = player.duration;
 
-                            if((currTime === Math.round(duration * 0.25)) && !vastEvents.firstQuartile) {
-                                vastData.firePixels('firstQuartile');
-                                vastEvents.firstQuartile = true;
-                            }
-                            if((currTime === Math.round(duration * 0.5)) && !vastEvents.midpoint) {
-                                vastData.firePixels('midpoint');
-                                vastEvents.midpoint = true;
-                            }
-                            if((currTime === Math.round(duration * 0.75)) && !vastEvents.thirdQuartile) {
-                                vastData.firePixels('thirdQuartile');
-                                vastEvents.thirdQuartile = true;
-                            }
+                            firePixelsOnce('firstQuartile', function() {
+                                return currTime === Math.round(duration * 0.25);
+                            });
+
+                            firePixelsOnce('midpoint', function() {
+                                return currTime === Math.round(duration * 0.5);
+                            });
+
+                            firePixelsOnce('thirdQuartile', function() {
+                                return currTime === Math.round(duration * 0.75);
+                            });
+
+                            firePixelsOnce('complete', function() {
+                                return player.currentTime >= (duration - 1);
+                            });
 
                             self.emit('timeupdate');
                         });
