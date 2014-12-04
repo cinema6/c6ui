@@ -713,7 +713,7 @@ define(['videos/vast'], function(vastModule) {
             });
         });
 
-        xdescribe('scope.clickThrough()', function() {
+        describe('scope.clickThrough()', function() {
             beforeEach(function() {
                 $scope.$apply(function() {
                     $scope.adTag = 'http://adap.tv/ads';
@@ -723,11 +723,11 @@ define(['videos/vast'], function(vastModule) {
                 $scope.$broadcast('c6video-ready', _player);
                 $scope.$digest();
                 $timeout.flush();
+
+                _player.player.paused = false;
             });
 
             it('should pause the player if video is playing and open a new window and fire click pixel', function() {
-                _player.player.paused = false;
-
                 scope.clickThrough();
                 expect(_player.player.pause).toHaveBeenCalled();
                 expect($window.open).toHaveBeenCalled();
@@ -741,18 +741,32 @@ define(['videos/vast'], function(vastModule) {
                 expect(_player.player.play).toHaveBeenCalled();
             });
 
-            it('should do nothing if click through url is null.com', function() {
-                vastObject.clickThrough[0] = 'http://null.com';
-
-                scope.clickThrough();
-                expect($window.open).not.toHaveBeenCalled();
-            });
-
             it('should do nothing if click through url is not defined', function() {
                 vastObject.clickThrough = [];
 
                 scope.clickThrough();
                 expect($window.open).not.toHaveBeenCalled();
+            });
+
+            describe('if controls are present', function() {
+                beforeEach(function() {
+                    $scope.$apply(function() {
+                        $player = $compile('<vast-player id="{{id}}" ad-tag="{{adTag}}" controls></vast-player>')($scope);
+                    });
+                    scope = $player.isolateScope();
+                    _player = new C6Video();
+                    vastDeferred.resolve(vastObject);
+                    $scope.$broadcast('c6video-ready', _player);
+                    $scope.$digest();
+                    $timeout.flush();
+
+                    _player.player.paused = false;
+                    scope.clickThrough();
+                });
+
+                it('should not open the clickThrough link', function() {
+                    expect($window.open).not.toHaveBeenCalled();
+                });
             });
         });
 

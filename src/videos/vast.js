@@ -3,7 +3,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
     'use strict';
 
     var forEach = angular.forEach,
-        isDefined = angular.isDefined;
+        isDefined = angular.isDefined,
+        noop = angular.noop;
 
     return angular.module('c6.ui.videos.vast', [eventsEmitter.name, browserInfo.name, videoService.name, imagePreloader.name])
     .provider('VASTService', [function() {
@@ -470,16 +471,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                 scope.controls = 'controls' in attrs;
 
-                scope.clickThrough = function() {
-                    // We are temporarily disabling the click through on all vast players.
-                    // We will re-enable when we have a fix for the issue where clicking
-                    // on the native controls in Safari and Firefox triggers the click through
-                    if (true) { return; }
-
-                    if (!vastData ||
-                        (vastData.clickThrough &&
-                            (vastData.clickThrough.length === 0 ||
-                            (/null.com/).test(vastData.clickThrough[0])))) { return; }
+                scope.clickThrough = scope.controls ? noop : function() {
+                    if (!(vastData && vastData.clickThrough && vastData.clickThrough.length > 0)) {
+                        return;
+                    }
 
                     if (c6Video.player.paused) {
                         c6Video.player.play();
