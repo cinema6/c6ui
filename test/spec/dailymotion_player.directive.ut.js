@@ -550,6 +550,12 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
                         expect(setAttribute).toHaveBeenCalledWith('src', src);
                     });
                 });
+
+                describe('minimize()', function() {
+                    it('should return an error', function() {
+                        expect(iface.minimize()).toEqual(jasmine.any(Error));
+                    });
+                });
             });
 
             describe('events', function() {

@@ -503,6 +503,10 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             load(scope.adTag);
                         };
 
+                        this.minimize = function() {
+                            return new Error('The video cannot be minimized.');
+                        };
+
                         c6EventEmitter(this);
 
                         setupState();

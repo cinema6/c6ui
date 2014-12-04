@@ -935,6 +935,12 @@
                             expect(setAttribute).toHaveBeenCalledWith('src', src);
                         });
                     });
+
+                    describe('minimize()', function() {
+                        it('should return an error', function() {
+                            expect(video.minimize()).toEqual(jasmine.any(Error));
+                        });
+                    });
                 });
             });
         });

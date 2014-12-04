@@ -45,7 +45,7 @@ function( angular , eventsEmitter        ) {
                         return load(scope.code);
                     };
 
-                    ['play', 'pause', 'load'].forEach(function(method) {
+                    ['play', 'pause', 'load', 'minimize'].forEach(function(method) {
                         this[method] = function() {
                             return new Error('<embedded-player> cannot ' + method + '.');
                         };

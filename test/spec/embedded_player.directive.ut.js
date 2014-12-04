@@ -167,7 +167,7 @@ define(['videos/ext/embedded'], function(embeddedModule) {
                     });
                 });
 
-                ['play', 'load', 'pause'].forEach(function(method) {
+                ['play', 'load', 'pause', 'minimize'].forEach(function(method) {
                     describe(method, function() {
                         var result;
 

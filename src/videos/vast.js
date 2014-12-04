@@ -386,6 +386,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         c6Video.player.load();
                     };
 
+                    this.minimize = function() {
+                        return c6Video.fullscreen(false);
+                    };
+
                     c6EventEmitter(this);
 
                     setupState();

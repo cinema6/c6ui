@@ -652,6 +652,16 @@ define(['videos/vast'], function(vastModule) {
                         expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
                     });
                 });
+
+                describe('minimize()', function() {
+                    beforeEach(function() {
+                        iface.minimize();
+                    });
+
+                    it('should call fullscreen(false)', function() {
+                        expect(_player.fullscreen).toHaveBeenCalledWith(false);
+                    });
+                });
             });
         });
 
