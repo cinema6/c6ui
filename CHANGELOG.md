@@ -1,5 +1,14 @@
 # C6UI
 
+## v3.4.3 (December 4, 2014)
+* [FIX]: VAST player no longer fires the complete pixel and ended event
+  when the player is reloaded
+* [FEATURE]: All players now have a ```minimize()``` method to exit
+  fullscreen mode if possible
+* [FIX]: VAST click through is only disabled if controls are enabled
+* The VAST player now fires the "complete" pixel one second from the end
+  of the video
+
 ## v3.4.2 (December 3, 2014)
 * [FIX]: Temporarily disable the click through link on all vast players
 
