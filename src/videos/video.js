@@ -139,11 +139,6 @@ function( angular ) {
                     return false;
                 }
 
-                if (c6videoService.isIPhone && video.src) {
-                    this.regenerate();
-                    video = this.player;
-                }
-
                 if (typeof src === 'string') {
                     var extension = src.split('.').pop().toLowerCase(),
                     validFormats = c6videoService.validFormats;
