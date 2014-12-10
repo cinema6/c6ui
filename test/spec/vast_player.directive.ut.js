@@ -106,13 +106,20 @@ define(['videos/vast'], function(vastModule) {
                 currentTime: 0,
                 ended: false,
                 duration: NaN,
-                paused: true
+                paused: true,
+                src: null
             };
+
+            this.src = jasmine.createSpy('src()').and.callFake(function(src) {
+                this.player.src = src;
+            });
 
             this.fullscreen = jasmine.createSpy('c6Video.fullscreen()');
 
             this.bufferedPercent = jasmine.createSpy('c6Video.bufferedPercent()')
                 .and.returnValue(0);
+
+            this.regenerate = jasmine.createSpy('regenerate()');
 
             this.on = jasmine.createSpy('c6Video.on()')
                 .and.callFake(function(event, handler) {
@@ -187,7 +194,7 @@ define(['videos/vast'], function(vastModule) {
             });
             scope = $player.isolateScope();
             iface = initSpy.calls.mostRecent().args[1];
-            spyOn(iface, 'emit');
+            spyOn(iface, 'emit').and.callThrough();
             spyOn(iface, 'play').and.callThrough();
         });
 
@@ -223,86 +230,68 @@ define(['videos/vast'], function(vastModule) {
             it('should put the iface on the $element', function() {
                 expect($player.data('video')).toEqual(iface);
             });
-
-            describe('with an adTag', function() {
-                var companionsReady;
-
-                beforeEach(function() {
-                    companionsReady = jasmine.createSpy('companionsReady');
-
-                    iface.on('companionsReady', companionsReady);
-                });
-
-                it('should call the VASTService', function() {
-                    $scope.$apply(function() {
-                        $scope.adTag = 'http://adap.tv/ads';
-                    });
-                    expect(VASTService.getVAST).toHaveBeenCalled();
-                });
-
-                it('should emit error on the iface if no video source is returned', function() {
-                    vastObject.getVideoSrc.and.returnValue(null);
-                    vastDeferred.resolve(vastObject);
-                    $scope.$apply(function() {
-                        $scope.adTag = 'http://adap.tv/ads';
-                    });
-                    _player = new C6Video();
-                    $scope.$broadcast('c6video-ready', _player);
-                    $scope.$digest();
-                    expect(iface.emit).toHaveBeenCalledWith('ready');
-                    expect(iface.emit).toHaveBeenCalledWith('error');
-                });
-
-                it('should emit error on the iface if VASTService rejects promise', function() {
-                    $scope.$apply(function() {
-                        $scope.adTag = 'http://adap.tv/ads';
-                    });
-                    vastDeferred.reject();
-                    $scope.$digest();
-                    expect(iface.emit).toHaveBeenCalledWith('ready');
-                    expect(iface.emit).toHaveBeenCalledWith('error');
-                });
-            });
         });
 
         describe('player events', function() {
             beforeEach(function() {
-                $scope.$apply(function() {
-                    $scope.adTag = 'http://adap.tv/ads';
-                });
-
                 _player = new C6Video();
             });
 
+            describe('companionsReady', function() {
+                var spy;
+
+                beforeEach(function() {
+                    spy = jasmine.createSpy('spy()');
+
+                    iface.on('companionsReady', spy);
+
+                    $scope.$apply(function() {
+                        scope.$emit('c6video-ready', _player);
+                    });
+                    $scope.$apply(function() {
+                        iface.load();
+                    });
+                });
+
+                describe('if the vast object has companions', function() {
+                    beforeEach(function() {
+                        $scope.$apply(function() {
+                            vastDeferred.resolve(vastObject);
+                        });
+                    });
+
+                    it('should emit the event', function() {
+                        expect(spy).toHaveBeenCalled();
+                    });
+
+                    it('should only emit the event once', function() {
+                        $scope.$apply(function() {
+                            iface.play();
+                        });
+                        expect(spy.calls.count()).toBe(1);
+                    });
+                });
+
+                describe('if the vast object has no companions', function() {
+                    beforeEach(function() {
+                        spyOn(vastObject, 'getCompanion').and.returnValue(null);
+
+                        $scope.$apply(function() {
+                            vastDeferred.resolve(vastObject);
+                        });
+                    });
+
+                    it('should not emit the event', function() {
+                        expect(spy).not.toHaveBeenCalled();
+                    });
+                });
+            });
+
             describe('ready', function() {
-                it('should not emit ready from iface if no vast response has been received', function() {
-                    $scope.$broadcast('c6video-ready', _player);
-                    expect(iface.emit).not.toHaveBeenCalledWith('ready');
-                });
-
-                it('should not emit ready from iface if c6video is not ready', function() {
-                    vastDeferred.resolve(vastObject);
-                    $scope.$digest();
-                    expect(iface.emit).not.toHaveBeenCalledWith('ready');
-                });
-
-                it('should emit ready event when c6Video was ready AND vast is returned', function() {
-                    $scope.$broadcast('c6video-ready', _player);
-                    expect(iface.emit).not.toHaveBeenCalledWith('ready');
-
-                    vastDeferred.resolve(vastObject);
-                    $scope.$digest();
-                    $timeout.flush();
-                    expect(iface.emit).toHaveBeenCalledWith('ready');
-                });
-
-                it('should emit ready event when vast has been returned and c6video ready is fired', function() {
-                    vastDeferred.resolve(vastObject);
-                    $scope.$digest();
-                    $timeout.flush();
-                    expect(iface.emit).not.toHaveBeenCalledWith('ready');
-
-                    $scope.$broadcast('c6video-ready', _player);
+                it('should emit ready when the video is ready', function() {
+                    $scope.$apply(function() {
+                        $scope.$broadcast('c6video-ready', _player);
+                    });
                     expect(iface.emit).toHaveBeenCalledWith('ready');
                 });
 
@@ -322,7 +311,9 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 it('should set readyState to 1 when loadedmetadata is fired', function() {
-                    $scope.$broadcast('c6video-ready', _player);
+                    $scope.$apply(function() {
+                        $scope.$broadcast('c6video-ready', _player);
+                    });
                     _player.trigger('loadedmetadata');
                     expect(iface.readyState).toBe(1);
                 });
@@ -337,6 +328,8 @@ define(['videos/vast'], function(vastModule) {
                         iface = initSpy.calls.mostRecent().args[1];
                         spyOn(iface, 'play');
                         $scope.$broadcast('c6video-ready', _player);
+                        expect(iface.play).not.toHaveBeenCalled();
+                        $scope.$digest();
                         expect(iface.play).toHaveBeenCalled();
                     });
 
@@ -357,19 +350,25 @@ define(['videos/vast'], function(vastModule) {
 
             describe('play', function() {
                 beforeEach(function() {
-                    vastDeferred.resolve(vastObject);
-                    $scope.$broadcast('c6video-ready', _player);
-                    $scope.$digest();
-                    $timeout.flush();
+                    $scope.$apply(function() {
+                        $scope.$broadcast('c6video-ready', _player);
+                    });
+                    $scope.$apply(function() {
+                        iface.play();
+                    });
+                    $scope.$apply(function() {
+                        vastDeferred.resolve(vastObject);
+                    });
+                    _player.trigger('canplay');
+
+                    _player.trigger('play');
                 });
 
                 it('should emit play on the iface', function() {
-                    _player.trigger('play');
                     expect(iface.emit).toHaveBeenCalledWith('play');
                 });
 
                 it('should only fire pixels once', function() {
-                    _player.trigger('play');
                     expect(vastObject.firePixels).toHaveBeenCalledWith('impression');
                     expect(vastObject.firePixels).toHaveBeenCalledWith('playing');
                     expect(vastObject.firePixels).toHaveBeenCalledWith('start');
@@ -389,20 +388,28 @@ define(['videos/vast'], function(vastModule) {
 
             describe('pause', function() {
                 beforeEach(function() {
-                    vastDeferred.resolve(vastObject);
-                    $scope.$broadcast('c6video-ready', _player);
-                    $scope.$digest();
-                    $timeout.flush();
+                    $scope.$apply(function() {
+                        $scope.$broadcast('c6video-ready', _player);
+                    });
+                    $scope.$apply(function() {
+                        iface.play();
+                    });
+                    $scope.$apply(function() {
+                        vastDeferred.resolve(vastObject);
+                    });
+                    _player.trigger('canplay');
+
+                    _player.trigger('pause');
                 });
 
                 it('should emit pause on the iface', function() {
-                    _player.trigger('pause');
                     expect(iface.emit).toHaveBeenCalledWith('pause');
                 });
 
                 it('should always fire the pause pixel', function() {
-                    _player.trigger('pause');
                     expect(vastObject.firePixels).toHaveBeenCalledWith('pause');
+
+                    vastObject.firePixels.calls.reset();
                     _player.trigger('pause');
                     expect(vastObject.firePixels).toHaveBeenCalledWith('pause');
                 });
@@ -423,10 +430,16 @@ define(['videos/vast'], function(vastModule) {
 
             describe('timeupdate', function() {
                 beforeEach(function() {
-                    vastDeferred.resolve(vastObject);
-                    $scope.$broadcast('c6video-ready', _player);
-                    $scope.$digest();
-                    $timeout.flush();
+                    $scope.$apply(function() {
+                        $scope.$broadcast('c6video-ready', _player);
+                    });
+                    $scope.$apply(function() {
+                        iface.play();
+                    });
+                    $scope.$apply(function() {
+                        vastDeferred.resolve(vastObject);
+                    });
+                    _player.trigger('canplay');
                 });
 
                 it('should emit timeupdate on the iface', function() {
@@ -522,25 +535,66 @@ define(['videos/vast'], function(vastModule) {
         });
 
         describe('iface', function() {
-            it('should return defaults if no video is loaded', function() {
-                expect(iface.currentTime).toBe(0);
-                expect(function() {
-                    iface.currentTime = 10;
-                }).not.toThrow();
-                expect(iface.ended).toBe(false);
-                expect(iface.duration).toBe(0);
-                expect(iface.paused).toBe(true);
-                expect(iface.readyState).toBe(-1);
-            });
-
             describe('properties', function() {
                 beforeEach(function() {
                     _player = new C6Video();
 
-                    vastDeferred.resolve(vastObject);
-                    $scope.$broadcast('c6video-ready', _player);
-                    $scope.$digest();
-                    $timeout.flush();
+                    $scope.$apply(function() {
+                        $scope.$broadcast('c6video-ready', _player);
+                    });
+                });
+
+                describe('src', function() {
+                    describe('getting', function() {
+                        it('should return the ad tag it was set to', function() {
+                            expect(iface.src).toBeNull();
+
+                            iface.src = 'http://www.ad.tag.com';
+                            expect(iface.src).toBe('http://www.ad.tag.com');
+
+                            iface.src = 'http://www.ad.tag.org';
+                            expect(iface.src).toBe('http://www.ad.tag.org');
+                        });
+                    });
+
+                    describe('setting', function() {
+                        var spy;
+
+                        beforeEach(function() {
+                            spy = jasmine.createSpy('spy()').and.callFake(function() {
+                                expect(iface.src).not.toBeNull();
+                            });
+
+                            _player.trigger('loadedmetadata');
+                            $scope.$apply(function() {
+                                iface.play();
+                            });
+                            $scope.$apply(function() {
+                                vastDeferred.resolve(vastObject);
+                            });
+                            _player.trigger('canplay');
+                            _player.trigger('play');
+
+                            iface.on('ready', spy);
+
+                            iface.src = 'newadtag.com';
+                        });
+
+                        it('should reset the player state', function() {
+                            expect(iface.readyState).toBe(0);
+
+                            $scope.$apply(function() {
+                                iface.play();
+                            });
+                            vastObject.firePixels.calls.reset();
+                            _player.trigger('play');
+                            expect(vastObject.firePixels).toHaveBeenCalledWith('playing');
+                        });
+
+                        it('should emit ready', function() {
+                            expect(spy).toHaveBeenCalled();
+                        });
+                    });
                 });
 
                 describe('currentTime', function() {
@@ -596,15 +650,34 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 describe('readyState', function() {
-                    it('should return the readyState that is handled by the directive', function() {
+                    beforeEach(function() {
                         $scope.$apply(function() {
-                            $scope.adTag = 'http://adap.tv/ads';
+                            $player = $compile('<vast-player videoid="abc" adTag=""></vast-player>')($scope);
                         });
+                        _player = new C6Video();
+                        scope = $player.isolateScope();
+                        iface = $player.data('video');
+                    });
+
+                    it('should return the readyState that is handled by the directive', function() {
                         expect(iface.readyState).toBe(-1);
-                        $timeout.flush();
+
+                        $scope.$apply(function() {
+                            scope.$emit('c6video-ready', _player);
+                        });
                         expect(iface.readyState).toBe(0);
+
+                        $scope.$apply(function() {
+                            iface.load();
+                        });
+                        $scope.$apply(function() {
+                            vastDeferred.resolve(vastObject);
+                        });
+                        _player.trigger('canplay');
+
                         _player.trigger('loadedmetadata');
                         expect(iface.readyState).toBe(1);
+
                         _player.trigger('play');
                         expect(iface.readyState).toBe(3);
                     });
@@ -627,17 +700,83 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 describe('play', function() {
-                    it('should call play on the video object', function() {
-                        iface.play();
+                    var vast;
+
+                    beforeEach(function() {
+                        iface.src = 'adtag.org';
+
+                        vast = vastObject;
+
+                        $scope.$apply(function() {
+                            iface.load();
+                        });
+                        $scope.$apply(function() {
+                            vastDeferred.resolve(vast);
+                        });
+                        _player.trigger('canplay');
+
+                        VASTService.getVAST.calls.reset();
+
+                        $scope.$apply(function() {
+                            iface.play();
+                        });
+                    });
+
+                    it('should play the video', function() {
                         expect(_player.player.play).toHaveBeenCalled();
                     });
 
-                    it('should reset the state if the ad has already played and completed', function() {
-                        _player.trigger('loadedmetadata');
-                        expect(iface.readyState).toBe(1);
-                        _player.player.ended = true;
-                        iface.play();
-                        expect(iface.readyState).toBe(-1);
+                    it('should not fetch any VAST', function() {
+                        expect(VASTService.getVAST).not.toHaveBeenCalled();
+                    });
+
+                    describe('if the video has not been loaded yet', function() {
+                        beforeEach(function() {
+                            vastDeferred = $q.defer();
+                            VASTService.getVAST.and.returnValue(vastDeferred.promise);
+
+                            _player.player.play.calls.reset();
+
+                            iface.src = 'new.adtag.org';
+
+                            $scope.$apply(function() {
+                                iface.play();
+                            });
+                        });
+
+                        it('should not play the video', function() {
+                            expect(_player.player.play).not.toHaveBeenCalled();
+                        });
+
+                        it('should fetch the new VAST', function() {
+                            expect(VASTService.getVAST).toHaveBeenCalledWith(iface.src);
+                        });
+
+                        describe('when the vast is fetched', function() {
+                            beforeEach(function() {
+                                _player.src.calls.reset();
+
+                                vast.getVideoSrc.and.returnValue('http://videos.com/my-vid.mp4');
+
+                                $scope.$apply(function() {
+                                    vastDeferred.resolve(vast);
+                                });
+                            });
+
+                            it('should set the player src', function() {
+                                expect(_player.src).toHaveBeenCalledWith(vast.getVideoSrc());
+                            });
+
+                            describe('when the video canplay', function() {
+                                beforeEach(function() {
+                                    _player.trigger('canplay');
+                                });
+
+                                it('should play the video', function() {
+                                    expect(_player.player.play).toHaveBeenCalled();
+                                });
+                            });
+                        });
                     });
                 });
 
@@ -650,54 +789,92 @@ define(['videos/vast'], function(vastModule) {
 
                 describe('load', function() {
                     beforeEach(function() {
-                        iface.load();
+                        iface.src = 'http://i-am-an-adtag.com';
+                        $scope.$apply(function() {
+                            iface.load();
+                        });
                     });
 
-                    it('should call load() on the video', function() {
-                        expect(_player.player.load).toHaveBeenCalled();
+                    it('should request the VAST', function() {
+                        expect(VASTService.getVAST).toHaveBeenCalledWith(iface.src);
                     });
-                });
 
-                describe('pause', function() {
-                    it('should call pause on the video object', function() {
-                        iface.pause();
-                        expect(_player.player.pause).toHaveBeenCalled();
+                    describe('when the vast is loaded', function() {
+                        var vast;
+
+                        beforeEach(function() {
+                            vast = vastObject;
+
+                            $scope.$apply(function() {
+                                vastDeferred.resolve(vast);
+                            });
+                        });
+
+                        it('should set the src', function() {
+                            expect(_player.src).toHaveBeenCalledWith(vast.getVideoSrc());
+                        });
                     });
                 });
 
                 describe('getCompanions', function() {
-                    it('should return the companion if it exists', function() {
-                        $scope.$apply(function() {
-                            $scope.adTag = 'http://adap.tv/ads';
+                    var companions;
+
+                    describe('if there is no VAST', function() {
+                        beforeEach(function() {
+                            companions = iface.getCompanions();
                         });
-                        var companionObjects = iface.getCompanions();
-                        expect(companionObjects[0].adType).toBe('iframe');
+
+                        it('should be null', function() {
+                            expect(companions).toBeNull();
+                        });
                     });
 
-                    it('should return null if there is no companion', function() {
-                        spyOn(vastObject, 'getCompanion').and.returnValue(null);
-                        $scope.$apply(function() {
-                            $player = $compile('<vast-player id="{{id}}" autoplay ad-tag="{{adTag}}"></vast-player>')($scope);
+                    describe('if there is VAST', function() {
+                        beforeEach(function() {
+                            $scope.$apply(function() {
+                                iface.load();
+                            });
                         });
-                        iface = initSpy.calls.mostRecent().args[1];
-                        expect(iface.getCompanions()).toBe(null);
+
+                        describe('if the VAST has companions', function() {
+                            beforeEach(function() {
+                                $scope.$apply(function() {
+                                    vastDeferred.resolve(vastObject);
+                                });
+
+                                companions = iface.getCompanions();
+                            });
+
+                            it('should be the companion in an array', function() {
+                                expect(companions).toEqual([vastObject.getCompanion()]);
+                            });
+                        });
+
+                        describe('if the VAST has no companion', function() {
+                            beforeEach(function() {
+                                spyOn(vastObject, 'getCompanion').and.returnValue(null);
+
+                                $scope.$apply(function() {
+                                    vastDeferred.resolve(vastObject);
+                                });
+
+                                companions = iface.getCompanions();
+                            });
+
+                            it('should be null', function() {
+                                expect(companions).toBeNull();
+                            });
+                        });
                     });
                 });
 
                 describe('reload', function() {
                     beforeEach(function() {
-                        $scope.$apply(function() {
-                            $scope.adTag = 'http://adap.tv/ads';
-                        });
-                    });
-                    it('should call the VASTService again', function() {
                         iface.reload();
-                        expect(VASTService.getVAST.calls.count()).toBe(2);
                     });
 
-                    it('should fire "complete" pixel, close fullscreen and emit ended', function() {
-                        iface.reload();
-                        expect(_player.fullscreen).toHaveBeenCalled();
+                    it('should regenerate the player', function() {
+                        expect(_player.regenerate).toHaveBeenCalled();
                     });
                 });
 
@@ -715,14 +892,16 @@ define(['videos/vast'], function(vastModule) {
 
         describe('scope.clickThrough()', function() {
             beforeEach(function() {
-                $scope.$apply(function() {
-                    $scope.adTag = 'http://adap.tv/ads';
-                });
                 _player = new C6Video();
-                vastDeferred.resolve(vastObject);
-                $scope.$broadcast('c6video-ready', _player);
-                $scope.$digest();
-                $timeout.flush();
+                $scope.$apply(function() {
+                    $scope.$broadcast('c6video-ready', _player);
+                });
+                $scope.$apply(function() {
+                    iface.load();
+                });
+                $scope.$apply(function() {
+                    vastDeferred.resolve(vastObject);
+                });
 
                 _player.player.paused = false;
             });
@@ -770,30 +949,20 @@ define(['videos/vast'], function(vastModule) {
             });
         });
 
-        describe('$watch', function() {
+        describe('$watchers', function() {
             describe('adTag', function() {
                 beforeEach(function() {
                     $scope.$apply(function() {
-                        $scope.adTag = 'http://adap.tv/ads';
+                        scope.$emit('c6video-ready', _player);
                     });
-                    _player = new C6Video();
-                    vastDeferred.resolve(vastObject);
-                    $scope.$broadcast('c6video-ready', _player);
-                    $scope.$digest();
-                    $timeout.flush();
+
+                    $scope.$apply(function() {
+                        scope.adTag = 'newtag.com';
+                    });
                 });
 
-                it('should reload the player', function() {
-                    $scope.adTag = 'http://someadserver.com/ad';
-                    $scope.$digest();
-                    expect(VASTService.getVAST.calls.count()).toBe(2);
-                });
-
-                it('should reset state', function() {
-                    $scope.adTag = 'http://someadserver.com/ad';
-                    $scope.$digest();
-                    expect(_player.fullscreen).toHaveBeenCalled();
-                    expect(iface.readyState).toBe(-1);
+                it('should set the src', function() {
+                    expect(iface.src).toBe('newtag.com');
                 });
             });
         });
