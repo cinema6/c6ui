@@ -268,7 +268,7 @@ function( angular ) {
                 var deferred = $q.defer();
 
                 // Use the chrome hack.
-                if (c6videoService.isChrome && angular.isUndefined($attrs.noHack)) {
+                if (c6videoService.isChrome && angular.isUndefined($attrs.noHack) && video.player.src) {
                     var hackyHackyChromeySucky = function(event) {
                         var player = event.target;
                         $log.info(video.id + ': Applied Chrome Hack - ' + player.currentSrc);
