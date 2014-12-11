@@ -777,6 +777,18 @@ define(['videos/vast'], function(vastModule) {
                                 });
                             });
                         });
+
+                        describe('if the vast fails to load', function() {
+                            beforeEach(function() {
+                                $scope.$apply(function() {
+                                    vastDeferred.reject(vast);
+                                });
+                            });
+
+                            it('should not play the video', function() {
+                                expect(_player.player.play).not.toHaveBeenCalled();
+                            });
+                        });
                     });
                 });
 
@@ -788,7 +800,15 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 describe('load', function() {
+                    var errorSpy;
+
                     beforeEach(function() {
+                        errorSpy = jasmine.createSpy('error()');
+                        vastDeferred = $q.defer();
+                        VASTService.getVAST.and.returnValue(vastDeferred.promise);
+
+                        iface.on('error', errorSpy);
+
                         iface.src = 'http://i-am-an-adtag.com';
                         $scope.$apply(function() {
                             iface.load();
@@ -812,6 +832,32 @@ define(['videos/vast'], function(vastModule) {
 
                         it('should set the src', function() {
                             expect(_player.src).toHaveBeenCalledWith(vast.getVideoSrc());
+                        });
+                    });
+
+                    describe('if the vast has no video for the browser', function() {
+                        beforeEach(function() {
+                            vastObject.getVideoSrc.and.returnValue(null);
+
+                            $scope.$apply(function() {
+                                vastDeferred.resolve(vastObject);
+                            });
+                        });
+
+                        it('should emit the error event', function() {
+                            expect(errorSpy).toHaveBeenCalled();
+                        });
+                    });
+
+                    describe('if the vast fails to load', function() {
+                        beforeEach(function() {
+                            $scope.$apply(function() {
+                                vastDeferred.reject('I FAILED YOU MASTER.');
+                            });
+                        });
+
+                        it('should emit the error event', function() {
+                            expect(errorSpy).toHaveBeenCalled();
                         });
                     });
                 });

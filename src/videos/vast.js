@@ -327,6 +327,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             var deferred = $q.defer(),
                                 src = vast.getVideoSrc();
 
+                            if (!src) {
+                                return $q.reject(vast);
+                            }
+
                             if (video.player.src === src) {
                                 return $q.when(video);
                             }
@@ -342,7 +346,11 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         return loadFromCache()
                             .catch(loadFromVASTService)
                             .then(setState)
-                            .then(setSrc);
+                            .then(setSrc)
+                            .catch(function(error) {
+                                self.emit('error');
+                                return $q.reject(error);
+                            });
                     }
 
                     Object.defineProperties(this, {
