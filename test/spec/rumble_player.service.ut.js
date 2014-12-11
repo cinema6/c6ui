@@ -344,6 +344,12 @@
 
                                     expect(paused).toHaveBeenCalledWith(true);
                                 });
+
+                                it('should not throw errors if method events are emitted but the method was not called', function() {
+                                    expect(function() {
+                                        postMessage('paused', false);
+                                    }).not.toThrow();
+                                });
                             });
                         });
                     });

@@ -48,7 +48,7 @@ function( angular ) {
                         event = data.event,
                         value = data.value;
 
-                    if (method) {
+                    if (method && pending[method]) {
                         pending[method].resolve(value);
                         delete pending[method];
                     }
