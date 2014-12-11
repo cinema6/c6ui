@@ -139,11 +139,6 @@ function( angular ) {
                     return false;
                 }
 
-                if (c6videoService.isIPhone && video.src) {
-                    this.regenerate();
-                    video = this.player;
-                }
-
                 if (typeof src === 'string') {
                     var extension = src.split('.').pop().toLowerCase(),
                     validFormats = c6videoService.validFormats;
@@ -273,7 +268,7 @@ function( angular ) {
                 var deferred = $q.defer();
 
                 // Use the chrome hack.
-                if (c6videoService.isChrome && angular.isUndefined($attrs.noHack)) {
+                if (c6videoService.isChrome && angular.isUndefined($attrs.noHack) && video.player.src) {
                     var hackyHackyChromeySucky = function(event) {
                         var player = event.target;
                         $log.info(video.id + ': Applied Chrome Hack - ' + player.currentSrc);

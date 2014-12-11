@@ -255,107 +255,137 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
         /* jshint camelcase:true */
     }])
 
-    .directive('vastPlayer', ['VASTService','c6EventEmitter','c6BrowserInfo','$window','$timeout','$document',
-    function                 ( VASTService , c6EventEmitter , c6BrowserInfo , $window , $timeout , $document ) {
+    .directive('vastPlayer', ['VASTService','c6EventEmitter','c6BrowserInfo','$window','$document','$q',
+    function                 ( VASTService , c6EventEmitter , c6BrowserInfo , $window , $document , $q ) {
         $document.find('head').append('<style>vast-player {display:inline-block;}</style>');
 
         return {
             restrict: 'E',
-            template: '<video ng-click="clickThrough()" c6-video id="{{videoid}}" c6-src="adUrl" c6-controls="controls" style="width: 100%;"></video>',
+            template: '<video ng-click="clickThrough()" c6-video id="{{videoid}}" c6-controls="controls" style="width: 100%;"></video>',
             scope: {
                 adTag: '@',
                 videoid: '@'
             },
             link: function(scope, $element, attrs) {
                 var profile = c6BrowserInfo.profile,
-                    c6Video,
-                    vastData,
+                    vastCache = {},
+                    video = null, vast = null,
                     iface;
 
                 function VastPlayer() {
                     var self = this,
-                        companion = null,
                         readyState,
                         vastEvents,
                         hasStarted,
-                        shouldPlay;
+                        src = null;
 
                     function setupState() {
                         vastEvents = {};
                         readyState = -1;
                         hasStarted = false;
-                        shouldPlay = true;
                     }
 
-                    function emitReady() {
+                    function ready() {
                         readyState = 0;
                         self.emit('ready');
-
-                        if (!scope.adUrl) {
-                            self.emit('error');
-                        }
-
-                        if (companion) {
-                            self.emit('companionsReady');
-                        }
                     }
 
                     function firePixelsOnce(pixel, predicate) {
                         if (predicate() && !vastEvents[pixel]) {
-                            vastData.firePixels(pixel);
+                            vast.firePixels(pixel);
                             vastEvents[pixel] = true;
                         }
                     }
 
-                    function load(adTag) {
-                        if (!adTag) { return; }
+                    function load(src) {
+                        function loadFromCache() {
+                            var vast = vastCache[src];
 
-                        setupState();
-
-                        if (vastData) {
-                            c6Video.fullscreen(false);
-                            vastData = null;
+                            return vast ? $q.when(vast) : $q.reject(null);
                         }
 
-                        VASTService.getVAST(adTag).then(function(vast) {
-                            scope.adUrl = vast.getVideoSrc();
-                            companion = vast.getCompanion();
-                            vastData = vast;
+                        function loadFromVASTService() {
+                            function cache(vast) {
+                                /* jshint boss:true */
+                                return (vastCache[src] = vast);
+                            }
 
-                            $timeout(function() {
-                                if (c6Video) {
-                                    emitReady();
-                                }
+                            return VASTService.getVAST(src)
+                                .then(cache);
+                        }
+
+                        function setState(data) {
+                            if (data !== vast && data.getCompanion()) {
+                                self.emit('companionsReady');
+                            }
+
+                            /* jshint boss:true */
+                            return (vast = data);
+                        }
+
+                        function setSrc(vast) {
+                            var deferred = $q.defer(),
+                                src = vast.getVideoSrc();
+
+                            if (!src) {
+                                return $q.reject(vast);
+                            }
+
+                            if (video.player.src === src) {
+                                return $q.when(video);
+                            }
+
+                            video.on('canplay', function() {
+                                deferred.resolve(video);
                             });
-                        }, function() {
-                            self.emit('ready');
-                            self.emit('error');
-                        });
+                            video.src(src);
+
+                            return deferred.promise;
+                        }
+
+                        return loadFromCache()
+                            .catch(loadFromVASTService)
+                            .then(setState)
+                            .then(setSrc)
+                            .catch(function(error) {
+                                self.emit('error');
+                                return $q.reject(error);
+                            });
                     }
 
                     Object.defineProperties(this, {
+                        src: {
+                            get: function() {
+                                return src;
+                            },
+                            set: function(value) {
+                                src = value;
+
+                                setupState();
+                                ready();
+                            }
+                        },
                         currentTime: {
                             get: function() {
-                                return c6Video ? c6Video.player.currentTime : 0;
+                                return video.player.currentTime;
                             },
                             set: function(time) {
-                                if (!c6Video) { return; }
-                                c6Video.player.currentTime = time;
+                                video.player.currentTime = time;
                             }
                         },
                         ended: {
                             get: function() {
-                                return c6Video ? c6Video.player.ended : false;
+                                return video.player.ended;
                             }
                         },
                         duration: {
                             get: function() {
-                                return c6Video ? c6Video.player.duration : 0;
+                                return video.player.duration;
                             }
                         },
                         paused: {
                             get: function() {
-                                return !c6Video || c6Video.player.paused;
+                                return video.player.paused;
                             }
                         },
                         readyState: {
@@ -366,46 +396,39 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     });
 
                     this.play = function() {
-                        if (!c6Video) { return; }
-
-                        if (this.ended) {
-                            setupState();
-                        }
-
-                        c6Video.player.play();
+                        load(this.src).then(function(video) {
+                            video.player.play();
+                        });
                     };
 
                     this.pause = function() {
-                        if (!c6Video) { return; }
-                        c6Video.player.pause();
+                        video.player.pause();
                     };
 
                     this.getCompanions = function() {
+                        var companion = vast && vast.getCompanion();
+
                         return companion && [companion];
                     };
 
                     this.reload = function() {
-                        load(scope.adTag);
+                        video.regenerate();
                     };
 
                     this.load = function() {
-                        c6Video.player.load();
+                        load(this.src);
                     };
 
                     this.minimize = function() {
-                        return c6Video.fullscreen(false);
+                        return video.fullscreen(false);
                     };
 
                     c6EventEmitter(this);
 
                     setupState();
 
-                    scope.$watch('adTag', load);
-
-                    scope.$on('c6video-ready', function(event, video) {
-                        if (!shouldPlay) { return; }
-
-                        c6Video = video;
+                    scope.$on('c6video-ready', function(event, c6Video) {
+                        video = c6Video;
 
                         c6Video.on('loadedmetadata', function() {
                             readyState = 1;
@@ -415,18 +438,18 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         c6Video.on('play', function() {
                             if (!hasStarted) {
                                 hasStarted = true;
-                                vastData.firePixels('impression');
-                                vastData.firePixels('loaded');
-                                vastData.firePixels('creativeView');
-                                vastData.firePixels('start');
-                                vastData.firePixels('playing');
+                                vast.firePixels('impression');
+                                vast.firePixels('loaded');
+                                vast.firePixels('creativeView');
+                                vast.firePixels('start');
+                                vast.firePixels('playing');
                             }
                             readyState = 3;
                             self.emit('play');
                         });
 
                         c6Video.on('pause', function() {
-                            vastData.firePixels('pause');
+                            vast.firePixels('pause');
                             self.emit('pause');
                         });
 
@@ -459,12 +482,14 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             self.emit('timeupdate');
                         });
 
-                        if (isDefined(attrs.autoplay) && profile.autoplay) {
-                            self.play();
-                        }
+                        scope.$watch('adTag', function(tag) {
+                            self.src = tag || null;
+                        });
 
-                        if (vastData) {
-                            emitReady();
+                        if (isDefined(attrs.autoplay) && profile.autoplay) {
+                            self.once('ready', function() {
+                                self.play();
+                            });
                         }
                     });
                 }
@@ -472,16 +497,16 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                 scope.controls = 'controls' in attrs;
 
                 scope.clickThrough = scope.controls ? noop : function() {
-                    if (!(vastData && vastData.clickThrough && vastData.clickThrough.length > 0)) {
+                    if (!(vast && vast.clickThrough && vast.clickThrough.length > 0)) {
                         return;
                     }
 
-                    if (c6Video.player.paused) {
-                        c6Video.player.play();
+                    if (video.player.paused) {
+                        video.player.play();
                     } else {
-                        c6Video.player.pause();
-                        $window.open(vastData.clickThrough[0]);
-                        vastData.firePixels('videoClickTracking');
+                        video.player.pause();
+                        $window.open(vast.clickThrough[0]);
+                        vast.firePixels('videoClickTracking');
                     }
                 };
 

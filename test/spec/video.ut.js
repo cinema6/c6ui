@@ -166,6 +166,7 @@ define(['videos/video'], function(videosVideo) {
 
                 c6VideoService.isChrome = true;
                 $element[0].readyState = 4;
+                $element[0].src = 'src.mp4';
 
                 $scope.$apply(function() {
                     C6VideoCtrl = $controller('C6VideoController', {

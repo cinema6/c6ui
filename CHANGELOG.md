@@ -1,5 +1,8 @@
 # C6UI
 
+* The VAST player now makes no ad requests until its load() method is
+  called
+
 ## v3.4.3 (December 4, 2014)
 * [FIX]: VAST player no longer fires the complete pixel and ended event
   when the player is reloaded
