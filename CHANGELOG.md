@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.5.0 (December 11, 2014)
 * The VAST player now makes no ad requests until its load() method is
   called
 * [FIX]: Fix for an issue that caused rumble videos to log errors to the
