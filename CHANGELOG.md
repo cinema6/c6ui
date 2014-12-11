@@ -2,6 +2,8 @@
 
 * The VAST player now makes no ad requests until its load() method is
   called
+* [FIX]: Fix for an issue that caused rumble videos to log errors to the
+  console
 
 ## v3.4.3 (December 4, 2014)
 * [FIX]: VAST player no longer fires the complete pixel and ended event
