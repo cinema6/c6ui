@@ -793,9 +793,36 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 describe('pause', function() {
-                    it('should call pause on the video object', function() {
+                    beforeEach(function() {
+                        $scope.$apply(function() {
+                            iface.play();
+                        });
+                        _player.trigger('play');
                         iface.pause();
+                    });
+
+                    it('should call pause on the video object', function() {
                         expect(_player.player.pause).toHaveBeenCalled();
+                    });
+
+                    describe('if the video has not played yet', function() {
+                        beforeEach(function() {
+                            _player.player.pause.calls.reset();
+                            $scope.$apply(function() {
+                                iface.src = 'new-tag.com';
+                            });
+                            $scope.$apply(function() {
+                                iface.pause();
+                            });
+                        });
+
+                        it('should not pause the video', function() {
+                            expect(_player.player.pause).not.toHaveBeenCalled();
+                        });
+
+                        it('should regenerate the video', function() {
+                            expect(_player.regenerate).toHaveBeenCalled();
+                        });
                     });
                 });
 

@@ -1,5 +1,10 @@
 # C6UI
 
+## v3.5.1 (December 11, 2014)
+* [FIX]: Fix for an issue that caused a VAST video to start playing if
+  it had been told to play but couldn't, even if pause() was called
+  before it started playing
+
 ## v3.5.0 (December 11, 2014)
 * The VAST player now makes no ad requests until its load() method is
   called
