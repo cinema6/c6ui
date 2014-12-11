@@ -402,6 +402,10 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     };
 
                     this.pause = function() {
+                        if (!hasStarted) {
+                            return video.regenerate();
+                        }
+
                         video.player.pause();
                     };
 
