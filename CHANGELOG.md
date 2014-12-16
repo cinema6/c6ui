@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.5.2 (December 16, 2014)
 * [FIX]: Changed the default VPAID timer to 5 seconds
 * [FIX]: Trust that we have an ad if the time elapsed has changed or
   the AdStarted or AdVideoStart event is fired
