@@ -5,7 +5,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
     return angular.module('c6.ui.videos.vpaid',[eventsEmitter.name, browserInfo.name])
     .provider('VPAIDService', [function () {
         var _provider = {
-            adTimeout: 3000
+            adTimeout: 5000
         };
 
         this.swfUrl = function(url) {
@@ -107,8 +107,8 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         function initTimer() {
                             var check = $interval(function() {
                                     if (self.player.getAdProperties) {
-                                        if (self.player.getAdProperties().adCurrentTime > 0 &&
-                                            adStarted && adVideoStart) {
+                                        if (self.player.getAdProperties().adCurrentTime > 0 ||
+                                            adStarted || adVideoStart) {
                                             actualAdDeferred.resolve();
                                         }
                                     }
