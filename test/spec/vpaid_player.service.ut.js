@@ -29,7 +29,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                 adExpanded: false,
                 adRemainingTime: 3,
                 adVolume: 50,
-                adCurrentTime: 2,
+                adCurrentTime: 0,
                 adDuration: 5
             });
         }
@@ -277,7 +277,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                     });
 
                     describe('ad timer', function() {
-                        it('should reject all promises after 3 seconds', function() {
+                        it('should reject all promises after 5 seconds', function() {
                             player.startAd().then(null, failure);
 
                             $timeout.flush();
@@ -293,34 +293,49 @@ define(['videos/vpaid'], function(vpaidModule) {
                             expect(failure).toHaveBeenCalled();
                         });
 
-                        it('should reject the returned promise if the ad has loaded but real ad has not started', function() {
-                            messageHandler(adLoaded);
-                            messageHandler(adStarted);
-                            messageHandler(adVideoStarted);
+                        describe('when ad has loaded', function() {
+                            beforeEach(function() {
+                                messageHandler(adLoaded);
+                                player.startAd().then(success, failure);
+                            });
 
-                            mockFlashPlayer.getAdProperties.and.returnValue({adCurrentTime:0});
+                            it('should reject the returned promise if the ad has loaded but real ad has not started', function() {
+                                $interval.flush(500);
+                                $timeout.flush();
 
-                            player.startAd().then(success, failure);
+                                expect(success).not.toHaveBeenCalled();
+                                expect(failure).toHaveBeenCalled();
+                            });
 
-                            $interval.flush(500);
-                            $timeout.flush();
+                            it('should resolve the promise if time changes', function() {
+                                mockFlashPlayer.getAdProperties.and.returnValue({adCurrentTime:2});
 
-                            expect(success).not.toHaveBeenCalled();
-                            expect(failure).toHaveBeenCalled();
-                        });
+                                $interval.flush(500);
+                                $timeout.flush();
 
-                        it('should resolve if all events fire', function() {
-                            player.startAd().then(success, failure);
+                                expect(success).toHaveBeenCalled();
+                                expect(failure).not.toHaveBeenCalled();
+                            });
 
-                            messageHandler(adLoaded);
-                            messageHandler(adStarted);
-                            messageHandler(adVideoStarted);
+                            it('should resolve the promise if AdStarted event is fired', function() {
+                                messageHandler(adStarted);
 
-                            $interval.flush(500);
-                            $timeout.flush();
+                                $interval.flush(500);
+                                $timeout.flush();
 
-                            expect(success).toHaveBeenCalled();
-                            expect(failure).not.toHaveBeenCalled();
+                                expect(success).toHaveBeenCalled();
+                                expect(failure).not.toHaveBeenCalled();
+                            });
+
+                            it('should resolve the promise if AdStarted event is fired', function() {
+                                messageHandler(adVideoStarted);
+
+                                $interval.flush(500);
+                                $timeout.flush();
+
+                                expect(success).toHaveBeenCalled();
+                                expect(failure).not.toHaveBeenCalled();
+                            });
                         });
                     });
                 });
@@ -494,7 +509,11 @@ define(['videos/vpaid'], function(vpaidModule) {
                     });
 
                     it('should call getAdProperties().adCurrentTime on the flash object', function() {
-                        var time = player.getCurrentTime();
+                        var time;
+
+                        mockFlashPlayer.getAdProperties.and.returnValue({adCurrentTime:2});
+
+                        time = player.getCurrentTime();
                         expect(mockFlashPlayer.getAdProperties).toHaveBeenCalled();
                         expect(time).toBe(2);
                     });

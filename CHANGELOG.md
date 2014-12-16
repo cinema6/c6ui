@@ -1,5 +1,10 @@
 # C6UI
 
+## v3.5.2 (December 16, 2014)
+* [FIX]: Changed the default VPAID timer to 5 seconds
+* [FIX]: Trust that we have an ad if the time elapsed has changed or
+  the AdStarted or AdVideoStart event is fired
+
 ## v3.5.1 (December 11, 2014)
 * [FIX]: Fix for an issue that caused a VAST video to start playing if
   it had been told to play but couldn't, even if pause() was called
