@@ -3,6 +3,8 @@
 ## v3.5.3 (December 18, 2014)
 * [FEATURE]: Allow the VAST player to play back inline if possible on
   mobile
+* [FIX]: Moved the VPAID flash object template from the directive
+  to the VPAID service
 
 ## v3.5.2 (December 16, 2014)
 * [FIX]: Changed the default VPAID timer to 5 seconds

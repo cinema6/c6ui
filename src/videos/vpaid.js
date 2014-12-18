@@ -22,8 +22,8 @@ function( angular , eventsEmitter     , browserInfo      ) {
             var service = {},
                 _service = {};
 
-            service.createPlayer = function(id, adTag, vpaidTemplate, $element) {
-                _service.VPAIDPlayer = function(id, adTag, vpaidTemplate, $element, $win) {
+            service.createPlayer = function(id, adTag, $element) {
+                _service.VPAIDPlayer = function(id, adTag, $element, $win) {
                         var self = this,
                             adPlayerDeferred = $q.defer(),
                             adDeferred = $q.defer(),
@@ -56,11 +56,40 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             return deferred.promise;
                         }
 
-                        function setup(template) {
-                            var html,
+                        function setup() {
+                            var html = [
+                                    '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" style="width:100%;height:100%;position:absolute;top:0;right:0;bottom:0;left:0;visibility:visible;" id="c6VPAIDplayer_ie">',
+                                    '    <param name="movie" value="__SWF__" />',
+                                    '    <param name="quality" value="high" />',
+                                    '    <param name="bgcolor" value="#000000" />',
+                                    '    <param name="play" value="false" />',
+                                    '    <param name="loop" value="false" />',
+                                    '    <param name="wmode" value="opaque" />',
+                                    '    <param name="scale" value="noscale" />',
+                                    '    <param name="salign" value="lt" />',
+                                    '    <param name="flashvars" value="__FLASHVARS__" />',
+                                    '    <param name="allowScriptAccess" value="always" />',
+                                    '    <param name="allowFullscreen" value="true" />',
+                                    '    <!--[if !IE]>-->',
+                                    '    <object type="application/x-shockwave-flash" data="__SWF__" id="c6VPAIDplayer" style="width:100%;height:100%;position:absolute;top:0;right:0;bottom:0;left:0;">',
+                                    '        <param name="movie" value="__SWF__" />',
+                                    '        <param name="quality" value="high" />',
+                                    '        <param name="bgcolor" value="#000000" />',
+                                    '        <param name="play" value="false" />',
+                                    '        <param name="loop" value="false" />',
+                                    '        <param name="wmode" value="opaque" />',
+                                    '        <param name="scale" value="noscale" />',
+                                    '        <param name="salign" value="lt" />',
+                                    '        <param name="flashvars" value="__FLASHVARS__" />',
+                                    '        <param name="allowScriptAccess" value="always" />',
+                                    '        <param name="allowFullscreen" value="true" />',
+                                    '    </object>',
+                                    '    <!--<![endif]-->',
+                                    '</object>'
+                                ].join('\n'),
                                 flashvars = '';
 
-                            html = template.replace(/__SWF__/g, _provider.swfUrl);
+                            html = html.replace(/__SWF__/g, _provider.swfUrl);
 
                             flashvars += 'adXmlUrl=' + encodeURIComponent(adTag);
                             flashvars += '&playerId=' + encodeURIComponent(id);
@@ -123,7 +152,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                         }
 
                         self.insertHTML = function() {
-                            return setup(vpaidTemplate);
+                            return setup();
                         };
 
                         self.loadAd = function() {
@@ -262,7 +291,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
 
                     }; // end _service.VPAIDPlayer()
 
-                return new _service.VPAIDPlayer(id, adTag, vpaidTemplate, $element, $window);
+                return new _service.VPAIDPlayer(id, adTag, $element, $window);
             };
 
             /* jshint camelcase:false */
@@ -283,242 +312,206 @@ function( angular , eventsEmitter     , browserInfo      ) {
 
         return {
             restrict: 'E',
-            template: [
-                '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" style="width:100%;height:100%;position:absolute;top:0;right:0;bottom:0;left:0;visibility:visible;" id="c6VPAIDplayer_ie">',
-                '    <param name="movie" value="__SWF__" />',
-                '    <param name="quality" value="high" />',
-                '    <param name="bgcolor" value="#000000" />',
-                '    <param name="play" value="false" />',
-                '    <param name="loop" value="false" />',
-                '    <param name="wmode" value="opaque" />',
-                '    <param name="scale" value="noscale" />',
-                '    <param name="salign" value="lt" />',
-                '    <param name="flashvars" value="__FLASHVARS__" />',
-                '    <param name="allowScriptAccess" value="always" />',
-                '    <param name="allowFullscreen" value="true" />',
-                '    <!--[if !IE]>-->',
-                '    <object type="application/x-shockwave-flash" data="__SWF__" id="c6VPAIDplayer" style="width:100%;height:100%;position:absolute;top:0;right:0;bottom:0;left:0;">',
-                '        <param name="movie" value="__SWF__" />',
-                '        <param name="quality" value="high" />',
-                '        <param name="bgcolor" value="#000000" />',
-                '        <param name="play" value="false" />',
-                '        <param name="loop" value="false" />',
-                '        <param name="wmode" value="opaque" />',
-                '        <param name="scale" value="noscale" />',
-                '        <param name="salign" value="lt" />',
-                '        <param name="flashvars" value="__FLASHVARS__" />',
-                '        <param name="allowScriptAccess" value="always" />',
-                '        <param name="allowFullscreen" value="true" />',
-                '    </object>',
-                '    <!--<![endif]-->',
-                '</object>'
-            ].join('\n'),
             scope: {
                 adTag: '@',
                 videoid: '@'
             },
-            compile: function(element$) {
-                var vpaidTemplate = element$.html();
+            link: function(scope, $element, attrs) {
+                var iface;
 
-                element$.empty();
+                function VpaidPlayer() {
+                    var state,
+                        emittedMeta,
+                        emittedCanplay,
+                        hasLoadAdBeenCalled,
+                        currentTimeInterval,
+                        publicTime,
+                        hasStarted,
+                        player;
 
-                return function postLink(scope, $element, attrs) {
-                    var iface;
+                    function setupState() {
+                        state = {
+                            paused: true,
+                            ended: false,
+                            duration: 0,
+                            readyState: -1
+                        };
+                        hasLoadAdBeenCalled = false;
+                        hasStarted = false;
+                        emittedMeta = false;
+                        emittedCanplay = false;
+                        publicTime = 0;
+                    }
 
-                    function VpaidPlayer() {
-                        var state,
-                            emittedMeta,
-                            emittedCanplay,
-                            hasLoadAdBeenCalled,
-                            currentTimeInterval,
-                            publicTime,
-                            hasStarted,
-                            player;
+                    function load(adTag) {
+                        if (!adTag) { return; }
 
-                        function setupState() {
-                            state = {
-                                paused: true,
-                                ended: false,
-                                duration: 0,
-                                readyState: -1
-                            };
-                            hasLoadAdBeenCalled = false;
-                            hasStarted = false;
-                            emittedMeta = false;
-                            emittedCanplay = false;
-                            publicTime = 0;
+                        if (player) {
+                            player.destroy();
+                            $interval.cancel(currentTimeInterval);
                         }
-
-                        function load(adTag) {
-                            if (!adTag) { return; }
-
-                            if (player) {
-                                player.destroy();
-                                $interval.cancel(currentTimeInterval);
-                            }
-
-                            setupState();
-
-                            player = VPAIDService.createPlayer(scope.videoid, adTag, vpaidTemplate, $element);
-
-                            player.on('ready', function() {
-                                state.readyState = 0;
-
-                                iface.emit('ready');
-
-                                player.on('ended', function() {
-                                    state.ended = true;
-                                    iface.emit('ended');
-                                    $interval.cancel(currentTimeInterval);
-                                });
-
-                                player.on('play', function() {
-                                    state.paused = false;
-                                    state.duration = player.getDuration();
-                                    state.readyState = 1;
-                                    if (!emittedMeta) {
-                                        emittedMeta = true;
-                                        iface.emit('loadedmetadata');
-                                    }
-
-                                    iface.emit('play');
-                                    state.readyState = 3;
-                                    if (!emittedCanplay) {
-                                        emittedCanplay = true;
-                                        iface.emit('canplay');
-                                    }
-
-                                    currentTimeInterval = $interval(
-                                        function pollCurrentTime() {
-                                            var currentTime = player.currentTime;
-
-                                            if (currentTime !== publicTime) {
-                                                publicTime = currentTime;
-                                                iface.emit('timeupdate');
-                                            }
-                                        },
-                                        250
-                                    );
-                                });
-
-                                player.on('pause', function() {
-                                    state.paused = true;
-                                    iface.emit('pause');
-                                });
-
-                                player.on('companionsReady', function() {
-                                    iface.emit('companionsReady');
-                                });
-
-                                player.on('error', function() {
-                                    iface.emit('error');
-                                });
-
-                                if (angular.isDefined(attrs.autoplay) && profile.autoplay) {
-                                    iface.play();
-                                }
-                            });
-
-                            player.insertHTML().then(function(result) {
-                                $log.info(result);
-                            }, function(error) {
-                                $log.error(error);
-                                iface.emit('error');
-                            });
-                        }
-
-                        Object.defineProperties(this, {
-                            currentTime: {
-                                get: function() {
-                                    return state.readyState > -1 ? player.currentTime : 0;
-                                }
-                            },
-                            duration: {
-                                get: function() {
-                                    return state.duration;
-                                }
-                            },
-                            paused: {
-                                get: function() {
-                                    return state.paused;
-                                }
-                            },
-                            ended: {
-                                get: function() {
-                                    return state.ended;
-                                }
-                            },
-                            videoid: {
-                                get: function() {
-                                    return scope.videoid;
-                                }
-                            },
-                            readyState: {
-                                get: function() {
-                                    return state.readyState;
-                                }
-                            }
-                        });
-
-                        this.load = function() {
-                            if (hasLoadAdBeenCalled) { return; }
-
-                            hasLoadAdBeenCalled = true;
-                            return player.loadAd();
-                        };
-
-                        this.play = function() {
-                            if (state.ended) {
-                                load(scope.adTag);
-                            }
-
-                            iface.load();
-
-                            if (hasStarted) {
-                                return player.resumeAd();
-                            } else {
-                                hasStarted = true;
-                                return player.startAd()
-                                    .catch(function() {
-                                        iface.emit('error');
-                                    });
-                            }
-                        };
-
-                        this.pause = function() {
-                            return player.pause();
-                        };
-
-                        this.getCompanions = function(width, height) {
-                            var args = arguments,
-                                banners = player.getDisplayBanners();
-
-                            return banners && banners.filter(function(banner) {
-                                return args.length !== 2 ||
-                                    (banner.width === width && banner.height === height);
-                            });
-                        };
-
-                        this.reload = function() {
-                            load(scope.adTag);
-                        };
-
-                        this.minimize = function() {
-                            return new Error('The video cannot be minimized.');
-                        };
-
-                        c6EventEmitter(this);
 
                         setupState();
 
-                        scope.$watch('adTag', load);
+                        player = VPAIDService.createPlayer(scope.videoid, adTag, $element);
+
+                        player.on('ready', function() {
+                            state.readyState = 0;
+
+                            iface.emit('ready');
+
+                            player.on('ended', function() {
+                                state.ended = true;
+                                iface.emit('ended');
+                                $interval.cancel(currentTimeInterval);
+                            });
+
+                            player.on('play', function() {
+                                state.paused = false;
+                                state.duration = player.getDuration();
+                                state.readyState = 1;
+                                if (!emittedMeta) {
+                                    emittedMeta = true;
+                                    iface.emit('loadedmetadata');
+                                }
+
+                                iface.emit('play');
+                                state.readyState = 3;
+                                if (!emittedCanplay) {
+                                    emittedCanplay = true;
+                                    iface.emit('canplay');
+                                }
+
+                                currentTimeInterval = $interval(
+                                    function pollCurrentTime() {
+                                        var currentTime = player.currentTime;
+
+                                        if (currentTime !== publicTime) {
+                                            publicTime = currentTime;
+                                            iface.emit('timeupdate');
+                                        }
+                                    },
+                                    250
+                                );
+                            });
+
+                            player.on('pause', function() {
+                                state.paused = true;
+                                iface.emit('pause');
+                            });
+
+                            player.on('companionsReady', function() {
+                                iface.emit('companionsReady');
+                            });
+
+                            player.on('error', function() {
+                                iface.emit('error');
+                            });
+
+                            if (angular.isDefined(attrs.autoplay) && profile.autoplay) {
+                                iface.play();
+                            }
+                        });
+
+                        player.insertHTML().then(function(result) {
+                            $log.info(result);
+                        }, function(error) {
+                            $log.error(error);
+                            iface.emit('error');
+                        });
                     }
 
-                    iface = new VpaidPlayer();
+                    Object.defineProperties(this, {
+                        currentTime: {
+                            get: function() {
+                                return state.readyState > -1 ? player.currentTime : 0;
+                            }
+                        },
+                        duration: {
+                            get: function() {
+                                return state.duration;
+                            }
+                        },
+                        paused: {
+                            get: function() {
+                                return state.paused;
+                            }
+                        },
+                        ended: {
+                            get: function() {
+                                return state.ended;
+                            }
+                        },
+                        videoid: {
+                            get: function() {
+                                return scope.videoid;
+                            }
+                        },
+                        readyState: {
+                            get: function() {
+                                return state.readyState;
+                            }
+                        }
+                    });
 
-                    $element.data('video', iface);
-                    scope.$emit('<vpaid-player>:init', iface);
-                };
+                    this.load = function() {
+                        if (hasLoadAdBeenCalled) { return; }
+
+                        hasLoadAdBeenCalled = true;
+                        return player.loadAd();
+                    };
+
+                    this.play = function() {
+                        if (state.ended) {
+                            load(scope.adTag);
+                        }
+
+                        iface.load();
+
+                        if (hasStarted) {
+                            return player.resumeAd();
+                        } else {
+                            hasStarted = true;
+                            return player.startAd()
+                                .catch(function() {
+                                    iface.emit('error');
+                                });
+                        }
+                    };
+
+                    this.pause = function() {
+                        return player.pause();
+                    };
+
+                    this.getCompanions = function(width, height) {
+                        var args = arguments,
+                            banners = player.getDisplayBanners();
+
+                        return banners && banners.filter(function(banner) {
+                            return args.length !== 2 ||
+                                (banner.width === width && banner.height === height);
+                        });
+                    };
+
+                    this.reload = function() {
+                        load(scope.adTag);
+                    };
+
+                    this.minimize = function() {
+                        return new Error('The video cannot be minimized.');
+                    };
+
+                    c6EventEmitter(this);
+
+                    setupState();
+
+                    scope.$watch('adTag', load);
+                }
+
+                iface = new VpaidPlayer();
+
+                $element.data('video', iface);
+                scope.$emit('<vpaid-player>:init', iface);
             }
         };
     }]);

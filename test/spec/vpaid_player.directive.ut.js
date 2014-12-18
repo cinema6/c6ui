@@ -38,8 +38,8 @@ define(['videos/vpaid'], function(vpaidModule) {
             $scope.id = '12345';
 
             _createPlayer = VPAIDService.createPlayer;
-            spyOn(VPAIDService, 'createPlayer').and.callFake(function(id, adTag, template, $el) {
-                _player = _createPlayer(id, adTag, template, $el);
+            spyOn(VPAIDService, 'createPlayer').and.callFake(function(id, adTag, $el) {
+                _player = _createPlayer(id, adTag, $el);
                 return _player;
             });
 
