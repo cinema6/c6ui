@@ -1,6 +1,8 @@
 # C6UI
 
-## v3.5.3 (December 17, 2014)
+## v3.5.3 (December 18, 2014)
+* [FEATURE]: Allow the VAST player to play back inline if possible on
+  mobile
 * [FIX]: Moved the VPAID flash object template from the directive
   to the VPAID service
 
