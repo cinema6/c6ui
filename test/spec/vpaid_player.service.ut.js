@@ -146,7 +146,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                     messageHandler = listener;
                 });
 
-                player = VPAIDService.createPlayer(id, adTag, template, $element);
+                player = VPAIDService.createPlayer(id, adTag, $element);
             });
 
             it('should return the flash player object', function() {

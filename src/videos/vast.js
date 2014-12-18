@@ -261,7 +261,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
         return {
             restrict: 'E',
-            template: '<video ng-click="clickThrough()" c6-video id="{{videoid}}" c6-controls="controls" style="width: 100%;"></video>',
+            template: '<video ng-click="clickThrough()" c6-video id="{{videoid}}" c6-controls="controls" style="width: 100%;" webkit-playsinline></video>',
             scope: {
                 adTag: '@',
                 videoid: '@'
