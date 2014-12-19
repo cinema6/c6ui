@@ -1,5 +1,8 @@
 # C6UI
 
+## v3.5.4 (December 19, 2014)
+* [FIX]: Destroy VPAID player if ad times out
+
 ## v3.5.3 (December 18, 2014)
 * [FEATURE]: Allow the VAST player to play back inline if possible on
   mobile

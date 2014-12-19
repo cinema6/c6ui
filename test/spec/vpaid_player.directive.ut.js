@@ -308,6 +308,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                         deferred.reject();
                         $scope.$digest();
                         expect(iface.emit).toHaveBeenCalledWith('error');
+                        expect(_player.destroy).toHaveBeenCalled();
                     });
                 });
 

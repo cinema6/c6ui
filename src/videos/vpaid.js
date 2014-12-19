@@ -474,6 +474,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             hasStarted = true;
                             return player.startAd()
                                 .catch(function() {
+                                    player.destroy();
                                     iface.emit('error');
                                 });
                         }
