@@ -368,10 +368,6 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             });
 
                             player.on('play', function() {
-                                if (state.error) {
-                                    player.stopAd();
-                                    return;
-                                }
                                 state.paused = false;
                                 state.duration = player.getDuration();
                                 state.readyState = 1;
@@ -479,7 +475,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             hasStarted = true;
                             return player.startAd()
                                 .catch(function() {
-                                    state.error = true;
+                                    player.destroy();
                                     iface.emit('error');
                                 });
                         }

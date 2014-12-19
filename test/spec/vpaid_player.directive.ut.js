@@ -308,14 +308,7 @@ define(['videos/vpaid'], function(vpaidModule) {
                         deferred.reject();
                         $scope.$digest();
                         expect(iface.emit).toHaveBeenCalledWith('error');
-                    });
-
-                    it('should ensure that an ad is not played even if it is loaded later and did not get the pause() message', function() {
-                        spyOn(_player, 'stopAd');
-                        deferred.reject();
-                        $scope.$digest();
-                        _player.emit('play');
-                        expect(_player.stopAd).toHaveBeenCalled();
+                        expect(_player.destroy).toHaveBeenCalled();
                     });
                 });
 
