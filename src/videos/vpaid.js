@@ -334,8 +334,7 @@ function( angular , eventsEmitter     , browserInfo      ) {
                             paused: true,
                             ended: false,
                             duration: 0,
-                            readyState: -1,
-                            error: false
+                            readyState: -1
                         };
                         hasLoadAdBeenCalled = false;
                         hasStarted = false;
