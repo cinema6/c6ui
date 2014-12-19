@@ -91,6 +91,10 @@ function( angular ) {
                 player.on('ready', function() {
                     $scope.adReady = true;
                 });
+
+                player.on('error', function() {
+                    player.pause();
+                });
             });
 
             $scope.$on('<vast-player>:init', function(event, player) {
