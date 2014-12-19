@@ -1,5 +1,9 @@
 # C6UI
 
+## v3.5.5 (December 19, 2014)
+* [FEATURE]: Add support for "disable-clickthrough" attribute in VAST
+  player
+
 ## v3.5.4 (December 19, 2014)
 * [FIX]: Destroy VPAID player if ad times out
 

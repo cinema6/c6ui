@@ -270,7 +270,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                 var profile = c6BrowserInfo.profile,
                     vastCache = {},
                     video = null, vast = null,
-                    iface;
+                    iface,
+                    disableClickthrough = 'controls' in attrs || 'disableClickthrough' in attrs;
 
                 function VastPlayer() {
                     var self = this,
@@ -500,7 +501,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                 scope.controls = 'controls' in attrs;
 
-                scope.clickThrough = scope.controls ? noop : function() {
+                scope.clickThrough = disableClickthrough ? noop : function() {
                     if (!(vast && vast.clickThrough && vast.clickThrough.length > 0)) {
                         return;
                     }
