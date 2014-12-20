@@ -1020,6 +1020,33 @@ define(['videos/vast'], function(vastModule) {
                     expect($window.open).not.toHaveBeenCalled();
                 });
             });
+
+            describe('if the disable-clickthrough attribute is present', function() {
+                beforeEach(function() {
+                    $scope.$apply(function() {
+                        $player = $compile('<vast-player id="{{id}}" ad-tag="{{adTag}}" disable-clickthrough></vast-player>')($scope);
+                    });
+                    iface = $player.data('video');
+                    scope = $player.isolateScope();
+                    _player = new C6Video();
+                    $scope.$apply(function() {
+                        $scope.$broadcast('c6video-ready', _player);
+                    });
+                    $scope.$apply(function() {
+                        iface.load();
+                    });
+                    $scope.$apply(function() {
+                        vastDeferred.resolve(vastObject);
+                    });
+
+                    _player.player.paused = false;
+                    scope.clickThrough();
+                });
+
+                it('should not open the clickThrough link', function() {
+                    expect($window.open).not.toHaveBeenCalled();
+                });
+            });
         });
 
         describe('$watchers', function() {
