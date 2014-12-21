@@ -17,8 +17,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
             return this;
         };
 
-        this.$get = ['$log','$http','$window','c6ImagePreloader','$q','c6VideoService','$timeout',
-        function    ( $log , $http , $window , c6ImagePreloader , $q , c6VideoService , $timeout) {
+        this.$get = ['$log','$http','$window','c6ImagePreloader','$q','c6VideoService','$timeout','c6BrowserInfo',
+        function    ( $log , $http , $window , c6ImagePreloader , $q , c6VideoService , $timeout , c6BrowserInfo ) {
             var service = {},
                 _service = {};
 
@@ -152,7 +152,9 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
             _service.VAST.prototype = {
                 getVideoSrc: function(_type) {
-                    var type = _type || c6VideoService.bestFormat(
+                    var bestVideo,
+                        isPhone = c6BrowserInfo.profile.device === 'phone',
+                        type = _type || c6VideoService.bestFormat(
                         this.video.mediaFiles
                             .filter(function(mediaFile) {
                                 return (/mp4|webm/).test(mediaFile.type);
@@ -162,9 +164,21 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             })
                     );
 
-                    return this.video.mediaFiles.reduce(function(result, mediaFile) {
-                        return mediaFile.type === type ? mediaFile.url : result;
-                    }, null);
+                    this.video.mediaFiles
+                        .filter(function(mediaFile) {
+                            return mediaFile.type === type;
+                        })
+                        .forEach(function(mediaFile) {
+                            var isSmaller;
+                            bestVideo = bestVideo || mediaFile;
+                            isSmaller = parseInt(mediaFile.width, 10) < parseInt(bestVideo.width, 10);
+
+                            bestVideo = isPhone ?
+                                (isSmaller ? mediaFile : bestVideo) :
+                                (isSmaller ? bestVideo : mediaFile);
+                        });
+
+                    return bestVideo ? bestVideo.url : null;
                 },
                 getCompanion: function() {
                     // this just returns the first one
