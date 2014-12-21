@@ -66,10 +66,10 @@ define(['videos/vast'], function(vastModule) {
                 '                            <MediaFile delivery="progressive" width="320" height="240" bitrate="256" type="video/mp4"><![CDATA[http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_320x240_16-9-040512100356192-12398_9-071813123000638-11481.MP4]]></MediaFile>',
                 '                        </MediaFiles>',
                 '                        <MediaFiles>',
-                '                            <MediaFile delivery="progressive" width="640" height="360" bitrate="256" type="video/mp4"><![CDATA[http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_640x360_16-9-040512100356192-12398_9-071813123000638-11481.MP4]]></MediaFile>',
+                '                            <MediaFile delivery="progressive" width="640" height="360" bitrate="500" type="video/mp4"><![CDATA[http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_640x360_16-9-040512100356192-12398_9-071813123000638-11481.MP4]]></MediaFile>',
                 '                        </MediaFiles>',
                 '                        <MediaFiles>',
-                '                            <MediaFile delivery="progressive" width="1280" height="720" bitrate="256" type="video/mp4"><![CDATA[http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_1280x720_16-9-040512100356192-12398_9-071813123000638-11481.MP4]]></MediaFile>',
+                '                            <MediaFile delivery="progressive" width="1280" height="720" bitrate="1000" type="video/mp4"><![CDATA[http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_1280x720_16-9-040512100356192-12398_9-071813123000638-11481.MP4]]></MediaFile>',
                 '                        </MediaFiles>',
                 '                        <MediaFiles>',
                 '                            <MediaFile delivery="progressive" width="480" height="360" bitrate="4000" type="video/x-flv"><![CDATA[http://cdn.adap.tv/integration_test/Vincent-081110124715584-13503_1-122011141453375-82609.flv]]></MediaFile>',
@@ -471,7 +471,7 @@ define(['videos/vast'], function(vastModule) {
                                             delivery: 'progressive',
                                             width: '640',
                                             height: '360',
-                                            bitrate: '256',
+                                            bitrate: '500',
                                             type: 'video/mp4',
                                             url: 'http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_640x360_16-9-040512100356192-12398_9-071813123000638-11481.MP4'
                                         },
@@ -479,7 +479,7 @@ define(['videos/vast'], function(vastModule) {
                                             delivery: 'progressive',
                                             width: '1280',
                                             height: '720',
-                                            bitrate: '256',
+                                            bitrate: '1000',
                                             type: 'video/mp4',
                                             url: 'http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_1280x720_16-9-040512100356192-12398_9-071813123000638-11481.MP4'
                                         },
@@ -570,7 +570,16 @@ define(['videos/vast'], function(vastModule) {
                                     });
 
                                     describe('if device is phone', function() {
-                                        it('should return the video with lowest resolution', function() {
+                                        it('should return the video with lowest bitrate', function() {
+                                            c6BrowserInfo.profile.device = 'phone';
+                                            result = vast.getVideoSrc();
+                                            expect(result).toBe('http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_320x240_16-9-040512100356192-12398_9-071813123000638-11481.MP4');
+                                        });
+
+                                        it('should use height if bitrate is undefined', function() {
+                                            vast.video.mediaFiles.forEach(function(mediaFile) {
+                                                delete mediaFile.bitrate;
+                                            });
                                             c6BrowserInfo.profile.device = 'phone';
                                             result = vast.getVideoSrc();
                                             expect(result).toBe('http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_320x240_16-9-040512100356192-12398_9-071813123000638-11481.MP4');
@@ -578,8 +587,16 @@ define(['videos/vast'], function(vastModule) {
                                     });
 
                                     describe('if device is not a phone', function() {
-                                        it('should return the video with highest resolution', function() {
+                                        it('should return the video with highest bitrate', function() {
                                             c6BrowserInfo.profile.device = 'desktop';
+                                            result = vast.getVideoSrc();
+                                            expect(result).toBe('http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_1280x720_16-9-040512100356192-12398_9-071813123000638-11481.MP4');
+                                        });
+
+                                        it('should use height if bitrate is undefined', function() {
+                                            vast.video.mediaFiles.forEach(function(mediaFile) {
+                                                delete mediaFile.bitrate;
+                                            });
                                             result = vast.getVideoSrc();
                                             expect(result).toBe('http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_1280x720_16-9-040512100356192-12398_9-071813123000638-11481.MP4');
                                         });

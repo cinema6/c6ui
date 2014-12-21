@@ -171,7 +171,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         .forEach(function(mediaFile) {
                             var isSmaller;
                             bestVideo = bestVideo || mediaFile;
-                            isSmaller = parseInt(mediaFile.width, 10) < parseInt(bestVideo.width, 10);
+                            isSmaller = parseInt(mediaFile.bitrate || mediaFile.height, 10) <
+                                parseInt(bestVideo.bitrate || bestVideo.height, 10);
 
                             bestVideo = isPhone ?
                                 (isSmaller ? mediaFile : bestVideo) :
