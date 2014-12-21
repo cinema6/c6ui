@@ -10,6 +10,7 @@ define(['videos/vast'], function(vastModule) {
             $timeout,
             $window,
             c6ImagePreloader,
+            c6BrowserInfo,
             compileAdTag;
 
         var $httpBackend;
@@ -62,7 +63,13 @@ define(['videos/vast'], function(vastModule) {
                 '                        </VideoClicks>',
                 '',
                 '                        <MediaFiles>',
-                '                            <MediaFile delivery="progressive" width="320" height="240" bitrate="256" type="video/mp4"><![CDATA[http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_640x360_16-9-040512100356192-12398_9-071813123000638-11481.MP4]]></MediaFile>',
+                '                            <MediaFile delivery="progressive" width="320" height="240" bitrate="256" type="video/mp4"><![CDATA[http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_320x240_16-9-040512100356192-12398_9-071813123000638-11481.MP4]]></MediaFile>',
+                '                        </MediaFiles>',
+                '                        <MediaFiles>',
+                '                            <MediaFile delivery="progressive" width="640" height="360" bitrate="256" type="video/mp4"><![CDATA[http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_640x360_16-9-040512100356192-12398_9-071813123000638-11481.MP4]]></MediaFile>',
+                '                        </MediaFiles>',
+                '                        <MediaFiles>',
+                '                            <MediaFile delivery="progressive" width="1280" height="720" bitrate="256" type="video/mp4"><![CDATA[http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_1280x720_16-9-040512100356192-12398_9-071813123000638-11481.MP4]]></MediaFile>',
                 '                        </MediaFiles>',
                 '                        <MediaFiles>',
                 '                            <MediaFile delivery="progressive" width="480" height="360" bitrate="4000" type="video/x-flv"><![CDATA[http://cdn.adap.tv/integration_test/Vincent-081110124715584-13503_1-122011141453375-82609.flv]]></MediaFile>',
@@ -279,6 +286,7 @@ define(['videos/vast'], function(vastModule) {
                 spyOn($window.Date, 'now').and.returnValue(Date.now());
                 c6ImagePreloader = $injector.get('c6ImagePreloader');
                 c6VideoService = $injector.get('c6VideoService');
+                c6BrowserInfo = $injector.get('c6BrowserInfo');
 
                 _service = VASTService._private;
             });
@@ -457,7 +465,23 @@ define(['videos/vast'], function(vastModule) {
                                             height: '240',
                                             bitrate: '256',
                                             type: 'video/mp4',
+                                            url: 'http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_320x240_16-9-040512100356192-12398_9-071813123000638-11481.MP4'
+                                        },
+                                        {
+                                            delivery: 'progressive',
+                                            width: '640',
+                                            height: '360',
+                                            bitrate: '256',
+                                            type: 'video/mp4',
                                             url: 'http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_640x360_16-9-040512100356192-12398_9-071813123000638-11481.MP4'
+                                        },
+                                        {
+                                            delivery: 'progressive',
+                                            width: '1280',
+                                            height: '720',
+                                            bitrate: '256',
+                                            type: 'video/mp4',
+                                            url: 'http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_1280x720_16-9-040512100356192-12398_9-071813123000638-11481.MP4'
                                         },
                                         {
                                             delivery: 'progressive',
@@ -515,7 +539,7 @@ define(['videos/vast'], function(vastModule) {
                             describe('getVideoSrc(type)', function() {
                                 it('should get the url for the specified type', function() {
                                     expect(vast.getVideoSrc('video/x-flv')).toBe('http://cdn.adap.tv/integration_test/Vincent-081110124715584-13503_1-122011141453375-82609.flv');
-                                    expect(vast.getVideoSrc('video/mp4')).toBe('http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_640x360_16-9-040512100356192-12398_9-071813123000638-11481.MP4');
+                                    expect(vast.getVideoSrc('video/mp4')).toBe('http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_1280x720_16-9-040512100356192-12398_9-071813123000638-11481.MP4');
                                     expect(adTechVast.getVideoSrc('video/mp4')).toBe('http://aka-cdn-ns.adtechus.com/apps/240/Ad6125296Tr36681V2Id0/Army_TourOps_Cruz_E1_v1_c6.mp4');
                                 });
 
@@ -545,9 +569,20 @@ define(['videos/vast'], function(vastModule) {
                                         expect(c6VideoService.bestFormat.calls.count()).toBe(2);
                                     });
 
-                                    it('should return the src of that best format', function() {
-                                        expect(result).toBe(vast.video.mediaFiles[0].url);
-                                        expect(adTechResult).toBe(adTechVast.video.mediaFiles[0].url);
+                                    describe('if device is phone', function() {
+                                        it('should return the video with lowest resolution', function() {
+                                            c6BrowserInfo.profile.device = 'phone';
+                                            result = vast.getVideoSrc();
+                                            expect(result).toBe('http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_320x240_16-9-040512100356192-12398_9-071813123000638-11481.MP4');
+                                        });
+                                    });
+
+                                    describe('if device is not a phone', function() {
+                                        it('should return the video with highest resolution', function() {
+                                            c6BrowserInfo.profile.device = 'desktop';
+                                            result = vast.getVideoSrc();
+                                            expect(result).toBe('http://cdn.adap.tv/alexorlovstestpublisher/Maze_15_QFCG-12375H_PreRoll_512k_1280x720_16-9-040512100356192-12398_9-071813123000638-11481.MP4');
+                                        });
                                     });
 
                                     describe('if no best format is provided', function() {
