@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.6.0 (December 22, 2014)
 * [FEATURE]: Added support for the ```controls``` attribute to Vimeo and
   YouTube videos
 
