@@ -1,5 +1,8 @@
 # C6UI
 
+* [FEATURE]: Added support for the ```controls``` attribute to Vimeo and
+  YouTube videos
+
 ## v3.5.6 (December 20, 2014)
 * [FEATURE]: Use VAST video with smallest resolution on mobile
 

@@ -27,7 +27,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
                     .respond(404, 'Not found.');
                 spyOn(c6VideoService, 'bestFormat').and.returnValue('video/mp4');
                 $scope.$apply(function() {
-                    $dailymotionPlayer = $compile('<dailymotion-player id="player2" videoid="foo"></dailymotion-player>')($scope);
+                    $dailymotionPlayer = $compile('<dailymotion-player id="player2" videoid="foo" controls></dailymotion-player>')($scope);
                 });
                 $iframe = $dailymotionPlayer.find('iframe');
             });
@@ -39,7 +39,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
 
         it('should add the html5 param to the iframe src', function() {
             expect(c6VideoService.bestFormat).toHaveBeenCalledWith(['video/mp4']);
-            expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/foo?api=postMessage&id=player2&related=0&html');
+            expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/foo?api=postMessage&id=player2&related=0&chromeless=0&html');
         });
     });
 
@@ -94,7 +94,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
                     .respond(200, { duration: 199 });
                 spyOn(c6VideoService, 'bestFormat').and.returnValue();
                 $scope.$apply(function() {
-                    $dailymotionPlayer = $compile('<dailymotion-player id="player" videoid="{{videoid}}"></dailymotion-player>')($scope);
+                    $dailymotionPlayer = $compile('<dailymotion-player id="player" videoid="{{videoid}}" controls></dailymotion-player>')($scope);
                 });
                 $iframe = $dailymotionPlayer.find('iframe');
                 scope = $dailymotionPlayer.isolateScope();
@@ -146,10 +146,25 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
             });
         });
 
+        describe('if the controls attribute is not present', function() {
+            beforeEach(function() {
+                $httpBackend.expectGET('https://api.dailymotion.com/video/' + $scope.videoid + '?fields=duration')
+                    .respond(200, { duration: 199 });
+                $scope.$apply(function() {
+                    $dailymotionPlayer = $compile('<dailymotion-player id="player" videoid="{{videoid}}"></dailymotion-player>')($scope);
+                });
+                $iframe = $dailymotionPlayer.find('iframe');
+            });
+
+            it('should enable the chromeless param', function() {
+                expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/abc?api=postMessage&id=player&related=0&chromeless=1');
+            });
+        });
+
         describe('$watchers', function() {
             describe('videoid', function() {
                 it('should set the src of the iframe', function() {
-                    expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/abc?api=postMessage&id=player&related=0');
+                    expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/abc?api=postMessage&id=player&related=0&chromeless=0');
                 });
 
                 it('should create a new DailymotionPlayerService.Player', function() {
@@ -182,7 +197,7 @@ define(['videos/ext/dailymotion'], function(videosExtDailymotion) {
                     });
 
                     it('should update the src', function() {
-                        expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/123?api=postMessage&id=player&related=0');
+                        expect($iframe.attr('src')).toBe('//www.dailymotion.com/embed/video/123?api=postMessage&id=player&related=0&chromeless=0');
                     });
 
                     it('should fetch the new duration via the data API', function() {
