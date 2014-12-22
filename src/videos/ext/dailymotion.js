@@ -199,7 +199,8 @@ function( angular , eventsEmitter        , urlUrlparser        , video    , brow
                             '?' + toParams([
                                 ['api', 'postMessage'],
                                 ['id', scope.id],
-                                ['related', 0]
+                                ['related', 0],
+                                ['chromeless', ('controls' in attrs) ? 0 : 1]
                             ].concat(featureParams))
                         );
 
