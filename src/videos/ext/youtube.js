@@ -248,7 +248,8 @@ function( angular , eventsEmitter        , youtube       , browserInfo        ) 
 
                                 scope.url = 'https://www.youtube.com/embed/' +
                                     id +
-                                    '?html5=1&wmode=opaque&rel=0&enablejsapi=1';
+                                    '?html5=1&wmode=opaque&rel=0&enablejsapi=1&' +
+                                    'controls=' + (('controls' in attrs) ? 1 : 0);
 
                                 state = setupState();
 

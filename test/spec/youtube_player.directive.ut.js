@@ -107,7 +107,7 @@
                     $rootScope.$on('<youtube-player>:init', initSpy);
 
                     $scope.$apply(function() {
-                        $player = $compile('<youtube-player videoid="{{id}}"></youtube-player>')($scope);
+                        $player = $compile('<youtube-player videoid="{{id}}" controls></youtube-player>')($scope);
                     });
                 });
 
@@ -119,7 +119,7 @@
                     var $iframe = $player.find('iframe');
 
                     expect($iframe.length).toBe(1);
-                    expect($iframe.attr('src')).toBe('https://www.youtube.com/embed/gy1B3agGNxw?html5=1&wmode=opaque&rel=0&enablejsapi=1');
+                    expect($iframe.attr('src')).toBe('https://www.youtube.com/embed/gy1B3agGNxw?html5=1&wmode=opaque&rel=0&enablejsapi=1&controls=1');
                 });
 
                 it('should create a YouTube player with the iframe', function() {
@@ -181,7 +181,7 @@
                     expect($interval.calls.count()).toBe(2);
                     expect($iframe[0]).not.toBe($newFrame[0]);
                     expect(player).not.toBe(players[0]);
-                    expect($newFrame.attr('src')).toBe('https://www.youtube.com/embed/f9h85495jf?html5=1&wmode=opaque&rel=0&enablejsapi=1');
+                    expect($newFrame.attr('src')).toBe('https://www.youtube.com/embed/f9h85495jf?html5=1&wmode=opaque&rel=0&enablejsapi=1&controls=1');
                 });
 
                 describe('if the autoplay attribute is present', function() {
@@ -212,6 +212,21 @@
                         it('should not play the video', function() {
                             expect(player.playVideo).not.toHaveBeenCalled();
                         });
+                    });
+                });
+
+                describe('if the controls attribute is not present', function() {
+                    var $iframe;
+
+                    beforeEach(function() {
+                        $scope.$apply(function() {
+                            $player = $compile('<youtube-player videoid="TRrL5j3MIvo" autoplay></youtube-player>')($scope);
+                        });
+                        $iframe = $player.find('iframe');
+                    });
+
+                    it('should set the src with controls=0', function() {
+                        expect($iframe.attr('src')).toBe('https://www.youtube.com/embed/TRrL5j3MIvo?html5=1&wmode=opaque&rel=0&enablejsapi=1&controls=0');
                     });
                 });
             });
