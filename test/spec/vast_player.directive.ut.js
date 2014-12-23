@@ -237,6 +237,40 @@ define(['videos/vast'], function(vastModule) {
                 _player = new C6Video();
             });
 
+            describe('error', function() {
+                var spy;
+
+                beforeEach(function() {
+                    spy = jasmine.createSpy('spy()');
+
+                    iface.on('error', spy);
+
+                    $scope.$apply(function() {
+                        $scope.$broadcast('c6video-ready', _player);
+                    });
+                    $scope.$apply(function() {
+                        iface.load();
+                    });
+                    $scope.$apply(function() {
+                        vastDeferred.resolve(vastObject);
+                    });
+                    _player.player.error = {
+                        code: 3
+                    };
+                    _player.trigger('error');
+                });
+
+                it('should emit the error event', function() {
+                    expect(spy).toHaveBeenCalled();
+                });
+
+                it('should set the error property', function() {
+                    expect(iface.error).toEqual(new Error(
+                        'HTML5 Video Error: ' + _player.player.error.code
+                    ));
+                });
+            });
+
             describe('companionsReady', function() {
                 var spy;
 
@@ -597,6 +631,22 @@ define(['videos/vast'], function(vastModule) {
                     });
                 });
 
+                describe('error', function() {
+                    describe('getting', function() {
+                        it('should be null', function() {
+                            expect(iface.error).toBeNull();
+                        });
+                    });
+
+                    describe('setting', function() {
+                        it('should throw an error', function() {
+                            expect(function() {
+                                iface.error = new Error();
+                            }).toThrow();
+                        });
+                    });
+                });
+
                 describe('currentTime', function() {
                     it('getting the property should return the currentTime', function() {
                         _player.player.currentTime = 3;
@@ -885,6 +935,12 @@ define(['videos/vast'], function(vastModule) {
 
                         it('should emit the error event', function() {
                             expect(errorSpy).toHaveBeenCalled();
+                        });
+
+                        it('should set the error property', function() {
+                            expect(iface.error).toEqual(new Error(
+                                'VAST request failed: ' + JSON.stringify('I FAILED YOU MASTER.')
+                            ));
                         });
                     });
                 });
