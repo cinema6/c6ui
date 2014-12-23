@@ -107,7 +107,15 @@ define(['videos/vast'], function(vastModule) {
                 ended: false,
                 duration: NaN,
                 paused: true,
-                src: null
+                src: null,
+                readyState: 0,
+
+                /* constants */
+                HAVE_NOTHING: 0,
+                HAVE_METADATA: 1,
+                HAVE_CURRENT_DATA: 2,
+                HAVE_FUTURE_DATA: 3,
+                HAVE_ENOUGH_DATA: 4
             };
 
             this.src = jasmine.createSpy('src()').and.callFake(function(src) {
@@ -763,6 +771,7 @@ define(['videos/vast'], function(vastModule) {
                         $scope.$apply(function() {
                             vastDeferred.resolve(vast);
                         });
+                        _player.player.readyState = _player.player.HAVE_FUTURE_DATA;
                         _player.trigger('canplay');
 
                         VASTService.getVAST.calls.reset();
@@ -778,6 +787,74 @@ define(['videos/vast'], function(vastModule) {
 
                     it('should not fetch any VAST', function() {
                         expect(VASTService.getVAST).not.toHaveBeenCalled();
+                    });
+
+                    [0, 1, 2].forEach(function(readyState) {
+                        describe('if called after the video src has been set but when the readyState is' + readyState, function() {
+                            beforeEach(function() {
+                                vastDeferred = $q.defer();
+                                VASTService.getVAST.and.returnValue(vastDeferred.promise);
+
+                                _player.player.play.calls.reset();
+
+                                iface.src = 'new.adtag.org';
+
+                                $scope.$apply(function() {
+                                    iface.load();
+                                });
+                                $scope.$apply(function() {
+                                    vastDeferred.resolve(vast);
+                                });
+                                _player.player.readyState = readyState;
+                                $scope.$apply(function() {
+                                    iface.play();
+                                });
+                            });
+
+                            it('should not play the video', function() {
+                                expect(_player.player.play).not.toHaveBeenCalled();
+                            });
+
+                            describe('when the video "canplay"', function() {
+                                beforeEach(function() {
+                                    _player.player.play.calls.reset();
+
+                                    _player.trigger('canplay');
+                                });
+
+                                it('should play the video', function() {
+                                    expect(_player.player.play).toHaveBeenCalled();
+                                });
+                            });
+                        });
+                    });
+
+                    [3, 4].forEach(function(readyState) {
+                        describe('if called after the video src has been set but when the readyState is' + readyState, function() {
+                            beforeEach(function() {
+                                vastDeferred = $q.defer();
+                                VASTService.getVAST.and.returnValue(vastDeferred.promise);
+
+                                _player.player.play.calls.reset();
+
+                                iface.src = 'new.adtag.org';
+
+                                $scope.$apply(function() {
+                                    iface.load();
+                                });
+                                $scope.$apply(function() {
+                                    vastDeferred.resolve(vast);
+                                });
+                                _player.player.readyState = readyState;
+                                $scope.$apply(function() {
+                                    iface.play();
+                                });
+                            });
+
+                            it('should play the video', function() {
+                                expect(_player.player.play).toHaveBeenCalled();
+                            });
+                        });
                     });
 
                     describe('if the video has not been loaded yet', function() {
@@ -807,23 +884,51 @@ define(['videos/vast'], function(vastModule) {
                                 _player.src.calls.reset();
 
                                 vast.getVideoSrc.and.returnValue('http://videos.com/my-vid.mp4');
+                            });
 
-                                $scope.$apply(function() {
-                                    vastDeferred.resolve(vast);
+                            [0, 1, 2].forEach(function(readyState) {
+                                describe('if the readyState is ' + readyState, function() {
+                                    beforeEach(function() {
+                                        _player.player.readyState = readyState;
+
+                                        $scope.$apply(function() {
+                                            vastDeferred.resolve(vast);
+                                        });
+                                    });
+
+                                    it('should set the player src', function() {
+                                        expect(_player.src).toHaveBeenCalledWith(vast.getVideoSrc());
+                                    });
+
+                                    describe('when the video canplay', function() {
+                                        beforeEach(function() {
+                                            _player.trigger('canplay');
+                                        });
+
+                                        it('should play the video', function() {
+                                            expect(_player.player.play).toHaveBeenCalled();
+                                        });
+                                    });
                                 });
                             });
 
-                            it('should set the player src', function() {
-                                expect(_player.src).toHaveBeenCalledWith(vast.getVideoSrc());
-                            });
+                            [3, 4].forEach(function(readyState) {
+                                describe('if the readyState is ' + readyState, function() {
+                                    beforeEach(function() {
+                                        _player.player.readyState = readyState;
 
-                            describe('when the video canplay', function() {
-                                beforeEach(function() {
-                                    _player.trigger('canplay');
-                                });
+                                        $scope.$apply(function() {
+                                            vastDeferred.resolve(vast);
+                                        });
+                                    });
 
-                                it('should play the video', function() {
-                                    expect(_player.player.play).toHaveBeenCalled();
+                                    it('should set the player src', function() {
+                                        expect(_player.src).toHaveBeenCalledWith(vast.getVideoSrc());
+                                    });
+
+                                    it('should play the video', function() {
+                                        expect(_player.player.play).toHaveBeenCalled();
+                                    });
                                 });
                             });
                         });
