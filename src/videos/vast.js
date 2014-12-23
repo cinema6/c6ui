@@ -4,7 +4,8 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
     var forEach = angular.forEach,
         isDefined = angular.isDefined,
-        noop = angular.noop;
+        noop = angular.noop,
+        toJson = angular.toJson;
 
     return angular.module('c6.ui.videos.vast', [eventsEmitter.name, browserInfo.name, videoService.name, imagePreloader.name])
     .provider('VASTService', [function() {
@@ -252,7 +253,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                 fetchVAST(url).then(createVast);
 
                 $timeout(function() {
-                    vastDeferred.reject();
+                    vastDeferred.reject('Reqest for VAST timed out.');
                 }, _provider.adTimeout);
 
                 return vastDeferred.promise;
@@ -290,23 +291,26 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                 function VastPlayer() {
                     var self = this,
-                        readyState,
-                        vastEvents,
-                        hasStarted,
+                        state,
                         src = null;
 
                     function setupState() {
-                        vastEvents = {};
-                        readyState = -1;
-                        hasStarted = false;
+                        return {
+                            vastEvents: {},
+                            readyState: -1,
+                            error: null,
+                            hasStarted: false
+                        };
                     }
 
                     function ready() {
-                        readyState = 0;
+                        state.readyState = 0;
                         self.emit('ready');
                     }
 
                     function firePixelsOnce(pixel, predicate) {
+                        var vastEvents = state.vastEvents;
+
                         if (predicate() && !vastEvents[pixel]) {
                             vast.firePixels(pixel);
                             vastEvents[pixel] = true;
@@ -364,6 +368,9 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             .then(setState)
                             .then(setSrc)
                             .catch(function(error) {
+                                state.error = new Error(
+                                    'VAST request failed: ' + toJson(error)
+                                );
                                 self.emit('error');
                                 return $q.reject(error);
                             });
@@ -377,8 +384,13 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                             set: function(value) {
                                 src = value;
 
-                                setupState();
+                                state = setupState();
                                 ready();
+                            }
+                        },
+                        error: {
+                            get: function() {
+                                return state.error;
                             }
                         },
                         currentTime: {
@@ -406,7 +418,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         },
                         readyState: {
                             get: function() {
-                                return readyState;
+                                return state.readyState;
                             }
                         }
                     });
@@ -418,7 +430,7 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                     };
 
                     this.pause = function() {
-                        if (!hasStarted) {
+                        if (!state.hasStarted) {
                             return video.regenerate();
                         }
 
@@ -445,26 +457,33 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                     c6EventEmitter(this);
 
-                    setupState();
+                    state = setupState();
 
                     scope.$on('c6video-ready', function(event, c6Video) {
                         video = c6Video;
 
+                        c6Video.on('error', function() {
+                            state.error = new Error(
+                                'HTML5 Video Error: ' + c6Video.player.error.code
+                            );
+                            self.emit('error');
+                        });
+
                         c6Video.on('loadedmetadata', function() {
-                            readyState = 1;
+                            state.readyState = 1;
                             self.emit('loadedmetadata');
                         });
 
                         c6Video.on('play', function() {
-                            if (!hasStarted) {
-                                hasStarted = true;
+                            if (!state.hasStarted) {
+                                state.hasStarted = true;
                                 vast.firePixels('impression');
                                 vast.firePixels('loaded');
                                 vast.firePixels('creativeView');
                                 vast.firePixels('start');
                                 vast.firePixels('playing');
                             }
-                            readyState = 3;
+                            state.readyState = 3;
                             self.emit('play');
                         });
 
