@@ -1,5 +1,8 @@
 # C6UI
 
+## v3.6.1 (December 22, 2014)
+* [FEATURE]: Added more robust error reporting to the VAST player
+
 ## v3.6.0 (December 22, 2014)
 * [FEATURE]: Added support for the ```controls``` attribute to Vimeo and
   YouTube videos
