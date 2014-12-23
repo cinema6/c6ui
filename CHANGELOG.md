@@ -1,5 +1,8 @@
 # C6UI
 
+## v3.6.2 (December 23, 2014)
+* [FIX]: Added checks which may make VAST playback more reliable
+
 ## v3.6.1 (December 22, 2014)
 * [FEATURE]: Added more robust error reporting to the VAST player
 
