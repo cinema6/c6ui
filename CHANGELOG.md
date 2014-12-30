@@ -1,5 +1,9 @@
 # C6UI
 
+## v3.6.3 (December 30, 2014)
+* [FIX]: Fix for an issue that caused videos not to autoplay in
+  UIWebViews on iOS 7
+
 ## v3.6.2 (December 23, 2014)
 * [FIX]: Added checks which may make VAST playback more reliable
 
