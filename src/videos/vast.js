@@ -344,31 +344,18 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
                         }
 
                         function setSrc(vast) {
-                            var deferred = $q.defer(),
-                                src = vast.getVideoSrc();
-
-                            function canplay() {
-                                return video.player.readyState >= video.player.HAVE_FUTURE_DATA;
-                            }
+                            var src = vast.getVideoSrc();
 
                             if (!src) {
                                 return $q.reject(vast);
                             }
 
-                            if (video.player.src === src && canplay()) {
+                            if (src === video.player.src) {
                                 return $q.when(video);
                             }
 
-                            video.on('canplay', function() {
-                                deferred.resolve(video);
-                            });
                             video.src(src);
-
-                            if (canplay()) {
-                                deferred.resolve(video);
-                            }
-
-                            return deferred.promise;
+                            return $q.when(video);
                         }
 
                         return loadFromCache()
