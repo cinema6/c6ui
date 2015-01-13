@@ -2,7 +2,8 @@ define (['angular','../events/emitter','../postmessage/postmessage'],
 function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
     'use strict';
 
-    var forEach = angular.forEach;
+    var forEach = angular.forEach,
+        isObject = angular.isObject;
 
     return angular.module('c6.ui.cinema6.cinema6', [
         eventsEmitter.name,
@@ -219,24 +220,33 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
 
                     delete pojo._type;
                     delete pojo._erased;
+                    delete pojo._pending;
 
                     return pojo;
                 },
                 _update: function(data) {
-                    var type = this._type,
-                        prop;
+                    var type = this._type;
 
-                    for (prop in data) {
-                        this[prop] = data[prop];
-                    }
+                    function update(existing, data) {
+                        forEach(data, function(newValue, prop) {
+                            var oldValue = existing[prop];
 
-                    if (angular.isObject(data)) {
-                        for (prop in this) {
-                            if (!data.hasOwnProperty(prop)) {
-                                delete this[prop];
+                            if ((isObject(oldValue) && isObject(newValue)) &&
+                                (oldValue.constructor === newValue.constructor)) {
+                                update(oldValue, newValue);
+                            } else {
+                                existing[prop] = newValue;
                             }
-                        }
+                        });
+
+                        forEach(existing, function(oldValue, prop) {
+                            if (!data.hasOwnProperty(prop)) {
+                                delete existing[prop];
+                            }
+                        });
                     }
+
+                    update(this, data);
 
                     this._type = type;
 
