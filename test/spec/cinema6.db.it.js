@@ -156,7 +156,6 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                     minireel.save();
                 });
                 expect(minireel.data.deck[0]).toEqual(card);
-                expect(minireel.data.deck[0]).not.toBe(card);
 
                 $rootScope.$apply(function() {
                     minireel.erase();
