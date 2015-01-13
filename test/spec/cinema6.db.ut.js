@@ -1,5 +1,17 @@
-define(['cinema6/cinema6'], function(cinema6Cinema6) {
-    var extend = angular.extend;
+define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
+    var copy = angular.copy;
+
+    function extend() {
+        var objects = Array.prototype.slice.call(arguments);
+
+        return objects.reduce(function(result, object) {
+            return Object.keys(object).reduce(function(result, key) {
+                result[key] = object[key];
+
+                return result;
+            }, result);
+        }, {});
+    }
 
     describe('cinema6.db', function() {
         var cinema6Provider;
@@ -120,7 +132,30 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                     data = {
                         name: 'Josh Minzner',
                         age: 22,
-                        location: 'Pittstown, NJ'
+                        address: {
+                            street: '205 Witherspoon St.',
+                            city: 'Princeton',
+                            state: 'New Jersey',
+                            zip: '08542'
+                        },
+                        ballot: {
+                            0: 'Hello',
+                            1: 'Cinema6'
+                        },
+                        org: cinema6.db.create('org', {
+                            id: 'o-f4314d77cd6b01',
+                            data: {}
+                        }),
+                        parents: [
+                            {
+                                name: 'Daniel Minzner',
+                                age: 47
+                            },
+                            {
+                                name: 'Louan Minzner',
+                                age: 49
+                            }
+                        ]
                     };
 
                     $rootScope.$apply(function() {
@@ -166,7 +201,7 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                         });
 
                         it('should call the adapter\'s erase() method', function() {
-                            expect(adapter.erase).toHaveBeenCalledWith('user', data);
+                            expect(adapter.erase).toHaveBeenCalledWith('user', model.pojoify());
                         });
 
                         describe('when the adapter comes back', function() {
@@ -270,6 +305,9 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                                     adapter._deferreds.create.resolve([{
                                         id: 'u-d83f502c99d226',
                                         name: 'Josh Minzner',
+                                        location: {
+                                            state: 'NJ'
+                                        },
                                         age: 23
                                     }]);
                                 });
@@ -279,6 +317,9 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                                 expect(model).toEqual({
                                     id: 'u-d83f502c99d226',
                                     name: 'Josh Minzner',
+                                    location: {
+                                        state: 'NJ'
+                                    },
                                     age: 23,
                                     _type: 'user'
                                 });
@@ -310,20 +351,42 @@ define(['cinema6/cinema6'], function(cinema6Cinema6) {
                         });
 
                         it('should call the adapter\'s update method', function() {
-                            expect(adapter.update).toHaveBeenCalledWith('user', data);
+                            expect(adapter.update).toHaveBeenCalledWith('user', model.pojoify());
                         });
 
                         describe('when the adapter responds', function() {
+                            var newData,
+                                parents, mom, dad, org;
+
                             beforeEach(function() {
+                                parents = model.parents;
+                                mom = parents[0];
+                                dad = parents[1];
+                                org = model.org
+
                                 $rootScope.$apply(function() {
-                                    adapter._deferreds.update.resolve([
-                                        extend(data, { lastUpdated: '2014-04-27T15:28:41.599Z' })
-                                    ]);
+                                    adapter._deferreds.update.resolve([(function() {
+                                        newData = copy(extend(model.pojoify(), {
+                                            lastUpdated: '2014-04-27T15:28:41.599Z',
+                                            address: null,
+                                            ballot: ['Hello', 'Cinema6']
+                                        }));
+
+                                        newData.org = org;
+                                        newData.parents[0].age = 48;
+                                        newData.parents[1].health = 100;
+
+                                        return newData;
+                                    }())]);
                                 });
                             });
 
-                            it('should update the record with the result from the server', function() {
-                                expect(model).toEqual(jasmine.objectContaining(data));
+                            it('should update the record with the result from the server, preserving existing objects', function() {
+                                expect(model.pojoify()).toEqual(newData);
+                                expect(model.parents).toBe(parents);
+                                expect(model.parents[0]).toBe(mom);
+                                expect(model.parents[1]).toBe(dad);
+                                expect(model.org).toBe(org);
                             });
 
                             it('should resolve the promise with itself', function() {
