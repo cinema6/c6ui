@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.6.4 (January 15, 2015)
 * [FIX]: Fix for an issue that caused C6DB to replace nested object
   instances when updating models with data from the server
 
