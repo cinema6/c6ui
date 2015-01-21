@@ -1,5 +1,8 @@
 # C6UI
 
+* [FIX]: Fix for an issue that caused quartile pixels to fire on
+  the first timeupdate if the duration is 0.
+
 ## v3.6.4 (January 15, 2015)
 * [FIX]: Fix for an issue that caused C6DB to replace nested object
   instances when updating models with data from the server
