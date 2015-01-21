@@ -553,7 +553,7 @@ define(['videos/vast'], function(vastModule) {
                     });
 
                     describe('when duration is 0', function() {
-                        it('should fire', function() {
+                        it('should not fire', function() {
                             _player.player.duration = 0;
                             _player.player.currentTime = 0;
                             _player.trigger('timeupdate');
