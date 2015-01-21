@@ -494,26 +494,28 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                         c6Video.on('timeupdate', function() {
                             var player = c6Video.player,
-                                currTime = Math.round(player.currentTime),
+                                currTime = player.currentTime,
                                 duration = player.duration;
 
+                            self.emit('timeupdate');
+
+                            if (!duration) { return; }
+
                             firePixelsOnce('firstQuartile', function() {
-                                return currTime === Math.round(duration * 0.25);
+                                return currTime >= (duration * 0.25);
                             });
 
                             firePixelsOnce('midpoint', function() {
-                                return currTime === Math.round(duration * 0.5);
+                                return currTime >= (duration * 0.5);
                             });
 
                             firePixelsOnce('thirdQuartile', function() {
-                                return currTime === Math.round(duration * 0.75);
+                                return currTime >= (duration * 0.75);
                             });
 
                             firePixelsOnce('complete', function() {
-                                return player.currentTime >= (duration - 1);
+                                return currTime >= (duration - 1);
                             });
-
-                            self.emit('timeupdate');
                         });
 
                         scope.$watch('adTag', function(tag) {

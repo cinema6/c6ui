@@ -490,15 +490,25 @@ define(['videos/vast'], function(vastModule) {
                 });
 
                 describe('firing quartile pixels', function() {
+                    it('should not occur if duration is 0', function() {
+                        _player.player.duration = 0;
+                        _player.player.currentTime = 0;
+                        _player.trigger('timeupdate');
+                        expect(vastObject.firePixels).not.toHaveBeenCalledWith('firstQuartile');
+                        expect(vastObject.firePixels).not.toHaveBeenCalledWith('midpoint');
+                        expect(vastObject.firePixels).not.toHaveBeenCalledWith('thirdQuartile');
+                    });
+
                     it('firstQuartile should be fired only once when 25% of the video has been watched', function() {
                         _player.player.duration = 40;
                         _player.player.currentTime = 10;
                         _player.trigger('timeupdate');
                         expect(vastObject.firePixels).toHaveBeenCalledWith('firstQuartile');
+                        vastObject.firePixels.calls.reset();
                         _player.player.currentTime = 10.1013;
-                        expect(vastObject.firePixels.calls.count()).toBe(1);
+                        expect(vastObject.firePixels.calls.count()).toBe(0);
                         _player.player.currentTime = 10.2113;
-                        expect(vastObject.firePixels.calls.count()).toBe(1);
+                        expect(vastObject.firePixels.calls.count()).toBe(0);
                     });
 
                     it('midpoint should be fired only once when 50% of the video has been watched', function() {
@@ -506,10 +516,11 @@ define(['videos/vast'], function(vastModule) {
                         _player.player.currentTime = 20;
                         _player.trigger('timeupdate');
                         expect(vastObject.firePixels).toHaveBeenCalledWith('midpoint');
+                        vastObject.firePixels.calls.reset();
                         _player.player.currentTime = 20.1013;
-                        expect(vastObject.firePixels.calls.count()).toBe(1);
+                        expect(vastObject.firePixels.calls.count()).toBe(0);
                         _player.player.currentTime = 20.2113;
-                        expect(vastObject.firePixels.calls.count()).toBe(1);
+                        expect(vastObject.firePixels.calls.count()).toBe(0);
                     });
 
                     it('thirdQuartile should be fired only once when 75% of the video has been watched', function() {
@@ -517,10 +528,21 @@ define(['videos/vast'], function(vastModule) {
                         _player.player.currentTime = 30;
                         _player.trigger('timeupdate');
                         expect(vastObject.firePixels).toHaveBeenCalledWith('thirdQuartile');
+                        vastObject.firePixels.calls.reset();
                         _player.player.currentTime = 30.1013;
-                        expect(vastObject.firePixels.calls.count()).toBe(1);
+                        expect(vastObject.firePixels.calls.count()).toBe(0);
                         _player.player.currentTime = 30.2113;
-                        expect(vastObject.firePixels.calls.count()).toBe(1);
+                        expect(vastObject.firePixels.calls.count()).toBe(0);
+                    });
+
+                    it('should fire all quartiles that exist between start and current time', function() {
+                        _player.player.duration = 40;
+                        _player.player.currentTime = 39;
+                        _player.trigger('timeupdate');
+                        expect(vastObject.firePixels).toHaveBeenCalledWith('firstQuartile');
+                        expect(vastObject.firePixels).toHaveBeenCalledWith('midpoint');
+                        expect(vastObject.firePixels).toHaveBeenCalledWith('thirdQuartile');
+                        expect(vastObject.firePixels).toHaveBeenCalledWith('complete');
                     });
                 });
 
@@ -528,6 +550,15 @@ define(['videos/vast'], function(vastModule) {
                     beforeEach(function() {
                         _player.player.duration = 60;
                         vastObject.firePixels.calls.reset();
+                    });
+
+                    describe('when duration is 0', function() {
+                        it('should fire', function() {
+                            _player.player.duration = 0;
+                            _player.player.currentTime = 0;
+                            _player.trigger('timeupdate');
+                            expect(vastObject.firePixels).not.toHaveBeenCalledWith('complete');
+                        });
                     });
 
                     describe('before one second before the end of the video', function() {
