@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.6.5 (January 21, 2015)
 * [FIX]: Fix for an issue that caused quartile pixels to fire on
   the first timeupdate if the duration is 0.
 
