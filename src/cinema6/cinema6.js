@@ -232,6 +232,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                             var oldValue = existing[prop];
 
                             if ((isObject(oldValue) && isObject(newValue)) &&
+                                !(oldValue instanceof DBModel) && !(newValue instanceof DBModel) &&
                                 (oldValue.constructor === newValue.constructor)) {
                                 update(oldValue, newValue);
                             } else {

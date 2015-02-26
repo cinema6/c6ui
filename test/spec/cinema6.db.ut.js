@@ -1,4 +1,6 @@
 define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
+    'use strict';
+
     var copy = angular.copy;
 
     function extend() {
@@ -146,6 +148,12 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                             id: 'o-f4314d77cd6b01',
                             data: {}
                         }),
+                        coworkers: [
+                            cinema6.db.create('person'),
+                            cinema6.db.create('person'),
+                            cinema6.db.create('person'),
+                            { id: 'p-646a90e04ec760' }
+                        ],
                         parents: [
                             {
                                 name: 'Daniel Minzner',
@@ -356,13 +364,20 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
 
                         describe('when the adapter responds', function() {
                             var newData,
-                                parents, mom, dad, org;
+                                parents, coworker1, coworker2, coworker3, coworker4, mom, dad, org;
 
                             beforeEach(function() {
                                 parents = model.parents;
+                                coworker1 = model.coworkers[0];
+                                coworker1.id = 'p-5e19615e43e69b';
+                                coworker2 = model.coworkers[1];
+                                coworker2.id = 'p-5941c88d4fb61f';
+                                coworker3 = model.coworkers[2];
+                                coworker3.id = 'p-86da411d7b861a';
+                                coworker4 = model.coworkers[3];
                                 mom = parents[0];
                                 dad = parents[1];
-                                org = model.org
+                                org = model.org;
 
                                 $rootScope.$apply(function() {
                                     adapter._deferreds.update.resolve([(function() {
@@ -375,6 +390,10 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                                         newData.org = org;
                                         newData.parents[0].age = 48;
                                         newData.parents[1].health = 100;
+                                        newData.coworkers[0] = coworker2;
+                                        newData.coworkers[1] = coworker1;
+                                        newData.coworkers[2] = { data: 'I\m just some random data.' };
+                                        newData.coworkers[3] = cinema6.db.create('person', coworker4);
 
                                         return newData;
                                     }())]);
@@ -387,6 +406,15 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                                 expect(model.parents[0]).toBe(mom);
                                 expect(model.parents[1]).toBe(dad);
                                 expect(model.org).toBe(org);
+                            });
+
+                            it('should not update models', function() {
+                                expect(model.coworkers[0]).toBe(coworker2);
+                                expect(model.coworkers[1]).toBe(coworker1);
+                                expect(model.coworkers[2]).not.toBe(coworker3);
+                                expect(model.coworkers[2]).toBe(newData.coworkers[2]);
+                                expect(model.coworkers[3]).not.toBe(coworker4);
+                                expect(model.coworkers[3]).toBe(newData.coworkers[3]);
                             });
 
                             it('should resolve the promise with itself', function() {
