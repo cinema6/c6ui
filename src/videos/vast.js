@@ -252,9 +252,11 @@ function(  angular , eventsEmitter     , browserInfo     , videoService , imageP
 
                 fetchVAST(url).then(createVast);
 
-                $timeout(function() {
-                    vastDeferred.reject('Reqest for VAST timed out.');
-                }, _provider.adTimeout);
+                if (_provider.adTimeout) {
+                    $timeout(function() {
+                        vastDeferred.reject('Reqest for VAST timed out.');
+                    }, _provider.adTimeout);
+                }
 
                 return vastDeferred.promise;
             };

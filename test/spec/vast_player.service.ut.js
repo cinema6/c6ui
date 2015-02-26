@@ -7,6 +7,7 @@ define(['videos/vast'], function(vastModule) {
             VASTServiceProvider,
             $rootScope,
             $q,
+            $http,
             $timeout,
             $window,
             c6ImagePreloader,
@@ -281,6 +282,7 @@ define(['videos/vast'], function(vastModule) {
                 $rootScope = $injector.get('$rootScope');
                 $q = $injector.get('$q');
                 $timeout = $injector.get('$timeout');
+                $http = $injector.get('$http');
                 $httpBackend = $injector.get('$httpBackend');
                 $window = $injector.get('$window');
                 spyOn($window.Date, 'now').and.returnValue(Date.now());
@@ -426,6 +428,23 @@ define(['videos/vast'], function(vastModule) {
                                 $timeout.flush();
                                 expect(failure).not.toHaveBeenCalled();
                                 expect(success).toHaveBeenCalled();
+                            });
+
+                            describe('if the adTimeout is set to 0', function() {
+                                beforeEach(function() {
+                                    success.calls.reset();
+                                    failure.calls.reset();
+                                    $timeout.flush(3000);
+                                    $timeout.verifyNoPendingTasks();
+
+                                    VASTServiceProvider.adTimeout(0);
+                                    spyOn($http, 'get').and.returnValue($q.defer().promise);
+                                    VASTService.getVAST('http://adap.tv').then(success, failure);
+                                });
+
+                                it('should not set a timeout', function() {
+                                    $timeout.verifyNoPendingTasks();
+                                });
                             });
                         });
                     });
