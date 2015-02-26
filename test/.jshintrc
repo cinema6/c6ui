@@ -18,15 +18,12 @@
   "strict": true,
   "trailing": true,
   "smarttabs": true,
+  "jasmine": true,
   "globals": {
     "require" : true,
     "define": true,
     "module" : true,
-    "describe": true,
-    "it": true,
-    "beforeEach", true,
-    "afterEach": true,
-    "jasmine": true,
+    "inject": true,
     "__dirname" : true,
     "process" : true,
     "__C6_APP_BASE_URL__" : true
