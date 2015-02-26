@@ -2,6 +2,7 @@
 
 * [FIX]: Fix for an issue that caused cinema6.db to mutate a model's
   sub-models when updating the parent with new data
+* [FEATURE]: Allow VAST timeout to be disabled by setting it to 0
 
 ## v3.6.5 (January 21, 2015)
 * [FIX]: Fix for an issue that caused quartile pixels to fire on
