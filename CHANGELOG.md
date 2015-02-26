@@ -1,5 +1,8 @@
 # C6UI
 
+* [FIX]: Fix for an issue that caused cinema6.db to mutate a model's
+  sub-models when updating the parent with new data
+
 ## v3.6.5 (January 21, 2015)
 * [FIX]: Fix for an issue that caused quartile pixels to fire on
   the first timeupdate if the duration is 0.
