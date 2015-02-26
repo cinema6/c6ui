@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.7.0 (February 26, 2015)
 * [FIX]: Fix for an issue that caused cinema6.db to mutate a model's
   sub-models when updating the parent with new data
 * [FEATURE]: Allow VAST timeout to be disabled by setting it to 0
