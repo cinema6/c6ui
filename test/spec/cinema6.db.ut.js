@@ -152,7 +152,8 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                             cinema6.db.create('person'),
                             cinema6.db.create('person'),
                             cinema6.db.create('person'),
-                            { id: 'p-646a90e04ec760' }
+                            { id: 'p-646a90e04ec760' },
+                            { id: 'p-706e1282001128', data: 'I will be removed' }
                         ],
                         parents: [
                             {
@@ -250,6 +251,26 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                         });
 
                         expect(model.save()).not.toBe(promise);
+                    });
+
+                    describe('if a previous save failed', function() {
+                        beforeEach(function() {
+                            $rootScope.$apply(function() {
+                                model.save();
+                            });
+                            $rootScope.$apply(function() {
+                                adapter._deferreds.create.reject('I FAILED!');
+                            });
+                            adapter.create.calls.reset();
+
+                            $rootScope.$apply(function() {
+                                model.save();
+                            });
+                        });
+
+                        it('should call the adapter again', function() {
+                            expect(adapter.create).toHaveBeenCalled();
+                        });
                     });
 
                     describe('if the record has been deleted', function() {
@@ -394,6 +415,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                                         newData.coworkers[1] = coworker1;
                                         newData.coworkers[2] = { data: 'I\m just some random data.' };
                                         newData.coworkers[3] = cinema6.db.create('person', coworker4);
+                                        newData.coworkers.length--;
 
                                         return newData;
                                     }())]);

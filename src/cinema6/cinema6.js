@@ -181,6 +181,10 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                         return cache.put(model._type + ':' + model.id, model);
                     }
 
+                    function cleanup() {
+                        delete self._pending;
+                    }
+
                     if (this._erased) {
                         return $q.reject('Cannot save an erased record.');
                     }
@@ -192,7 +196,8 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                         (this._pending = getAdapter()[this.id ?
                             'update' : 'create'](this._type, this.pojoify())
                             .then(update)
-                            .then(cacheModel));
+                            .then(cacheModel)
+                            .finally(cleanup));
                 },
                 erase: function() {
                     var self = this;
@@ -234,6 +239,10 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                             if ((isObject(oldValue) && isObject(newValue)) &&
                                 !(oldValue instanceof DBModel) && !(newValue instanceof DBModel) &&
                                 (oldValue.constructor === newValue.constructor)) {
+                                if ((oldValue instanceof Array) && (newValue instanceof Array)) {
+                                    oldValue.length = newValue.length;
+                                }
+
                                 update(oldValue, newValue);
                             } else {
                                 existing[prop] = newValue;
