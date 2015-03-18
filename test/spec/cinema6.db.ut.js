@@ -252,6 +252,26 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                         expect(model.save()).not.toBe(promise);
                     });
 
+                    describe('if a previous save failed', function() {
+                        beforeEach(function() {
+                            $rootScope.$apply(function() {
+                                model.save();
+                            });
+                            $rootScope.$apply(function() {
+                                adapter._deferreds.create.reject('I FAILED!');
+                            });
+                            adapter.create.calls.reset();
+
+                            $rootScope.$apply(function() {
+                                model.save();
+                            });
+                        });
+
+                        it('should call the adapter again', function() {
+                            expect(adapter.create).toHaveBeenCalled();
+                        });
+                    });
+
                     describe('if the record has been deleted', function() {
                         var eraseSpy;
 

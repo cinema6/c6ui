@@ -1,5 +1,9 @@
 # C6UI
 
+## v3.7.1 (March 18, 2015)
+* [FIX]: cinema6.db: Fix for an issue that could cause a model that
+  failed to save previously to not be saveable in the future
+
 ## v3.7.0 (February 26, 2015)
 * [FIX]: Fix for an issue that caused cinema6.db to mutate a model's
   sub-models when updating the parent with new data
