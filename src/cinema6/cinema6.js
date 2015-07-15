@@ -163,6 +163,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
 
             /* @public */
 
+            var PRIVATE_PROPS = ['_type', '_erased', '_pending'];
             function DBModel(type, data) {
                 this._update(data);
 
@@ -223,14 +224,22 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                 pojoify: function() {
                     var pojo = fromJson(toJson(this));
 
-                    delete pojo._type;
-                    delete pojo._erased;
-                    delete pojo._pending;
+                    forEach(PRIVATE_PROPS, function(prop) {
+                        delete pojo[prop];
+                    });
 
                     return pojo;
                 },
                 _update: function(data) {
-                    var type = this._type;
+                    var model = this;
+                    // Copy the value of all private properties to an object for safe-keeping
+                    var props = PRIVATE_PROPS.reduce(function(props, prop) {
+                        if (prop in model) {
+                            props[prop] = model[prop];
+                        }
+
+                        return props;
+                    }, {});
 
                     function update(existing, data) {
                         forEach(data, function(newValue, prop) {
@@ -256,9 +265,16 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                         });
                     }
 
+                    // Update the properties of this with the properties of data, including
+                    // removing properties
                     update(this, data);
 
-                    this._type = type;
+                    // Copy back the private properties to this.
+                    forEach(PRIVATE_PROPS, function(prop) {
+                        if (prop in props) {
+                            model[prop] = props[prop];
+                        }
+                    });
 
                     return this;
                 }
