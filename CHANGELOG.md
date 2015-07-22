@@ -1,5 +1,9 @@
 # C6UI
 
+## v3.7.2 (July 15, 2015)
+* [FIX]: Fix for an issue that caused calling save() on a c6Db model to
+  send many requests to the adapter if \_update() was called in-between
+
 ## v3.7.1 (March 18, 2015)
 * [FIX]: cinema6.db: Fix for an issue that could cause a model that
   failed to save previously to not be saveable in the future

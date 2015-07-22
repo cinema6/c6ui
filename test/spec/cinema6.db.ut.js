@@ -253,6 +253,15 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                         expect(model.save()).not.toBe(promise);
                     });
 
+                    it('should only allow one adapter call to happen at a time, even if _update() is called in-between calls', function() {
+                        $rootScope.$apply(function() {
+                            promise = model.save();
+                        });
+                        model._update({ foo: 'bar' });
+
+                        expect(model.save()).toBe(promise);
+                    });
+
                     describe('if a previous save failed', function() {
                         beforeEach(function() {
                             $rootScope.$apply(function() {
@@ -350,7 +359,8 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                                         state: 'NJ'
                                     },
                                     age: 23,
-                                    _type: 'user'
+                                    _type: 'user',
+                                    _erased: false
                                 });
                             });
 
