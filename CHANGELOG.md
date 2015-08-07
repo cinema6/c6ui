@@ -1,5 +1,8 @@
 # C6UI
 
+## v3.7.3 (August 7, 2015)
+* Update VPAID swf
+
 ## v3.7.2 (July 15, 2015)
 * [FIX]: Fix for an issue that caused calling save() on a c6Db model to
   send many requests to the adapter if \_update() was called in-between

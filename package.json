@@ -1,6 +1,6 @@
 {
   "name": "c6ui",
-  "version": "3.7.2",
+  "version": "3.7.3",
   "description": "Cinema6 UI library",
   "main": "index.js",
   "devDependencies": {
