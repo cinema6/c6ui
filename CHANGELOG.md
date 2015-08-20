@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.7.4 (August 20, 2015)
 * [FIX]: Fix for an issue that caused multiple instances for an object
   to be returned if multiple calls to `cinema6.db.find()` were made
   before the adapter responded
