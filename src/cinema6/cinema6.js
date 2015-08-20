@@ -152,8 +152,8 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                     options: undefined
                 };
 
-            var adapter = null,
-                cache = $cacheFactory('cinema6.db');
+            var adapter = null;
+            var models = $cacheFactory('cinema6.db.models');
 
             function getAdapter() {
                 return adapter || (adapter = $injector.instantiate(Adapter, {
@@ -179,7 +179,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                     }
 
                     function cacheModel(model) {
-                        return cache.put(model._type + ':' + model.id, model);
+                        return models.put(model._type + ':' + model.id, model);
                     }
 
                     function cleanup() {
@@ -204,7 +204,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                     var self = this;
 
                     function uncacheModel() {
-                        return cache.remove(self._type + ':' + self.id) || null;
+                        return models.remove(self._type + ':' + self.id) || null;
                     }
 
                     this._erased = true;
@@ -280,14 +280,6 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                 }
             };
 
-            function saveToCache(type, items) {
-                angular.forEach(items, function(item) {
-                    cache.put((type + ':' + item.id), item);
-                });
-
-                return items;
-            }
-
             function setMeta(meta) {
                 return function(item) {
                     item.meta = meta;
@@ -297,27 +289,29 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
 
             function createModels(type, items) {
                 return items.map(function(item) {
-                    return (cache.get(type + ':' + item.id) || self.db.create(type))
-                        ._update(item);
+                    var cacheId = type + ':' + item.id;
+
+                    return models.put(cacheId, (models.get(cacheId) || self.db.create(type))
+                        ._update(item));
                 });
             }
 
             self.db = {
                 find: function(type, id) {
+                    var cacheId = type + ':' + id;
+
                     function fetchFromCache() {
-                        var item = cache.get(type + ':' + id);
+                        var item = models.get(cacheId);
 
                         if (!item) {
-                            return $q.reject('Cannot find ' + (type + ':' + id) + ' in cache.');
+                            return $q.reject('Cannot find ' + cacheId + ' in cache.');
                         }
 
                         return $q.when([item]);
                     }
 
                     function fetchFromAdapter() {
-                        return getAdapter().find(type, id)
-                            .then(createModels.bind(null, type))
-                            .then(saveToCache.bind(null, type));
+                        return getAdapter().find(type, id).then(createModels.bind(null, type));
                     }
 
                     function extractSingle(items) {
@@ -335,7 +329,6 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                     return getAdapter()[matcher ?
                         'findQuery' : 'findAll'].apply(getAdapter(), args)
                         .then(createModels.bind(null, type))
-                        .then(saveToCache.bind(null, type))
                         .then(setMeta(meta));
                 },
                 create: function(type, data) {
@@ -344,7 +337,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                 push: function(type, id, data) {
                     var cacheId = type + ':' + id;
 
-                    return (cache.get(cacheId) || cache.put(cacheId, new DBModel(type)))
+                    return (models.get(cacheId) || models.put(cacheId, new DBModel(type)))
                         ._update(data);
                 }
             };
