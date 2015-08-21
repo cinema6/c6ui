@@ -117,7 +117,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                     cinema6 = $injector.get('cinema6');
                 });
 
-                cache = $cacheFactory.get('cinema6.db');
+                cache = $cacheFactory.get('cinema6.db.models');
             });
 
             function assertIsDBModel(model) {
@@ -179,6 +179,36 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                         eraseSpy = jasmine.createSpy('DBModel.erase() spy');
                     });
 
+                    describe('if the model was fetched from the server', function() {
+                        beforeEach(function() {
+                            $rootScope.$apply(function() {
+                                cinema6.db.find('user', 'u-83f2abdba2a005').then(function(user) {
+                                    model = user;
+                                });
+                            });
+
+                            $rootScope.$apply(function() {
+                                adapter._deferreds.find.resolve([extend(data, { id: 'u-83f2abdba2a005' })]);
+                            });
+
+                            $rootScope.$apply(function() {
+                                model.erase();
+                            });
+
+                            $rootScope.$apply(function() {
+                                adapter._deferreds.erase.resolve(null);
+                            });
+                        });
+
+                        it('should remove the record from the cache', function() {
+                            adapter.find.calls.reset();
+                            $rootScope.$apply(function() {
+                                cinema6.db.find(model._type, model.id);
+                            });
+                            expect(adapter.find).toHaveBeenCalled();
+                        });
+                    });
+
                     describe('if the model has never been saved (has no ID)', function() {
                         beforeEach(function() {
                             $rootScope.$apply(function() {
@@ -225,7 +255,11 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                             });
 
                             it('should remove the record from the cache', function() {
-                                expect(cache.get('user:u-d83f502c99d226')).not.toBeDefined();
+                                adapter.find.calls.reset();
+                                $rootScope.$apply(function() {
+                                    cinema6.db.find(model._type, model.id);
+                                });
+                                expect(adapter.find).toHaveBeenCalled();
                             });
                         });
                     });
@@ -591,7 +625,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                         adapter._deferreds.find.resolve(result);
                     });
 
-                    expect($cacheFactory.get('cinema6.db').get('experience:e-2ff054584731c6')).toBe(findSpy.calls.mostRecent().args[0]);
+                    expect($cacheFactory.get('cinema6.db.models').get('experience:e-2ff054584731c6')).toBe(findSpy.calls.mostRecent().args[0]);
                 });
 
                 it('should consult the cache before call the adapter', function() {
@@ -600,7 +634,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                     };
 
                     adapter.find.callCount = 0;
-                    $cacheFactory.get('cinema6.db').put('experience:abc123', exp);
+                    $cacheFactory.get('cinema6.db.models').put('experience:abc123', exp);
 
                     $rootScope.$apply(function() {
                         cinema6.db.find('experience', 'abc123').then(findSpy);
@@ -608,6 +642,102 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
 
                     expect(adapter.find.callCount).toBe(0);
                     expect(findSpy).toHaveBeenCalledWith(exp);
+                });
+
+                describe('if called many times', function() {
+                    var secondFindSpy;
+
+                    beforeEach(function() {
+                        secondFindSpy = jasmine.createSpy('secondFindSpy()');
+
+                        $rootScope.$apply(function() {
+                            cinema6.db.find('experience', 'e-2ff054584731c6').then(secondFindSpy);
+                        });
+                    });
+
+                    describe('when the adapter responds', function() {
+                        beforeEach(function() {
+                            $rootScope.$apply(function() {
+                                adapter._deferreds.find.resolve(result);
+                            });
+                        });
+
+                        it('should be given the same instance', function() {
+                            expect(findSpy.calls.mostRecent().args[0]).toBe(secondFindSpy.calls.mostRecent().args[0]);
+                        });
+                    });
+
+                    describe('with a different id', function() {
+                        var secondResult;
+                        var secondDeferred;
+
+                        beforeEach(function() {
+                            secondResult = [extend(result[0], { id: 'e-3ad9259ac6a80e' })];
+                            secondDeferred = $q.defer();
+                            adapter.find.and.returnValue(secondDeferred.promise);
+
+                            $rootScope.$apply(function() {
+                                cinema6.db.find('experience', secondResult[0].id).then(secondFindSpy);
+                            });
+                        });
+
+                        describe('when the adapter responds', function() {
+                            beforeEach(function() {
+                                $rootScope.$apply(function() {
+                                    adapter._deferreds.find.resolve(result);
+                                    secondDeferred.resolve(secondResult);
+                                });
+                            });
+
+                            it('should be given a different instance', function() {
+                                expect(findSpy.calls.mostRecent().args[0]).not.toBe(secondFindSpy.calls.mostRecent().args[0]);
+                            });
+                        });
+                    });
+                });
+
+                describe('if the request is also part of a findAll()', function() {
+                    var results;
+                    var findAllSpy;
+
+                    beforeEach(function() {
+                        findAllSpy = jasmine.createSpy('findAllSpy()');
+
+                        results = [
+                            {
+                                id: 'e-1dd4c82e0c792c',
+                                type: 'minireel',
+                                user: 'u-38b61e71b25d1e'
+                            },
+                            {
+                                id: 'e-2ff054584731c6',
+                                type: 'minireel',
+                                user: 'u-38b61e71b25d1e',
+                                data: {}
+                            },
+                            {
+                                id: 'e-04464ceeded4fc',
+                                type: 'minireel',
+                                user: 'u-38b61e71b25d1e'
+                            }
+                        ];
+
+                        $rootScope.$apply(function() {
+                            cinema6.db.findAll('experience').then(findAllSpy);
+                        });
+
+                        $rootScope.$apply(function() {
+                            adapter._deferreds.find.resolve(result);
+                        });
+
+                        $rootScope.$apply(function() {
+                            adapter._deferreds.findAll.resolve(results);
+                        });
+                    });
+
+                    it('should use the same instance', function() {
+                        expect(findSpy.calls.mostRecent().args[0]).toBe(findAllSpy.calls.mostRecent().args[0][1]);
+                    });
                 });
             });
 
@@ -705,7 +835,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                     });
 
                     it('should cache all the items by type and id', function() {
-                        var cache = $cacheFactory.get('cinema6.db');
+                        var cache = $cacheFactory.get('cinema6.db.models');
 
                         $rootScope.$apply(function() {
                             adapter._deferreds.findAll.resolve(results);
@@ -713,6 +843,34 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
 
                         expect(cache.get('experience:e-2ff054584731c6')).toEqual(jasmine.objectContaining(results[0]));
                         expect(cache.get('experience:e-04464ceeded4fc')).toEqual(jasmine.objectContaining(results[1]));
+                    });
+
+                    describe('if multiple calls are in-flight', function() {
+                        var secondFindSpy;
+
+                        beforeEach(function() {
+                            secondFindSpy = jasmine.createSpy('secondFindSpy()');
+
+                            $rootScope.$apply(function() {
+                                cinema6.db.findAll('experience').then(secondFindSpy);
+                            });
+
+                            $rootScope.$apply(function() {
+                                adapter._deferreds.findAll.resolve(results);
+                            });
+                        });
+
+                        it('should return the same instances', function() {
+                            var first = findSpy.calls.mostRecent().args[0];
+                            var second = secondFindSpy.calls.mostRecent().args[0];
+
+                            expect(first).toEqual(second);
+                            first.forEach(function(firstItem, index) {
+                                var secondItem = second[index];
+
+                                expect(firstItem).toBe(secondItem);
+                            });
+                        });
                     });
                 });
 
@@ -774,7 +932,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                     });
 
                     it('should cache all the items by type and id', function() {
-                        var cache = $cacheFactory.get('cinema6.db');
+                        var cache = $cacheFactory.get('cinema6.db.models');
 
                         $rootScope.$apply(function() {
                             adapter._deferreds.findQuery.resolve(results);
