@@ -1,5 +1,8 @@
 # C6UI
 
+* [FEATURE]: Add a refresh() method to c6Db models that fetches the
+  entity and updates the cache
+
 ## v3.7.4 (August 20, 2015)
 * [FIX]: Fix for an issue that caused multiple instances for an object
   to be returned if multiple calls to `cinema6.db.find()` were made
