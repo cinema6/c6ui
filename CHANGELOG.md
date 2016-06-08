@@ -1,5 +1,6 @@
 # C6UI
 
+## v3.8.0 (June 8, 2016)
 * [FEATURE]: Add a refresh() method to c6Db models that fetches the
   entity and updates the cache
 
