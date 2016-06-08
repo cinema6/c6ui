@@ -265,6 +265,93 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                     });
                 });
 
+                describe('refresh()', function() {
+                    var success, failure;
+
+                    beforeEach(function() {
+                        success = jasmine.createSpy('success()');
+                        failure = jasmine.createSpy('failure()');
+                    });
+
+                    describe('when model has no id yet', function() {
+                        beforeEach(function() {
+                            adapter.find.calls.reset();
+
+                            $rootScope.$apply(function() {
+                                model.refresh().then(success, failure);
+                            });
+                        });
+
+                        it('should not call the adapter.find()', function() {
+                            expect(adapter.find).not.toHaveBeenCalled();
+                        });
+
+                        it('should return itself', function() {
+                            expect(success).toHaveBeenCalledWith(model);
+                        });
+                    });
+
+                    describe('when the model does have an id', function() {
+                        beforeEach(function() {
+                            adapter.find.calls.reset();
+
+                            $rootScope.$apply(function() {
+                                model.id = 'u-d83f502c99d226';
+                                model.refresh().then(success, failure);
+                            });
+                        });
+
+                        it('should call adapter.find()', function() {
+                            expect(adapter.find).toHaveBeenCalledWith(model._type, model.id);
+                        });
+
+                        describe('when the request succeeds', function() {
+                            beforeEach(function() {
+                                $rootScope.$apply(function() {
+                                    adapter._deferreds.find.resolve([{
+                                        id: 'u-d83f502c99d226',
+                                        name: 'Josh Minzner',
+                                        location: {
+                                            state: 'NJ'
+                                        },
+                                        age: 23
+                                    }]);
+                                });
+                            });
+
+                            it('should update the record with the result from the server', function() {
+                                expect(model).toEqual({
+                                    id: 'u-d83f502c99d226',
+                                    name: 'Josh Minzner',
+                                    location: {
+                                        state: 'NJ'
+                                    },
+                                    age: 23,
+                                    _type: 'user',
+                                    _erased: false
+                                });
+                            });
+
+                            it('should resolve the promise with itself', function() {
+                                expect(success).toHaveBeenCalledWith(model);
+                                expect(failure).not.toHaveBeenCalled();
+                            });
+                        });
+
+                        describe('when the request fails', function() {
+                            beforeEach(function() {
+                                $rootScope.$apply(function() {
+                                    adapter._deferreds.find.reject('BAD');
+                                });
+                            });
+
+                            it('should reject the promise', function() {
+                                expect(failure).toHaveBeenCalled();
+                            });
+                        });
+                    });
+                });
+
                 describe('save()', function() {
                     var saveSpy,
                         promise;

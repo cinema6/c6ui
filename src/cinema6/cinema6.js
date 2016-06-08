@@ -200,6 +200,17 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                             .then(cacheModel)
                             .finally(cleanup));
                 },
+                refresh: function() {
+                    var self = this;
+
+                    function update(data) {
+                        return self._update(data[0]);
+                    }
+
+                    return this.id ?
+                        getAdapter().find(this._type, this.id).then(update) :
+                        $q.when(this);
+                },
                 erase: function() {
                     var self = this;
 
