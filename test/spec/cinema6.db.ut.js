@@ -332,10 +332,6 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                                 });
                             });
 
-                            it('should cache the model', function() {
-                                expect(cache.get('user:u-d83f502c99d226')).toBe(model);
-                            });
-
                             it('should resolve the promise with itself', function() {
                                 expect(success).toHaveBeenCalledWith(model);
                                 expect(failure).not.toHaveBeenCalled();

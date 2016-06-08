@@ -207,14 +207,8 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                         return self._update(data[0]);
                     }
 
-                    function cacheModel(model) {
-                        return models.put(model._type + ':' + model.id, model);
-                    }
-
                     return this.id ?
-                        getAdapter().find(this._type, this.id)
-                            .then(update)
-                            .then(cacheModel) :
+                        getAdapter().find(this._type, this.id).then(update) :
                         $q.when(this);
                 },
                 erase: function() {
