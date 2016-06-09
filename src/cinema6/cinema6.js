@@ -163,7 +163,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
 
             /* @public */
 
-            var PRIVATE_PROPS = ['_type', '_erased', '_pending'];
+            var PRIVATE_PROPS = ['_type', '_erased', '_pending', '_error'];
             function DBModel(type, data) {
                 this._update(data);
 
@@ -186,9 +186,17 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                         delete self._pending;
                     }
 
+                    function setError(err) {
+                        self._error = err;
+
+                        return $q.reject(err);
+                    }
+
                     if (this._erased) {
                         return $q.reject('Cannot save an erased record.');
                     }
+
+                    this._error = null;
 
                     // When the update() function is called, the _pending property will be
                     // stripped from the model, allowing the next call to save() to call the
@@ -198,6 +206,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                             'update' : 'create'](this._type, this.pojoify())
                             .then(update)
                             .then(cacheModel)
+                            .catch(setError)
                             .finally(cleanup));
                 },
                 refresh: function() {
@@ -207,8 +216,18 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                         return self._update(data[0]);
                     }
 
+                    function setError(err) {
+                        self._error = err;
+
+                        return $q.reject(err);
+                    }
+
+                    this._error = null;
+
                     return this.id ?
-                        getAdapter().find(this._type, this.id).then(update) :
+                        getAdapter().find(this._type, this.id)
+                            .then(update)
+                            .catch(setError) :
                         $q.when(this);
                 },
                 erase: function() {
@@ -219,6 +238,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                     }
 
                     this._erased = true;
+                    this._error = null;
 
                     return (
                         this.id ?
@@ -228,6 +248,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                         )
                         .catch(function resetErased(error) {
                             self._erased = false;
+                            self._error = error;
 
                             return $q.reject(error);
                         });

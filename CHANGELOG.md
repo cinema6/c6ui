@@ -1,5 +1,9 @@
 # C6UI
 
+## v3.9.0 (June 9, 2016)
+* [FEATURE]: Add \_error flag to c6Db model if a save, refresh or erase
+  request fails
+
 ## v3.8.0 (June 8, 2016)
 * [FEATURE]: Add a refresh() method to c6Db models that fetches the
   entity and updates the cache
