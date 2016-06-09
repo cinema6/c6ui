@@ -200,6 +200,11 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                             });
                         });
 
+                        it('should set _erased flag to true and _error flag to null', function() {
+                            expect(model._erased).toBe(true);
+                            expect(model._error).toBe(null);
+                        });
+
                         it('should remove the record from the cache', function() {
                             adapter.find.calls.reset();
                             $rootScope.$apply(function() {
@@ -219,6 +224,11 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                         it('should resolve to null', function() {
                             expect(eraseSpy).toHaveBeenCalledWith(null);
                         });
+
+                        it('should set _erased flag to true and _error flag to null', function() {
+                            expect(model._erased).toBe(true);
+                            expect(model._error).toBe(null);
+                        });
                     });
 
                     describe('if the model has been saved (has an ID)', function() {
@@ -233,6 +243,11 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                             $rootScope.$apply(function() {
                                 model.erase().then(eraseSpy);
                             });
+                        });
+
+                        it('should set _erased flag to true and _error flag to null', function() {
+                            expect(model._erased).toBe(true);
+                            expect(model._error).toBe(null);
                         });
 
                         it('should not resolve right away', function() {
@@ -262,6 +277,17 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                                 expect(adapter.find).toHaveBeenCalled();
                             });
                         });
+
+                        describe('when the adapter reuqest fails', function() {
+                            it('should reset _erased flag to false and _error flag to true', function() {
+                                $rootScope.$apply(function() {
+                                    adapter._deferreds.erase.reject();
+                                });
+
+                                expect(model._erased).toBe(false);
+                                expect(model._error).toBe(true);
+                            });
+                        });
                     });
                 });
 
@@ -289,6 +315,10 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                         it('should return itself', function() {
                             expect(success).toHaveBeenCalledWith(model);
                         });
+
+                        it('should set the _error flag to null', function() {
+                            expect(model._error).toBe(null);
+                        });
                     });
 
                     describe('when the model does have an id', function() {
@@ -297,12 +327,17 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
 
                             $rootScope.$apply(function() {
                                 model.id = 'u-d83f502c99d226';
+                                model._error = true;
                                 model.refresh().then(success, failure);
                             });
                         });
 
                         it('should call adapter.find()', function() {
                             expect(adapter.find).toHaveBeenCalledWith(model._type, model.id);
+                        });
+
+                        it('should nullify the _error flag', function() {
+                            expect(model._error).toBe(null);
                         });
 
                         describe('when the request succeeds', function() {
@@ -328,7 +363,8 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                                     },
                                     age: 23,
                                     _type: 'user',
-                                    _erased: false
+                                    _erased: false,
+                                    _error: null
                                 });
                             });
 
@@ -347,6 +383,10 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
 
                             it('should reject the promise', function() {
                                 expect(failure).toHaveBeenCalled();
+                            });
+
+                            it('should set the _error flag to true', function() {
+                                expect(model._error).toBe(true);
                             });
                         });
                     });
@@ -381,6 +421,29 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                         model._update({ foo: 'bar' });
 
                         expect(model.save()).toBe(promise);
+                    });
+
+                    it('should nullify the _error flag', function() {
+                        model._error = true;
+
+                        $rootScope.$apply(function() {
+                            model.save();
+                        });
+
+                        expect(model._error).toBe(null);
+                    });
+
+                    describe('when the adapter call fails', function() {
+                        it('should set the _error flag to true', function() {
+                            $rootScope.$apply(function() {
+                                model.save();
+                            });
+                            $rootScope.$apply(function() {
+                                adapter._deferreds.create.reject('I FAILED!');
+                            });
+
+                            expect(model._error).toBe(true);
+                        });
                     });
 
                     describe('if a previous save failed', function() {
@@ -481,7 +544,8 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                                     },
                                     age: 23,
                                     _type: 'user',
-                                    _erased: false
+                                    _erased: false,
+                                    _error: null
                                 });
                             });
 
