@@ -187,7 +187,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                     }
 
                     function setError(err) {
-                        self._error = true;
+                        self._error = err;
 
                         return $q.reject(err);
                     }
@@ -217,7 +217,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                     }
 
                     function setError(err) {
-                        self._error = true;
+                        self._error = err;
 
                         return $q.reject(err);
                     }
@@ -248,7 +248,7 @@ function( angular , eventsEmitter     ,    postmessagePostmessage  ) {
                         )
                         .catch(function resetErased(error) {
                             self._erased = false;
-                            self._error = true;
+                            self._error = error;
 
                             return $q.reject(error);
                         });

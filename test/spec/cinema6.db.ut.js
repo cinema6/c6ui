@@ -281,11 +281,11 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                         describe('when the adapter reuqest fails', function() {
                             it('should reset _erased flag to false and _error flag to true', function() {
                                 $rootScope.$apply(function() {
-                                    adapter._deferreds.erase.reject();
+                                    adapter._deferreds.erase.reject('BAD');
                                 });
 
                                 expect(model._erased).toBe(false);
-                                expect(model._error).toBe(true);
+                                expect(model._error).toBe('BAD');
                             });
                         });
                     });
@@ -327,7 +327,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
 
                             $rootScope.$apply(function() {
                                 model.id = 'u-d83f502c99d226';
-                                model._error = true;
+                                model._error = 'BAD';
                                 model.refresh().then(success, failure);
                             });
                         });
@@ -386,7 +386,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                             });
 
                             it('should set the _error flag to true', function() {
-                                expect(model._error).toBe(true);
+                                expect(model._error).toBe('BAD');
                             });
                         });
                     });
@@ -424,7 +424,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                     });
 
                     it('should nullify the _error flag', function() {
-                        model._error = true;
+                        model._error = 'BAD';
 
                         $rootScope.$apply(function() {
                             model.save();
@@ -442,7 +442,7 @@ define(['angular', 'cinema6/cinema6'], function(angular, cinema6Cinema6) {
                                 adapter._deferreds.create.reject('I FAILED!');
                             });
 
-                            expect(model._error).toBe(true);
+                            expect(model._error).toBe('I FAILED!');
                         });
                     });
 
